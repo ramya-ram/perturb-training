@@ -23,9 +23,9 @@ public class LearningAlgorithm {
 	public double[][] robotQValues; 
 	public double[][][] jointQValues;
 	
-	protected double epsilon; // epsilon used in picking an action
-	protected double gamma; // gamma is penalty on delayed result
-	protected double alpha; // learning rate
+	//protected double epsilon; // epsilon used in picking an action
+	//protected double gamma; // gamma is penalty on delayed result
+	//protected double alpha; // learning rate
 	protected boolean communication;
 	protected int currCommunicator = 1; //human = 0, robot = 1
 	public Scanner scan = new Scanner(System.in);
@@ -41,25 +41,26 @@ public class LearningAlgorithm {
 	public int numRobotRejects = 0;
 	public int numRobotAccepts = 0;
 	
-	public static String rewardName = Main.participantDir+"Reward.csv";
-	public static String iterName = Main.participantDir+"Iter.csv";
-	public static String rewardHumanName = Main.participantDir+"RewardHuman.csv";
-	public static String iterHumanName = Main.participantDir+"IterHuman.csv";
-	public static String timeName = Main.participantDir+"Time.csv";
-	public static String socketTestOutputName = Main.participantDir+"SocketTestOutput.txt";
-	public static String robotUpdatesName = Main.participantDir+"robotUpdates.csv";
-	public static String robotSuggName = Main.participantDir+"robotSuggestions.csv";
-	public static String humanUpdatesName = Main.participantDir+"humanUpdates.csv";
-	public static String humanSuggName = Main.participantDir+"humanSuggestions.csv";
-	public static String episodeName = Main.participantDir+"Episode.csv";
+	public static String fileBase = Constants.participantDir;
+	public static String rewardName = fileBase+"Reward.csv";
+	public static String iterName = fileBase+"Iter.csv";
+	public static String rewardHumanName = fileBase+"RewardHuman.csv";
+	public static String iterHumanName = fileBase+"IterHuman.csv";
+	public static String timeName = fileBase+"Time.csv";
+	public static String socketTestOutputName = fileBase+"SocketTestOutput.txt";
+	public static String robotUpdatesName = fileBase+"robotUpdates.csv";
+	public static String robotSuggName = fileBase+"robotSuggestions.csv";
+	public static String humanUpdatesName = fileBase+"humanUpdates.csv";
+	public static String humanSuggName = fileBase+"humanSuggestions.csv";
+	public static String episodeName = fileBase+"Episode.csv";
 	
-	public static String humanAccName = Main.participantDir+"humanAccepts.csv";
-	public static String robotAccName = Main.participantDir+"robotAccepts.csv";
-	public static String humanRejName = Main.participantDir+"humanRejects.csv";
-	public static String robotRejName = Main.participantDir+"robotRejects.csv";
+	public static String humanAccName = fileBase+"humanAccepts.csv";
+	public static String robotAccName = fileBase+"robotAccepts.csv";
+	public static String humanRejName = fileBase+"humanRejects.csv";
+	public static String robotRejName = fileBase+"robotRejects.csv";
 
 	public static Timer timer;
-	public static int timeLeft = Main.MAX_TIME;
+	public static int timeLeft = Constants.MAX_TIME;
 	
 	/**
 	 * Runs one episode of the task
@@ -124,12 +125,12 @@ public class LearningAlgorithm {
 		
 		double robotQ = getRobotQValue(state, agentActions.getRobotAction());
 		double robotMaxQ = maxRobotQ(nextState);	 
-        double robotValue = (1 - alpha) * robotQ + alpha * (reward + gamma * robotMaxQ);
+        double robotValue = (1 - Constants.ALPHA) * robotQ + Constants.ALPHA * (reward + Constants.GAMMA * robotMaxQ);
         robotQValues[stateId][robotAction] = robotValue;
         
         double jointQ = getJointQValue(state, agentActions);
 		double jointMaxQ = maxJointQ(nextState);
-		double jointValue = (1 - alpha) * jointQ + alpha * (reward + gamma * jointMaxQ);
+		double jointValue = (1 - Constants.ALPHA) * jointQ + Constants.ALPHA * (reward + Constants.GAMMA * jointMaxQ);
 		jointQValues[stateId][humanAction][robotAction] = jointValue;
 	}
 	
@@ -139,11 +140,11 @@ public class LearningAlgorithm {
 	 */
 	public HumanRobotActionPair getAgentActionsSimulation(State state){
 		HumanRobotActionPair proposedJointAction = null;
-		if(Main.rand.nextDouble() < epsilon){
+		if(Tools.rand.nextDouble() < Constants.EPSILON){
 			Action[] possibleRobotActions = mdp.robotAgent.actions(state);
 			Action[] possibleHumanActions = mdp.humanAgent.actions(state); //from robot state because that's what robot sees
-	        Action robotAction = possibleRobotActions[Main.rand.nextInt(possibleRobotActions.length)];
-	        Action humanAction = possibleHumanActions[Main.rand.nextInt(possibleHumanActions.length)];
+	        Action robotAction = possibleRobotActions[Tools.rand.nextInt(possibleRobotActions.length)];
+	        Action humanAction = possibleHumanActions[Tools.rand.nextInt(possibleHumanActions.length)];
 	        proposedJointAction = new HumanRobotActionPair(humanAction, robotAction);
 		} else { // otherwise, choose the best action/the one with the highest q value
 			Pair<HumanRobotActionPair, Double> proposed = getGreedyJointAction(state);
@@ -546,7 +547,7 @@ public class LearningAlgorithm {
             	possibleRobotActions.add(robotAction); //basically equal
             }
 		}
-		return possibleRobotActions.get(Main.rand.nextInt(possibleRobotActions.size()));
+		return possibleRobotActions.get(Tools.rand.nextInt(possibleRobotActions.size()));
 	}
 	
 	/**
@@ -568,7 +569,7 @@ public class LearningAlgorithm {
 	            }
 			}
 		}
-		return new Pair<HumanRobotActionPair, Double>(possibleActions.get(Main.rand.nextInt(possibleActions.size())), maxValue);
+		return new Pair<HumanRobotActionPair, Double>(possibleActions.get(Tools.rand.nextInt(possibleActions.size())), maxValue);
 	}
 
 	/**
@@ -705,7 +706,7 @@ public class LearningAlgorithm {
 	}
 	
 	public void startTimer(){
-		timeLeft = Main.MAX_TIME;
+		timeLeft = Constants.MAX_TIME;
 	    Main.st.server.timeDisplay.setText(""+timeLeft);
 	    timer.start();
 	}
@@ -713,7 +714,7 @@ public class LearningAlgorithm {
 	public void stopTimer(){
 		Main.st.server.timeDisplay.setText("");
 		timer.stop();
-		timeLeft = Main.MAX_TIME;
+		timeLeft = Constants.MAX_TIME;
 	}
 	
 	public ActionListener timerListener() {

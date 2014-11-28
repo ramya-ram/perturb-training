@@ -16,11 +16,9 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 	public int[] numOfEpisodesChosen;
 	public PolicyLibrary library;
 	
-	public PolicyReuseLearner(MyWorld myWorld, SocketConnect connect, double gamma, double alpha, PolicyLibrary library, QValuesSet qValuesSet, double[] policyWeights){
+	public PolicyReuseLearner(MyWorld myWorld, SocketConnect connect, PolicyLibrary library, QValuesSet qValuesSet, double[] policyWeights){
 		this.connect = connect;
 		this.myWorld = myWorld;
-		this.gamma = gamma;
-		this.alpha = alpha;
 		this.library = library;
 		timer = new Timer(1000, timerListener());
 		
@@ -40,17 +38,15 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 	/**
 	 * Runs the policy reuse algorithm for the number of episodes specified
 	 */
-	public Policy policyReuse(double temp, double deltaTemp, 
-			int maxEpisodes, int maxSteps, double probPast, double decayValue, double gamma, double alpha, String label, 
-			boolean withHuman, boolean computePolicy) {
+	public Policy policyReuse(boolean withHuman, boolean computePolicy) {
 		this.mdp = MyWorld.mdp;
 		Main.currWithSimulatedHuman = withHuman;
-		if(withHuman){
-			this.epsilon = Main.HUMAN_EPSILON;
-			//Main.humanInteractionNum++;
-		} else {
-			this.epsilon = Main.SIMULATION_EPSILON;
-		}
+//		if(withHuman){
+//			this.epsilon = Main.HUMAN_EPSILON;
+//			//Main.humanInteractionNum++;
+//		} else {
+//			this.epsilon = Main.SIMULATION_EPSILON;
+//		}
 		if(myWorld.trainingSessionNum == MyWorld.PROCE_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB2_TEST_NUM)
 			currCommunicator = 1; //robot initiates
 		
@@ -64,11 +60,11 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		System.out.println("num of episodes chosen: ");
 		Tools.printArray(numOfEpisodesChosen);
 		try{
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Main.rewardPerturbName), true));
-			double currTemp = temp;
+			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbName), true));
+			double currTemp = Constants.TEMP;
 			double cumulativeReward = 0;
 			double cumulativeIter = 0;
-			for(int k=0; k<maxEpisodes; k++){
+			for(int k=0; k<Constants.NUM_EPISODES; k++){
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
 				double[] probForPolicies = getProbForPolicies(weights, currTemp);
 				int policyNum = 0;
@@ -76,7 +72,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 					System.out.println("using current policy");
 					policyNum = probForPolicies.length-1;
 				} else {
-					int randNum = Main.rand.nextInt(100);
+					int randNum = Tools.rand.nextInt(100);
 					while(randNum>probForPolicies[policyNum]){
 						policyNum++;
 						if(policyNum>=probForPolicies.length){
@@ -91,13 +87,14 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				if(isPastPolicy(library, policyNum)){
 					System.out.println("using policy num "+policyNum);
 					Policy currPolicy = library.get(policyNum);
-					Tuple<Double, Integer, Long> tuple = piReuse(currPolicy, 1, maxSteps, probPast, decayValue);
+					Tuple<Double, Integer, Long> tuple = piReuse(currPolicy, 1, Constants.NUM_STEPS_PER_EPISODE, 
+							Constants.PAST_PROB, Constants.DECAY_VALUE);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
 				} else {
 					System.out.println("using curr policy");
-					Tuple<Double, Integer, Long> tuple = runFullyGreedy(maxSteps);
+					Tuple<Double, Integer, Long> tuple = runFullyGreedy(Constants.NUM_STEPS_PER_EPISODE);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
@@ -110,7 +107,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 	           
 				weights[policyNum] = (weights[policyNum]*numOfEpisodesChosen[policyNum] + reward)/(numOfEpisodesChosen[policyNum] + 1);
 				numOfEpisodesChosen[policyNum] = numOfEpisodesChosen[policyNum] + 1;
-				currTemp = currTemp + deltaTemp;
+				currTemp = currTemp + Constants.DELTA_TEMP;
 				
 				System.out.println("weights: ");
 				Tools.printArray(weights);
@@ -146,7 +143,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 			try{
 				while(!MyWorld.isGoalState(state) && count < numSteps){
 					HumanRobotActionPair agentActions = null;
-					int randNum = Main.rand.nextInt(100);
+					int randNum = Tools.rand.nextInt(100);
 					if(randNum < currProbPast){
 						//if(withHuman && !reachedGoalState){
 						//	System.out.println("past policy action "+pastPolicy.action(state.getId()));

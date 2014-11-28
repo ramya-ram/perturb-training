@@ -65,8 +65,8 @@ public class MyWorld {
 	}
 	
 	public void calculateTestSimulationWindDryness(){
-		int randNumWind = Main.rand.nextInt(100);
-		int randNumDryness = Main.rand.nextInt(100);
+		int randNumWind = Tools.rand.nextInt(100);
+		int randNumDryness = Tools.rand.nextInt(100);
 		double sum = 0;
 		int count = 0;
 		System.out.println("testWorld wind "+testWind+" dryness "+testDryness);
@@ -199,7 +199,7 @@ public class MyWorld {
 			int[] stateOfFires = {1,1,0,3,3};
 			return new State(stateOfFires);
 		}
-		return initStates[Main.rand.nextInt(initStates.length)];	
+		return initStates[Tools.rand.nextInt(initStates.length)];	
 	}
 	
 	/**
@@ -307,7 +307,7 @@ public class MyWorld {
 			if(Main.currWithSimulatedHuman){
 				//System.out.println("wind "+wind+" dryness "+dryness);
 				if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){
-					int randNum = Main.rand.nextInt(100);
+					int randNum = Tools.rand.nextInt(100);
 					if(randNum < 90)
 						newState.stateOfFires[humanFireIndex]-=3;
 					else
@@ -316,7 +316,7 @@ public class MyWorld {
 						newState.stateOfFires[humanFireIndex] = NONE;
 				} else {
 					if(humanFireIndex >= 0){
-						int randNum1 = Main.rand.nextInt(100);
+						int randNum1 = Tools.rand.nextInt(100);
 						if(randNum1 < 90)
 							newState.stateOfFires[humanFireIndex]-=1;
 						else
@@ -326,7 +326,7 @@ public class MyWorld {
 					}
 	
 					if(robotFireIndex >= 0){
-						int randNum2 = Main.rand.nextInt(100);
+						int randNum2 = Tools.rand.nextInt(100);
 						if(randNum2 < 90)
 							newState.stateOfFires[robotFireIndex]-=1;
 						else
@@ -366,7 +366,7 @@ public class MyWorld {
 				//System.out.println("burnout percent "+highBurnoutPercent);
 				for(int i=0; i<newState.stateOfFires.length; i++){
 					if(newState.stateOfFires[i] == HIGHEST){
-						int randNum = Main.rand.nextInt(100);
+						int randNum = Tools.rand.nextInt(100);
 						if(randNum < highBurnoutPercent){
 							newState.stateOfFires[i] = BURNOUT;
 							String text = getBurnoutMessage(i);
@@ -391,7 +391,7 @@ public class MyWorld {
 						burnoutPercent = highBurnoutPercent;
 					if(burnoutPercent > 0){
 						if(checkIfValidFireLoc(i-1, newState.stateOfFires)){
-							int randNum = Main.rand.nextInt(100);
+							int randNum = Tools.rand.nextInt(100);
 							if(randNum < burnoutPercent && numSpreaded <= 4){
 								newState.stateOfFires[i-1]++;
 								numSpreaded++;
@@ -400,7 +400,7 @@ public class MyWorld {
 						}
 							
 						if(checkIfValidFireLoc(i+1, newState.stateOfFires)){
-							int randNum = Main.rand.nextInt(100);
+							int randNum = Tools.rand.nextInt(100);
 							if(randNum < burnoutPercent && numSpreaded <= 4){
 								newState.stateOfFires[i+1]++;
 								numSpreaded++;

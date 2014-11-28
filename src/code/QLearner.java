@@ -12,10 +12,8 @@ import javax.swing.Timer;
  */
 public class QLearner extends LearningAlgorithm {
 
-	public QLearner(SocketConnect connect, double gamma, double alpha, QValuesSet qValuesSet, boolean useFileName) {
+	public QLearner(SocketConnect connect, QValuesSet qValuesSet, boolean useFileName) {
 		this.connect = connect;
-		this.gamma = gamma;
-		this.alpha = alpha;
 		timer = new Timer(1000, timerListener());
 		
 		//if there are no qvalues to transfer from previous tasks, initialize the q-value table
@@ -45,16 +43,16 @@ public class QLearner extends LearningAlgorithm {
 	/**
 	 * Run QLearning for the number of episodes specified and see how accumulated reward changes over these episodes
 	 */
-	public Policy run(MyWorld myWorld, int numEpisodes, int maxSteps, String label, boolean withHuman, boolean computePolicy) {
+	public Policy run(MyWorld myWorld, boolean withHuman, boolean computePolicy) {
 		this.myWorld = myWorld;
 		this.mdp = MyWorld.mdp;
 		Main.currWithSimulatedHuman = withHuman;
-		if(withHuman){
-			this.epsilon = Main.HUMAN_EPSILON;
-			//Main.humanInteractionNum++;
-		} else {
-			this.epsilon = Main.SIMULATION_EPSILON;
-		}
+//		if(withHuman){
+//			this.epsilon = Main.HUMAN_EPSILON;
+//			//Main.humanInteractionNum++;
+//		} else {
+//			this.epsilon = Main.SIMULATION_EPSILON;
+//		}
 		if(myWorld.trainingSessionNum == MyWorld.PROCE_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB2_TEST_NUM)
 			currCommunicator = 1; //robot initiates
 		
@@ -63,9 +61,9 @@ public class QLearner extends LearningAlgorithm {
 		System.out.println("myWorld "+myWorld.trainingSessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
 		
 		try{
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Main.rewardProceName), true));
-	        for(int i = 0; i < numEpisodes; i++) {
-				Tuple<Double, Integer, Long> tuple = run(false /*egreedy*/, maxSteps);
+			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceName), true));
+	        for(int i = 0; i < Constants.NUM_EPISODES; i++) {
+				Tuple<Double, Integer, Long> tuple = run(false /*egreedy*/, Constants.NUM_STEPS_PER_EPISODE);
 	            if(Main.currWithSimulatedHuman && Main.saveToFile && (myWorld.trainingSessionNum == MyWorld.PROCE_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB2_TEST_NUM)){
 		            rewardWriter.write(""+tuple.getFirst()+", ");
 	            }

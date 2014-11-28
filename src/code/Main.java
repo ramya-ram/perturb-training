@@ -17,48 +17,15 @@ public class Main {
 	
 	//socket to send messages to SocketTest
 	public static SocketConnect connect;
-	
-	//parameters
-	public static final double SIMULATION_EPSILON = 0.1; // epsilon used in picking an action/how much should be explore
-	public static final double HUMAN_EPSILON = 0; // epsilon used in picking an action/how much should be explore
 
-	private static final double GAMMA = 1; // gamma is penalty on delayed result
-	private static final double ALPHA = 0.05; // learning rate
-	private static final double TEMP = 0.5; //temperature parameter 
-	private static final double DELTA_TEMP = 0.1; //change in temperature parameter 
-	private static final double PAST_PROB = 1; //probability of choosing a past policy 
-	private static final double DECAY_VALUE = 0.95; //decay the probability of choosing past policies
-	
-	public static int MAX_TIME = 15;
 	public static boolean predefined = false;
 	public static boolean print = false;
 	public static int NUM_AVERAGING = 20;
 	public static boolean currWithSimulatedHuman = false;
 	
-	//num of times to run
-	private static final int NUM_EPISODES = 200000;
-	public static final int NUM_EPISODES_TEST = 1000;
-	private static final int NUM_STEPS_PER_EPISODE = 20;
-	
-	//file names where results are stored
-	public static String dataDir = "C:\\ExperimentData_Dec2014\\";
-	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2.csv";
-	public static String predefinedPerturb1FileName = dataDir+"predefinedPerturb1.csv";
-	public static String predefinedPerturb0FileName = dataDir+"predefinedPerturb0.csv";
-	public static String predefinedProceFileName = dataDir+"predefinedProce.csv";
-	public static String jointQValuesFile = dataDir+"jointQValuesOffline.csv";
-	public static String robotQValuesFile = dataDir+"robotQValuesOffline.csv";
-	
-	public static String participantDir = dataDir;
-	
-	public static String simulationDir = "C:\\RSS_SimulationResults\\";
-	public static String rewardProceName = simulationDir+"proceReward_39_93_46_05Train_EntireStates_test11033_1000iter.csv";
-	public static String rewardPerturbName = simulationDir+"perturbReward_39_93_46_05Train_EntireStates_test11033_1000iter.csv";
-	
 	public static int humanInteractionNum;
 	public static boolean saveToFile;
 	public static SocketTest st;
-	public static Random rand = new Random(); 
 	
 	public static double[][][] jointQValuesOffline;
 	public static double[][] robotQValuesOffline;
@@ -83,6 +50,7 @@ public class Main {
 		MyWorld myWorldPerturb1 = new MyWorld(true, 1);
 		MyWorld myWorldPerturb2 = new MyWorld(true, 2);
 		MyWorld myWorldPerturb3 = new MyWorld(true, 3);
+		
 		MyWorld myWorld4 = new MyWorld(true, 4);
 		MyWorld myWorld5 = new MyWorld(true, 5);
 		MyWorld myWorld6 = new MyWorld(true, 6);
@@ -107,58 +75,57 @@ public class Main {
 				myWorld6.calculateTestSimulationWindDryness();
 				
 				//PROCEDURAL
-				QLearner qLearnerProce = new QLearner(connect, GAMMA, ALPHA, null, true);
+				QLearner qLearnerProce = new QLearner(connect, null, true);
 				System.out.println("Training Session 1");
-				qLearnerProce.run(myWorldProce1, NUM_EPISODES, NUM_STEPS_PER_EPISODE, "Procedural Training", 
-						false /*withHuman*/, false /*computePolicy*/);
-				qLearnerProce.run(myWorldProce1, NUM_EPISODES, NUM_STEPS_PER_EPISODE, null, false, false);
+				qLearnerProce.run(myWorldProce1, false /*withHuman*/, false /*computePolicy*/);
+				qLearnerProce.run(myWorldProce1, false, false);
 				
 				System.out.println("Training Session 2");
-				qLearnerProce.run(myWorldProce2, NUM_EPISODES, NUM_STEPS_PER_EPISODE, null, false, false);
-				qLearnerProce.run(myWorldProce2, NUM_EPISODES, NUM_STEPS_PER_EPISODE, null, false, false);
+				qLearnerProce.run(myWorldProce2, false, false);
+				qLearnerProce.run(myWorldProce2, false, false);
 				
 				System.out.println("Training Session 3");
-				qLearnerProce.run(myWorldProce3, NUM_EPISODES, NUM_STEPS_PER_EPISODE, null, false, false);
-				qLearnerProce.run(myWorldProce3, NUM_EPISODES, NUM_STEPS_PER_EPISODE, null, false, false);			
+				qLearnerProce.run(myWorldProce3, false, false);
+				qLearnerProce.run(myWorldProce3, false, false);			
 				//qLearnerProce.numOfNonZeroQValues();
 	
 				//testing session 1
-				QLearner qLearnerTest1 = new QLearner(connect, GAMMA, ALPHA, new QValuesSet(qLearnerProce.robotQValues, qLearnerProce.jointQValues), false);
-				qLearnerTest1.run(myWorld4, NUM_EPISODES_TEST, NUM_STEPS_PER_EPISODE, null, false, false);
-				qLearnerTest1.run(myWorld4, 1, NUM_STEPS_PER_EPISODE, null, true, false);
+				QLearner qLearnerTest1 = new QLearner(connect, new QValuesSet(qLearnerProce.robotQValues, qLearnerProce.jointQValues), false);
+				qLearnerTest1.run(myWorld4, false, false);
+				qLearnerTest1.run(myWorld4, true, false);
 		
 				//testing session 2
-				QLearner qLearnerTest2 = new QLearner(connect, GAMMA, ALPHA, new QValuesSet(qLearnerProce.robotQValues, qLearnerProce.jointQValues), false);
-				qLearnerTest2.run(myWorld5, NUM_EPISODES_TEST, NUM_STEPS_PER_EPISODE, null, false, false);
-				qLearnerTest2.run(myWorld5, 1, NUM_STEPS_PER_EPISODE, null, true, false);
+				QLearner qLearnerTest2 = new QLearner(connect, new QValuesSet(qLearnerProce.robotQValues, qLearnerProce.jointQValues), false);
+				qLearnerTest2.run(myWorld5, false, false);
+				qLearnerTest2.run(myWorld5, true, false);
 				
 				//testing session 3
-				QLearner qLearnerTest3 = new QLearner(connect, GAMMA, ALPHA, new QValuesSet(qLearnerProce.robotQValues, qLearnerProce.jointQValues), false);
-				qLearnerTest3.run(myWorld6, NUM_EPISODES_TEST, NUM_STEPS_PER_EPISODE, null, false, false);
-				qLearnerTest3.run(myWorld6, 1, NUM_STEPS_PER_EPISODE, null, true, false);
+				QLearner qLearnerTest3 = new QLearner(connect, new QValuesSet(qLearnerProce.robotQValues, qLearnerProce.jointQValues), false);
+				qLearnerTest3.run(myWorld6, false, false);
+				qLearnerTest3.run(myWorld6, true, false);
 				
 				//PERTURBATION
 				PolicyLibrary policyLibraryPerturbation = new PolicyLibrary();		
-				QLearner qLearnerPerturb0 = new QLearner(connect, GAMMA, ALPHA, null, true);
+				QLearner qLearnerPerturb0 = new QLearner(connect, null, true);
 				
 				System.out.println("Training Session 1");
 				//perturbation training session 1
-				qLearnerPerturb0.run(myWorldPerturb1, NUM_EPISODES, NUM_STEPS_PER_EPISODE, "Perturbation Training", false, false);
-				Policy perturb1c = qLearnerPerturb0.run(myWorldPerturb1, NUM_EPISODES, NUM_STEPS_PER_EPISODE, null, false, true);		
+				qLearnerPerturb0.run(myWorldPerturb1, false, false);
+				Policy perturb1c = qLearnerPerturb0.run(myWorldPerturb1, false, true);		
 				//qLearnerPerturb.numOfNonZeroQValues();
 				
-				QLearner qLearnerPerturb1 = new QLearner(connect, GAMMA, ALPHA, 
+				QLearner qLearnerPerturb1 = new QLearner(connect, 
 						new QValuesSet(qLearnerPerturb0.robotQValues, qLearnerPerturb0.jointQValues), false);
 				System.out.println("Training Session 2");
-				qLearnerPerturb1.run(myWorldPerturb2, NUM_EPISODES, NUM_STEPS_PER_EPISODE, null, false, false);
-				Policy perturb2c = qLearnerPerturb1.run(myWorldPerturb2, NUM_EPISODES, NUM_STEPS_PER_EPISODE, null, false, true);
+				qLearnerPerturb1.run(myWorldPerturb2, false, false);
+				Policy perturb2c = qLearnerPerturb1.run(myWorldPerturb2, false, true);
 				//qLearnerPerturb1.numOfNonZeroQValues();
 	
-				QLearner qLearnerPerturb2 = new QLearner(connect, GAMMA, ALPHA, 
+				QLearner qLearnerPerturb2 = new QLearner(connect, 
 						new QValuesSet(qLearnerPerturb0.robotQValues, qLearnerPerturb0.jointQValues), false);
 				System.out.println("Training Session 3");
-				qLearnerPerturb2.run(myWorldPerturb3, NUM_EPISODES, NUM_STEPS_PER_EPISODE, null, false, false);
-				Policy perturb3c = qLearnerPerturb2.run(myWorldPerturb3, NUM_EPISODES, NUM_STEPS_PER_EPISODE, null, false, true);	
+				qLearnerPerturb2.run(myWorldPerturb3, false, false);
+				Policy perturb3c = qLearnerPerturb2.run(myWorldPerturb3, false, true);	
 				//qLearnerPerturb2.numOfNonZeroQValues();
 	
 				policyLibraryPerturbation.add(perturb1c);
@@ -176,13 +143,11 @@ public class Main {
 				else if(maxPolicy1 == 2)
 					test1Prior = qLearnerPerturb2;
 				System.out.println("maxpolicy1 "+maxPolicy1);
-				PolicyReuseLearner reuseQLearningPerturbation = new PolicyReuseLearner(myWorld4, connect, GAMMA, ALPHA, policyLibraryPerturbation,
+				PolicyReuseLearner reuseQLearningPerturbation = new PolicyReuseLearner(myWorld4, connect, policyLibraryPerturbation,
 						new QValuesSet(test1Prior.robotQValues, test1Prior.jointQValues), priorProbs);
 				reuseQLearningPerturbation.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "before", print);
-				reuseQLearningPerturbation.policyReuse(TEMP, DELTA_TEMP, NUM_EPISODES_TEST, NUM_STEPS_PER_EPISODE, PAST_PROB, 
-						DECAY_VALUE, GAMMA, ALPHA, null, false, false);
-				reuseQLearningPerturbation.policyReuse(TEMP, DELTA_TEMP, 1, NUM_STEPS_PER_EPISODE, PAST_PROB, 
-						DECAY_VALUE, GAMMA, ALPHA, null, true, false);
+				reuseQLearningPerturbation.policyReuse(false, false);
+				reuseQLearningPerturbation.policyReuse(true, false);
 				
 				//testing session 2
 				double[] priorProbs2 = calculatePrior(trainingWorldsPerturb, myWorld5);
@@ -196,13 +161,11 @@ public class Main {
 				else if(maxPolicy2 == 2)
 					test2Prior = qLearnerPerturb2;
 				System.out.println("maxpolicy2 "+maxPolicy2);
-				PolicyReuseLearner reuseQLearningPerturbation2 = new PolicyReuseLearner(myWorld5, connect, GAMMA, ALPHA,  policyLibraryPerturbation, 
+				PolicyReuseLearner reuseQLearningPerturbation2 = new PolicyReuseLearner(myWorld5, connect, policyLibraryPerturbation, 
 						new QValuesSet(test2Prior.robotQValues, test2Prior.jointQValues), priorProbs2);
 				reuseQLearningPerturbation2.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "before", print);
-				reuseQLearningPerturbation2.policyReuse(TEMP, DELTA_TEMP, NUM_EPISODES_TEST, NUM_STEPS_PER_EPISODE, 
-						PAST_PROB, DECAY_VALUE, GAMMA, ALPHA, null, false, false);
-				reuseQLearningPerturbation2.policyReuse(TEMP, DELTA_TEMP, 1, NUM_STEPS_PER_EPISODE, 
-						PAST_PROB, DECAY_VALUE, GAMMA, ALPHA, null, true, false);
+				reuseQLearningPerturbation2.policyReuse(false, false);
+				reuseQLearningPerturbation2.policyReuse(true, false);
 	
 				//testing session 3
 				double[] priorProbs3 = calculatePrior(trainingWorldsPerturb, myWorld6);
@@ -216,16 +179,14 @@ public class Main {
 				else if(maxPolicy3 == 2)
 					test3Prior = qLearnerPerturb2;
 				System.out.println("maxpolicy3 "+maxPolicy3);
-				PolicyReuseLearner reuseQLearningPerturbation3 = new PolicyReuseLearner(myWorld6, connect, GAMMA, ALPHA,  policyLibraryPerturbation, 
+				PolicyReuseLearner reuseQLearningPerturbation3 = new PolicyReuseLearner(myWorld6, connect, policyLibraryPerturbation, 
 						new QValuesSet(test3Prior.robotQValues, test3Prior.jointQValues), priorProbs3);
 				reuseQLearningPerturbation3.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "before", print);
-				reuseQLearningPerturbation3.policyReuse(TEMP, DELTA_TEMP, NUM_EPISODES_TEST, NUM_STEPS_PER_EPISODE, 
-						PAST_PROB, DECAY_VALUE, GAMMA, ALPHA, null, false, false);
-				reuseQLearningPerturbation3.policyReuse(TEMP, DELTA_TEMP, 1, NUM_STEPS_PER_EPISODE, 
-						PAST_PROB, DECAY_VALUE, GAMMA, ALPHA, null, true, false);
+				reuseQLearningPerturbation3.policyReuse(false, false);
+				reuseQLearningPerturbation3.policyReuse(true, false);
 				
-				BufferedWriter rewardPerturbWriter = new BufferedWriter(new FileWriter(new File(Main.rewardPerturbName), true));
-				BufferedWriter rewardProceWriter = new BufferedWriter(new FileWriter(new File(Main.rewardProceName), true));
+				BufferedWriter rewardPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbName), true));
+				BufferedWriter rewardProceWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceName), true));
 				rewardPerturbWriter.write("\n");
 				rewardProceWriter.write("\n");
 				rewardPerturbWriter.close();
@@ -347,11 +308,11 @@ public class Main {
 	public static void populateOfflineQValues(){
 		try{
 			jointQValuesOffline = new double[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];//new HashMap<StateJointActionPair, Double>();
-			BufferedReader jointReader = new BufferedReader(new FileReader(new File(jointQValuesFile)));
+			BufferedReader jointReader = new BufferedReader(new FileReader(new File(Constants.jointQValuesFile)));
 			String[] jointValues = jointReader.readLine().split(",");
 			
 			robotQValuesOffline = new double[MyWorld.mdp.states.size()][Action.values().length];
-			BufferedReader robotReader = new BufferedReader(new FileReader(new File(robotQValuesFile)));
+			BufferedReader robotReader = new BufferedReader(new FileReader(new File(Constants.robotQValuesFile)));
 			String[] robotValues = robotReader.readLine().split(",");
 			
 			System.out.println("joint size "+jointValues.length);
@@ -404,19 +365,19 @@ public class Main {
 			perturb1TestCase = new String[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
 			perturb2TestCase = new String[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
 			
-			BufferedReader readerProce = new BufferedReader(new FileReader(new File(Main.predefinedProceFileName)));
+			BufferedReader readerProce = new BufferedReader(new FileReader(new File(Constants.predefinedProceFileName)));
 			String[] nextStatesProce = readerProce.readLine().split(",");
 			readerProce.close();
 			
-			BufferedReader readerPerturb0 = new BufferedReader(new FileReader(new File(Main.predefinedPerturb0FileName)));
+			BufferedReader readerPerturb0 = new BufferedReader(new FileReader(new File(Constants.predefinedPerturb0FileName)));
 			String[] nextStatesPerturb0 = readerPerturb0.readLine().split(",");
 			readerPerturb0.close();
 			
-			BufferedReader readerPerturb1 = new BufferedReader(new FileReader(new File(Main.predefinedPerturb1FileName)));
+			BufferedReader readerPerturb1 = new BufferedReader(new FileReader(new File(Constants.predefinedPerturb1FileName)));
 			String[] nextStatesPerturb1 = readerPerturb1.readLine().split(",");
 			readerPerturb1.close();
 			
-			BufferedReader readerPerturb2 = new BufferedReader(new FileReader(new File(Main.predefinedPerturb2FileName)));
+			BufferedReader readerPerturb2 = new BufferedReader(new FileReader(new File(Constants.predefinedPerturb2FileName)));
 			String[] nextStatesPerturb2 = readerPerturb2.readLine().split(",");
 			readerPerturb2.close();
 			
