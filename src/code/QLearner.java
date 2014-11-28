@@ -28,7 +28,7 @@ public class QLearner extends LearningAlgorithm {
 		}
 		//q-values learned offline are transferred
 		if(useFileName){		
-			robotQValues = new double[MyWorld.mdp.states.size()][Action.values().length];//new HashMap<StateRobotActionPair, Double>();
+			robotQValues = new double[MyWorld.mdp.states.size()][Action.values().length];
 			jointQValues = new double[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
 			for(int i=0; i<jointQValues.length; i++){
 				for(int j=0; j<jointQValues[i].length; j++){
@@ -58,15 +58,7 @@ public class QLearner extends LearningAlgorithm {
 		if(myWorld.trainingSessionNum == MyWorld.PROCE_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB2_TEST_NUM)
 			currCommunicator = 1; //robot initiates
 		
-		numRobotSuggestions = 0;
-		numRobotUpdates = 0;
-		numHumanSuggestions = 0;
-		numHumanUpdates = 0;
-		
-		numRobotAccepts = 0;
-		numRobotRejects = 0;
-		numHumanAccepts = 0;
-		numHumanRejects = 0;
+		resetCommunicationCounts();
 		
 		System.out.println("myWorld "+myWorld.trainingSessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
 		

@@ -12,6 +12,9 @@ import java.util.Random;
 import sockettest.SocketTest;
 
 public class Main {
+	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2;
+	public static int CURRENT_EXECUTION = SIMULATION;
+	
 	//socket to send messages to SocketTest
 	public static SocketConnect connect;
 	

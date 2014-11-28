@@ -152,6 +152,9 @@ public class LearningAlgorithm {
 		return proposedJointAction;
 	}
 	
+	/**
+	 * Prints out q-values of a particular state, for debugging purposes
+	 */
 	public void numOfNonZeroQValues(State state, String beforeOrAfter, boolean print){
 		if(print){
 			System.out.println(beforeOrAfter+" simulation");
@@ -661,6 +664,18 @@ public class LearningAlgorithm {
 		} catch(Exception e){
 			e.printStackTrace();
 		}*/
+	}
+	
+	public void resetCommunicationCounts(){
+		numRobotSuggestions = 0;
+		numRobotUpdates = 0;
+		numHumanSuggestions = 0;
+		numHumanUpdates = 0;
+		
+		numRobotAccepts = 0;
+		numRobotRejects = 0;
+		numHumanAccepts = 0;
+		numHumanRejects = 0;
 	}
 	
 	public static void enableNextButton() {

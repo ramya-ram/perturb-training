@@ -54,15 +54,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		if(myWorld.trainingSessionNum == MyWorld.PROCE_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB2_TEST_NUM)
 			currCommunicator = 1; //robot initiates
 		
-		numRobotSuggestions = 0;
-		numRobotUpdates = 0;
-		numHumanSuggestions = 0;
-		numHumanUpdates = 0;
-		
-		numRobotAccepts = 0;
-		numRobotRejects = 0;
-		numHumanAccepts = 0;
-		numHumanRejects = 0;
+		resetCommunicationCounts();
 		
 		System.out.println("myWorld "+myWorld.trainingSessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
 		
@@ -153,9 +145,6 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 			long startTime = System.currentTimeMillis();
 			try{
 				while(!MyWorld.isGoalState(state) && count < numSteps){
-		        	//System.out.println("visited state "+state+" id "+state.getId());//Main.stateToId.get(state.initialId));//Main.stateToId.get(state));
-					//if(myWorld.trainingSessionNum == MyWorld.PROCE_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB2_TEST_NUM)
-		        	//	System.out.println("state "+state.toStringFile());
 					HumanRobotActionPair agentActions = null;
 					int randNum = Main.rand.nextInt(100);
 					if(randNum < currProbPast){
@@ -178,10 +167,6 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 					episodeReward += reward[k][count];					
 					saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward[k][count]);
 					updateQValues(state, agentActions, nextState, reward[k][count]);
-		            
-//					if(myWorld.trainingSessionNum == MyWorld.PROCE_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB2_TEST_NUM){
-//		            	System.out.println(state.toStringFile()+": "+agentActions+" = "+reward[k][count]);
-//		            }
 					
 					currProbPast = currProbPast*decayValue;
 					state = nextState.clone();
@@ -201,13 +186,6 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 			long endTime = System.currentTimeMillis();
 			duration = endTime - startTime;
 		}
-		/*double averageGain = 0;
-		for(int k=0; k<numEpisodes; k++){
-			for(int h=0; h<numSteps; h++){
-				averageGain += Math.pow(gamma, h) * reward[k][h];
-			}
-		}
-		averageGain *= 1/((double)numEpisodes);*/
 		return new Tuple<Double, Integer, Long>(episodeReward, iterations, duration);
 	}
 	
