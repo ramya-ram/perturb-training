@@ -12,9 +12,8 @@ public class State {
 	
 	public int getId(){
 		int id = 0;
-		for(int i=0; i<stateOfFires.length; i++){
+		for(int i=0; i<stateOfFires.length; i++)
 			id += Math.pow(MyWorld.STATES_PER_FIRE, i)*stateOfFires[i];
-		}
 		return id;
 	}
 	
@@ -40,28 +39,8 @@ public class State {
 		return count;
 	}
 	
-	public int sum() {
-		int sum = 0;
-		for(int i=0; i<stateOfFires.length; i++){
-			//if(stateOfFires[i] == MyWorld.BURNOUT)
-			//	sum += 10;
-			//else
-				sum += stateOfFires[i];
-		}
-		return sum;
-	}
-	
 	public State clone(){
 		return new State(stateOfFires.clone());
-	}
-	
-	public State convertBurnoutToNone() {
-		State newState = this.clone();
-		for(int i=0; i<newState.stateOfFires.length; i++){
-			if(newState.stateOfFires[i] == MyWorld.BURNOUT)
-				newState.stateOfFires[i] = MyWorld.NONE;
-		}
-		return newState;
 	}
 	
 	public boolean anyItemInState(int stateOfItem){
@@ -70,14 +49,6 @@ public class State {
 				return true;
 		}
 		return false;
-	}
-	
-	public boolean allItemsInState(int stateOfItem){
-		for(int i=0; i<stateOfFires.length; i++){
-			if(stateOfFires[i] != stateOfItem)
-				return false;
-		}
-		return true;
 	}
 	
 	public boolean allItemsInState(int stateOfItem1, int stateOfItem2){

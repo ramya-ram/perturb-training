@@ -60,9 +60,9 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		
 		//starting policy reuse algorithm
 		System.out.println("weights: ");
-		printArray(weights);
+		Tools.printArray(weights);
 		System.out.println("num of episodes chosen: ");
-		printArray(numOfEpisodesChosen);
+		Tools.printArray(numOfEpisodesChosen);
 		try{
 			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Main.rewardPerturbName), true));
 			double currTemp = temp;
@@ -113,9 +113,9 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				currTemp = currTemp + deltaTemp;
 				
 				System.out.println("weights: ");
-				printArray(weights);
+				Tools.printArray(weights);
 				System.out.println("num of episodes chosen: ");
-				printArray(numOfEpisodesChosen);
+				Tools.printArray(numOfEpisodesChosen);
 			}
 			rewardWriter.close();
 		} catch(Exception e){
@@ -220,17 +220,5 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 	
 	public boolean isPastPolicy(PolicyLibrary library, int index) {
 		return index<library.size();
-	}
-	
-	public void printArray(double[] arr){
-		for(int i=0; i<arr.length; i++)
-			System.out.print(arr[i]+", ");
-		System.out.println();
-	}
-	
-	public void printArray(int[] arr){
-		for(int i=0; i<arr.length; i++)
-			System.out.print(arr[i]+", ");
-		System.out.println();
 	}
 }

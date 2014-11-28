@@ -21,6 +21,14 @@ public class SocketConnect {
     BufferedReader in;
     static BufferedWriter writer;
     
+    public SocketConnect(String ipaddress, int portnumber){
+    	this.ipaddress = ipaddress;
+    	this.portnumber = portnumber;
+    }
+    
+    /**
+     * Sends a message from the server to the client
+     */
     public void sendMessage(String msg) throws Exception {	
 		out.println(msg);
 		out.flush();
@@ -28,18 +36,15 @@ public class SocketConnect {
 		System.out.println("Client>" + msg);	
 	}
     
-    public String parseServerMessage(String message){
-    	int splitPos = message.indexOf(':');
-    	String parsedMessage = null;
-    	parsedMessage = message.substring(splitPos+1);
-    	return parsedMessage;
-    }
-    
+    /**
+     * Receives a message from the client
+     */
     public String getMessage() throws Exception {
     	String message = null;
     	boolean messageReceived = false;
     	try {
     		while(messageReceived == false){	
+    			//if time ran out, the human forfeits their turn
     			if(LearningAlgorithm.timeLeft == 0){
     				message = "NONE";
     				messageReceived = true;

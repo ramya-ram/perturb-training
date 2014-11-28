@@ -43,21 +43,4 @@ public class MDP {
 				statesArr[i] = (State)statesList.get(i);
 		return statesArr;
 	}
-	
-	/**
-	 * Returns an array where each element is a list of actions per agent
-	 * So the array consists of all the possible joint actions [A1,...,An] for n agents
-	 */
-	public List<HumanRobotActionPair> getAllJointActions(State state) {
-		Action[] humanActions = humanAgent.actions(state);
-		Action[] robotActions = robotAgent.actions(state);
-		
-		List<HumanRobotActionPair> jointActions = new ArrayList<HumanRobotActionPair>();
-		for(Action humanAction : humanActions){
-			for(Action robotAction : robotActions){
-				jointActions.add(new HumanRobotActionPair(humanAction, robotAction));
-			}
-		}
-		return jointActions;
-	}
 }

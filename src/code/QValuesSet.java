@@ -2,7 +2,6 @@ package code;
 
 /**
  * Used to transfer q values between sessions
- *
  */
 public class QValuesSet {
 	private double[][] robotQValues; 

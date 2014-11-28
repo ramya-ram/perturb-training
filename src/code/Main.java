@@ -41,16 +41,19 @@ public class Main {
 	private static final int NUM_STEPS_PER_EPISODE = 20;
 	
 	//file names where results are stored
-	public static String storeDataFileBase = "C:\\ComputerSimulationExperimentData\\";
-	public static String predefinedPerturb2FileName = storeDataFileBase+"predefinedPerturb2.csv";
-	public static String predefinedPerturb1FileName = storeDataFileBase+"predefinedPerturb1.csv";
-	public static String predefinedPerturb0FileName = storeDataFileBase+"predefinedPerturb0.csv";
-	public static String predefinedProceFileName = storeDataFileBase+"predefinedProce.csv";
-	public static String jointQValuesFile = storeDataFileBase+"jointQValuesOffline.csv";
-	public static String robotQValuesFile = storeDataFileBase+"robotQValuesOffline.csv";
-	public static String participantDir = "C:\\RSS_SimulationResults\\";// + "results1.csv";
-	public static String rewardProceName = Main.participantDir+"proceReward_39_93_46_05Train_EntireStates_test11033_1000iter.csv";
-	public static String rewardPerturbName = Main.participantDir+"perturbReward_39_93_46_05Train_EntireStates_test11033_1000iter.csv";
+	public static String dataDir = "C:\\ExperimentData_Dec2014\\";
+	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2.csv";
+	public static String predefinedPerturb1FileName = dataDir+"predefinedPerturb1.csv";
+	public static String predefinedPerturb0FileName = dataDir+"predefinedPerturb0.csv";
+	public static String predefinedProceFileName = dataDir+"predefinedProce.csv";
+	public static String jointQValuesFile = dataDir+"jointQValuesOffline.csv";
+	public static String robotQValuesFile = dataDir+"robotQValuesOffline.csv";
+	
+	public static String participantDir = dataDir;
+	
+	public static String simulationDir = "C:\\RSS_SimulationResults\\";
+	public static String rewardProceName = simulationDir+"proceReward_39_93_46_05Train_EntireStates_test11033_1000iter.csv";
+	public static String rewardPerturbName = simulationDir+"perturbReward_39_93_46_05Train_EntireStates_test11033_1000iter.csv";
 	
 	public static int humanInteractionNum;
 	public static boolean saveToFile;
@@ -164,7 +167,7 @@ public class Main {
 	
 				//testing session 1
 				double[] priorProbs = calculatePrior(trainingWorldsPerturb, myWorld4);
-				int maxPolicy1 = calculateMax(priorProbs);				
+				int maxPolicy1 = Tools.calculateMax(priorProbs);				
 				QLearner test1Prior = null;
 				if(maxPolicy1 == 0)
 					test1Prior = qLearnerPerturb0;
@@ -183,7 +186,7 @@ public class Main {
 				
 				//testing session 2
 				double[] priorProbs2 = calculatePrior(trainingWorldsPerturb, myWorld5);
-				int maxPolicy2 = calculateMax(priorProbs2);
+				int maxPolicy2 = Tools.calculateMax(priorProbs2);
 								
 				QLearner test2Prior = null;
 				if(maxPolicy2 == 0)
@@ -203,7 +206,7 @@ public class Main {
 	
 				//testing session 3
 				double[] priorProbs3 = calculatePrior(trainingWorldsPerturb, myWorld6);
-				int maxPolicy3 = calculateMax(priorProbs3);
+				int maxPolicy3 = Tools.calculateMax(priorProbs3);
 				
 				QLearner test3Prior = null;
 				if(maxPolicy3 == 0)
@@ -231,23 +234,6 @@ public class Main {
 		} catch(Exception e){
 			e.printStackTrace();
 		}
-		
-//		calculatePrior(trainingWorldsPerturb, myWorld4);
-//		calculatePrior(trainingWorldsPerturb, myWorld5);
-//		calculatePrior(trainingWorldsPerturb, myWorld6);
-	}
-	
-	public static int calculateMax(double[] arr){
-		double maxValue = Integer.MIN_VALUE;
-		int maxIndex = -1;
-		for(int i=0; i<arr.length; i++){
-			System.out.println(""+arr[i]);
-			if(arr[i] > maxValue){
-				maxValue = arr[i];
-				maxIndex = i;
-			}
-		}
-		return maxIndex;
 	}
 	
 	/**
