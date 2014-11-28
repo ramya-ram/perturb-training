@@ -7,7 +7,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 
-import code.Main;
+import code.Constants;
 
 import java.net.*;
 import java.io.*;
@@ -35,7 +35,7 @@ public class SocketTestServer extends JPanel /*JFrame*/ {
     private JLabel portLabel = new JLabel("Port");
     private JPanel timePanel = new JPanel(new BorderLayout());
     private JLabel timeLabel = new JLabel("Time:");
-    public JLabel timeDisplay = new JLabel(""+Main.MAX_TIME);
+    public JLabel timeDisplay = new JLabel(""+Constants.MAX_TIME);
     		//new JLabel("SocketTest v 3.0", logo,
             //JLabel.CENTER);
     private JTextField ipField = new JTextField("0.0.0.0",20);
