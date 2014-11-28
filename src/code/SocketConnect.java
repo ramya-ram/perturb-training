@@ -58,6 +58,7 @@ public class SocketConnect {
     	writer.write(message+"\n");
     	return message;
     }
+    
 	public void initializeConnection(){	
 		try{
 			MyService = new Socket(ipaddress, portnumber);

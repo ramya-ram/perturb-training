@@ -1,5 +1,8 @@
 package code;
 
+/**
+ * Stores a state and the corresponding human and robot actions
+ */
 public class StateJointActionPair {
 	private State state;
 	private HumanRobotActionPair agentActions;

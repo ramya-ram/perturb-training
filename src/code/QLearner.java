@@ -18,13 +18,15 @@ public class QLearner extends LearningAlgorithm {
 		this.alpha = alpha;
 		timer = new Timer(1000, timerListener());
 		
+		//if there are no qvalues to transfer from previous tasks, initialize the q-value table
 		if(qValuesSet == null){
 			robotQValues = new double[MyWorld.mdp.states.size()][Action.values().length];
 			jointQValues = new double[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
-		} else {
+		} else { //otherwise, transfer the previously learned q-values
 			robotQValues = qValuesSet.getRobotQValues();
 			jointQValues = qValuesSet.getJointQValues();
 		}
+		//q-values learned offline are transferred
 		if(useFileName){		
 			robotQValues = new double[MyWorld.mdp.states.size()][Action.values().length];//new HashMap<StateRobotActionPair, Double>();
 			jointQValues = new double[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];

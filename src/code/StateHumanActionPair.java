@@ -1,5 +1,8 @@
 package code;
 
+/**
+ * Stores a state and a corresponding human action
+ */
 public class StateHumanActionPair {
 	private State state;
 	private Action humanAction;

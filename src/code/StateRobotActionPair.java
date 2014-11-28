@@ -1,5 +1,8 @@
 package code;
 
+/**
+ * Stores a state and a corresponding robot action
+ */
 public class StateRobotActionPair {
 	private State state;
 	private Action robotAction;
