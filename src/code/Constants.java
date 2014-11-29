@@ -30,6 +30,24 @@ public class Constants {
 	public static String participantDir = dataDir;
 	
 	public static String simulationDir = "C:\\RSS_SimulationResults\\";
-	public static String rewardProceName = simulationDir+"proceReward_39_93_46_05Train_EntireStates_test11033_1000iter.csv";
-	public static String rewardPerturbName = simulationDir+"perturbReward_39_93_46_05Train_EntireStates_test11033_1000iter.csv";
+	public static String rewardProceName = simulationDir+"testproceReward_39_93_46_05Train_EntireStates_test11033_1000iter.csv";
+	public static String rewardPerturbName = simulationDir+"testperturbReward_39_93_46_05Train_EntireStates_test11033_1000iter.csv";
+
+	public static String fileBase = Constants.participantDir;
+	public static String rewardName = fileBase+"Reward.csv";
+	public static String iterName = fileBase+"Iter.csv";
+	public static String rewardHumanName = fileBase+"RewardHuman.csv";
+	public static String iterHumanName = fileBase+"IterHuman.csv";
+	public static String timeName = fileBase+"Time.csv";
+	public static String socketTestOutputName = fileBase+"SocketTestOutput.txt";
+	public static String robotUpdatesName = fileBase+"robotUpdates.csv";
+	public static String robotSuggName = fileBase+"robotSuggestions.csv";
+	public static String humanUpdatesName = fileBase+"humanUpdates.csv";
+	public static String humanSuggName = fileBase+"humanSuggestions.csv";
+	public static String episodeName = fileBase+"Episode.csv";
+	
+	public static String humanAccName = fileBase+"humanAccepts.csv";
+	public static String robotAccName = fileBase+"robotAccepts.csv";
+	public static String humanRejName = fileBase+"humanRejects.csv";
+	public static String robotRejName = fileBase+"robotRejects.csv";
 }

@@ -17,15 +17,10 @@ import javax.swing.Timer;
 public class LearningAlgorithm {
 	protected MyWorld myWorld = null;
 	protected MDP mdp;
-	
-	public SocketConnect connect;
-	
+	public SocketConnect connect;	
 	public double[][] robotQValues; 
 	public double[][][] jointQValues;
-	
-	//protected double epsilon; // epsilon used in picking an action
-	//protected double gamma; // gamma is penalty on delayed result
-	//protected double alpha; // learning rate
+
 	protected boolean communication;
 	protected int currCommunicator = 1; //human = 0, robot = 1
 	public Scanner scan = new Scanner(System.in);
@@ -40,24 +35,6 @@ public class LearningAlgorithm {
 	public int numHumanAccepts = 0;
 	public int numRobotRejects = 0;
 	public int numRobotAccepts = 0;
-	
-	public static String fileBase = Constants.participantDir;
-	public static String rewardName = fileBase+"Reward.csv";
-	public static String iterName = fileBase+"Iter.csv";
-	public static String rewardHumanName = fileBase+"RewardHuman.csv";
-	public static String iterHumanName = fileBase+"IterHuman.csv";
-	public static String timeName = fileBase+"Time.csv";
-	public static String socketTestOutputName = fileBase+"SocketTestOutput.txt";
-	public static String robotUpdatesName = fileBase+"robotUpdates.csv";
-	public static String robotSuggName = fileBase+"robotSuggestions.csv";
-	public static String humanUpdatesName = fileBase+"humanUpdates.csv";
-	public static String humanSuggName = fileBase+"humanSuggestions.csv";
-	public static String episodeName = fileBase+"Episode.csv";
-	
-	public static String humanAccName = fileBase+"humanAccepts.csv";
-	public static String robotAccName = fileBase+"robotAccepts.csv";
-	public static String humanRejName = fileBase+"humanRejects.csv";
-	public static String robotRejName = fileBase+"robotRejects.csv";
 
 	public static Timer timer;
 	public static int timeLeft = Constants.MAX_TIME;
@@ -612,17 +589,17 @@ public class LearningAlgorithm {
 	
 	public void saveDataToFile(double reward, int iterations, long time){
 		try{
-			BufferedWriter rewardHumanWriter = new BufferedWriter(new FileWriter(new File(rewardHumanName), true));
-			BufferedWriter iterHumanWriter = new BufferedWriter(new FileWriter(new File(iterHumanName), true));
-			BufferedWriter timeWriter = new BufferedWriter(new FileWriter(new File(timeName), true));
-			BufferedWriter robotUpdatesWriter = new BufferedWriter(new FileWriter(new File(robotUpdatesName), true));
-			BufferedWriter robotSuggWriter = new BufferedWriter(new FileWriter(new File(robotSuggName), true));
-			BufferedWriter humanUpdatesWriter = new BufferedWriter(new FileWriter(new File(humanUpdatesName), true));
-			BufferedWriter humanSuggWriter = new BufferedWriter(new FileWriter(new File(humanSuggName), true));
-			BufferedWriter robotAccWriter = new BufferedWriter(new FileWriter(new File(robotAccName), true));
-			BufferedWriter robotRejWriter = new BufferedWriter(new FileWriter(new File(robotRejName), true));
-			BufferedWriter humanAccWriter = new BufferedWriter(new FileWriter(new File(humanAccName), true));
-			BufferedWriter humanRejWriter = new BufferedWriter(new FileWriter(new File(humanRejName), true));
+			BufferedWriter rewardHumanWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHumanName), true));
+			BufferedWriter iterHumanWriter = new BufferedWriter(new FileWriter(new File(Constants.iterHumanName), true));
+			BufferedWriter timeWriter = new BufferedWriter(new FileWriter(new File(Constants.timeName), true));
+			BufferedWriter robotUpdatesWriter = new BufferedWriter(new FileWriter(new File(Constants.robotUpdatesName), true));
+			BufferedWriter robotSuggWriter = new BufferedWriter(new FileWriter(new File(Constants.robotSuggName), true));
+			BufferedWriter humanUpdatesWriter = new BufferedWriter(new FileWriter(new File(Constants.humanUpdatesName), true));
+			BufferedWriter humanSuggWriter = new BufferedWriter(new FileWriter(new File(Constants.humanSuggName), true));
+			BufferedWriter robotAccWriter = new BufferedWriter(new FileWriter(new File(Constants.robotAccName), true));
+			BufferedWriter robotRejWriter = new BufferedWriter(new FileWriter(new File(Constants.robotRejName), true));
+			BufferedWriter humanAccWriter = new BufferedWriter(new FileWriter(new File(Constants.humanAccName), true));
+			BufferedWriter humanRejWriter = new BufferedWriter(new FileWriter(new File(Constants.humanRejName), true));
 	
 	    	robotUpdatesWriter.write(numRobotUpdates+", ");
 			robotSuggWriter.write(numRobotSuggestions+", ");

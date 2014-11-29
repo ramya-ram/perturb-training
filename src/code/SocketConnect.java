@@ -72,7 +72,7 @@ public class SocketConnect {
             inStream = new InputStreamReader(
             		MyService.getInputStream());
             in = new BufferedReader(inStream);
-            writer = new BufferedWriter(new FileWriter(new File(LearningAlgorithm.socketTestOutputName)));
+            writer = new BufferedWriter(new FileWriter(new File(Constants.socketTestOutputName)));
 		}
 		catch (IOException e) {
 			System.out.println(e);
