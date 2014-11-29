@@ -20,7 +20,7 @@ public class LearningAlgorithm {
 	public double[][] robotQValues; 
 	public double[][][] jointQValues;
 
-	protected int currCommunicator = 1; //human = 0, robot = 1
+	public static int currCommunicator = Constants.ROBOT;
 	public static double THRESHOLD_SUGG = 0;
 	public static double THRESHOLD_REJECT = 4;
 	
@@ -241,12 +241,12 @@ public class LearningAlgorithm {
 				connect.sendMessage("-------------------------------------\nOh no! One or more of your buildings have burned out! All of the people have died there! "
 						+ "\n-------------------------------------\n");
 			HumanRobotActionPair actions = null;
-			if(currCommunicator == 0){
+			if(currCommunicator == Constants.HUMAN){
 				actions = humanComm(state, pastRobotAction);
-				currCommunicator = 1;
-			} else if(currCommunicator == 1){
+				currCommunicator = Constants.ROBOT;
+			} else if(currCommunicator == Constants.ROBOT){
 				actions = robotComm(state, pastRobotAction);
-				currCommunicator = 0;
+				currCommunicator = Constants.HUMAN;
 			}
 			timer.stop();
 			Main.st.server.timeDisplay.setText("");

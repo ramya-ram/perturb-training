@@ -4,7 +4,7 @@ package code;
  * Representation for a state in this MDP
  */
 public class State {
-	int[] stateOfFires;
+	public int[] stateOfFires;
 	
 	public State(int[] stateOfFires){
 		this.stateOfFires = stateOfFires.clone();

@@ -34,6 +34,8 @@ public class Constants {
 	public static int indexOfFireInAction = 7; //PUT_OUT[0,1,2,3,4] -- the fire number is at the 7th index
 	public static int NUM_VARIABLES = 2; //wind + dryness = 2
 	
+	public static int HUMAN = 0, ROBOT = 1;
+	
 	//file names where results are stored
 	public static String dataDir = "C:\\ExperimentData_Dec2014\\";
 	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2.csv";
