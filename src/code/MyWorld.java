@@ -64,35 +64,6 @@ public class MyWorld {
 		System.out.println("Wind "+testWind+" Dryness "+testDryness);
 	}
 	
-	public void calculateTestSimulationWindDryness(){
-		int randNumWind = Tools.rand.nextInt(100);
-		int randNumDryness = Tools.rand.nextInt(100);
-		double sum = 0;
-		int count = 0;
-		System.out.println("testWorld wind "+testWind+" dryness "+testDryness);
-		while(count < Main.probObsGivenWind.length){
-			sum += Main.probObsGivenWind[count][testWind]*100;
-			//System.out.println("sum wind "+sum);
-			if(randNumWind <= sum)
-				break;
-			count++;
-		}
-		simulationWind = count;
-		System.out.println("obsWind "+simulationWind);
-		
-		sum = 0;
-		count = 0;
-		while(count < Main.probObsGivenDryness.length){
-			sum += Main.probObsGivenDryness[count][testDryness]*100;
-			//System.out.println("sum dryness "+sum);
-			if(randNumDryness <= sum)
-				break;
-			count++;
-		}
-		simulationDryness = count;
-		System.out.println("obsDryness "+simulationDryness);
-	}
-	
 	public static State getStateFromFile(String str){
 		int[] statesOfFires = new int[NUM_FIRES];
 		for(int i=0; i<str.length(); i++)

@@ -18,6 +18,13 @@ public class Constants {
 	public static final int NUM_EPISODES_TEST = 1000;
 	public static final int NUM_STEPS_PER_EPISODE = 20;
 	
+	public static final int NUM_TRAINING_SESSIONS = 3;
+	public static final int NUM_TESTING_SESSIONS = 3;
+	
+	public static boolean predefined = false;
+	public static boolean print = false;
+	public static int NUM_AVERAGING = 20;
+	
 	//file names where results are stored
 	public static String dataDir = "C:\\ExperimentData_Dec2014\\";
 	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2.csv";
