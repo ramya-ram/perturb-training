@@ -18,7 +18,6 @@ public class Main {
 	public static SocketConnect connect;
 	
 	public static boolean currWithSimulatedHuman = false;
-
 	
 	public static int humanInteractionNum;
 	public static boolean saveToFile;
@@ -101,11 +100,12 @@ public class Main {
 							
 			int jointNum=0;
 			int robotNum=0;
-	        for(int i=0; i<MyWorld.STATES_PER_FIRE; i++){
-				for(int j=0; j<MyWorld.STATES_PER_FIRE; j++){
-					for(int k=0; k<MyWorld.STATES_PER_FIRE; k++){
-						for(int l=0; l<MyWorld.STATES_PER_FIRE; l++){
-							for(int m=0; m<MyWorld.STATES_PER_FIRE; m++){
+			int statesPerFire = Constants.STATES_PER_FIRE;
+	        for(int i=0; i<statesPerFire; i++){
+				for(int j=0; j<statesPerFire; j++){
+					for(int k=0; k<statesPerFire; k++){
+						for(int l=0; l<statesPerFire; l++){
+							for(int m=0; m<statesPerFire; m++){
 								int[] stateOfFires = {i,j,k,l,m};
 								State state = new State(stateOfFires);													
 								for(Action robotAction : Action.values()){
@@ -163,11 +163,12 @@ public class Main {
 			System.out.println("next states proce size "+nextStatesProce.length);
 			
 			int num=0;
-	        for(int i=0; i<MyWorld.STATES_PER_FIRE; i++){
-				for(int j=0; j<MyWorld.STATES_PER_FIRE; j++){
-					for(int k=0; k<MyWorld.STATES_PER_FIRE; k++){
-						for(int l=0; l<MyWorld.STATES_PER_FIRE; l++){
-							for(int m=0; m<MyWorld.STATES_PER_FIRE; m++){
+			int statesPerFire = Constants.STATES_PER_FIRE;
+	        for(int i=0; i<statesPerFire; i++){
+				for(int j=0; j<statesPerFire; j++){
+					for(int k=0; k<statesPerFire; k++){
+						for(int l=0; l<statesPerFire; l++){
+							for(int m=0; m<statesPerFire; m++){
 								int[] stateOfFires = {i,j,k,l,m};
 								State state = new State(stateOfFires);
 								if(MyWorld.isGoalState(state))

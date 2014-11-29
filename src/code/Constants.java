@@ -25,6 +25,15 @@ public class Constants {
 	public static boolean print = false;
 	public static int NUM_AVERAGING = 20;
 	
+	public static int STATES_PER_FIRE = 5;
+	public static int PERTURB1_TEST_NUM = 5;
+	public static int PERTURB2_TEST_NUM = 6;
+	public static int PROCE_TEST_NUM = 4;
+	public static int NUM_FIRES = 5;
+	public static int NONE = 0, HIGHEST = 3, BURNOUT = 4;
+	public static int indexOfFireInAction = 7; //PUT_OUT[0,1,2,3,4] -- the fire number is at the 7th index
+	public static int NUM_VARIABLES = 2; //wind + dryness = 2
+	
 	//file names where results are stored
 	public static String dataDir = "C:\\ExperimentData_Dec2014\\";
 	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2.csv";

@@ -8,15 +8,6 @@ public class MyWorld {
 	public static Set<State> states = new HashSet<State>();
 	public static State[] initStates;
 	
-	public static int STATES_PER_FIRE = 5;
-	public static int PERTURB1_TEST_NUM = 5;
-	public static int PERTURB2_TEST_NUM = 6;
-	public static int PROCE_TEST_NUM = 4;
-	public static int NUM_FIRES = 5;
-	public static int NONE = 0, HIGHEST = 3, BURNOUT = 4;
-	public static int indexOfFireInAction = 7;
-	public static int NUM_VARIABLES = 2;
-	
 	public int testWind = 0;
 	public int testDryness = 0;
 	public int simulationWind = 0;
@@ -34,13 +25,13 @@ public class MyWorld {
 	}
 	
 	public void setWindAndDryness(){		
-		if(trainingSessionNum == PROCE_TEST_NUM){
+		if(trainingSessionNum == Constants.PROCE_TEST_NUM){
 			testWind = 3;
 			testDryness = 9;
-		} else if(trainingSessionNum == PERTURB1_TEST_NUM){
+		} else if(trainingSessionNum == Constants.PERTURB1_TEST_NUM){
 			testWind = 9;
 			testDryness = 3;
-		} else if(trainingSessionNum == PERTURB2_TEST_NUM){
+		} else if(trainingSessionNum == Constants.PERTURB2_TEST_NUM){
 			testWind = 4;
 			testDryness = 6;
 		} 
@@ -65,7 +56,7 @@ public class MyWorld {
 	}
 	
 	public static State getStateFromFile(String str){
-		int[] statesOfFires = new int[NUM_FIRES];
+		int[] statesOfFires = new int[Constants.NUM_FIRES];
 		for(int i=0; i<str.length(); i++)
 			statesOfFires[i] = str.charAt(i)-'0';
 		return new State(statesOfFires);
@@ -89,11 +80,12 @@ public class MyWorld {
 	 * Initializes set of states
 	 */
 	public void initStates() {
-		for(int i=0; i<STATES_PER_FIRE; i++){
-			for(int j=0; j<STATES_PER_FIRE; j++){
-				for(int k=0; k<STATES_PER_FIRE; k++){
-					for(int l=0; l<STATES_PER_FIRE; l++){
-						for(int m=0; m<STATES_PER_FIRE; m++){
+		int statesPerFire = Constants.STATES_PER_FIRE;
+		for(int i=0; i<statesPerFire; i++){
+			for(int j=0; j<statesPerFire; j++){
+				for(int k=0; k<statesPerFire; k++){
+					for(int l=0; l<statesPerFire; l++){
+						for(int m=0; m<statesPerFire; m++){
 							int[] statesOfFire = {i,j,k,l,m};
 							State state = new State(statesOfFire);
 							states.add(state);
@@ -102,11 +94,11 @@ public class MyWorld {
 				}
 			}
 		}
-		int numStates = (int) Math.pow(STATES_PER_FIRE - 1, NUM_FIRES);
+		int numStates = (int) Math.pow(statesPerFire - 1, Constants.NUM_FIRES);
 		initStates = new State[numStates];
 		int count=0;
 		for(State state : states){
-			if(state.noItemsInState(BURNOUT)){
+			if(state.noItemsInState(Constants.BURNOUT)){
 				initStates[count] = state.clone();
 				count++;
 			}
@@ -127,7 +119,7 @@ public class MyWorld {
 					return possibleActions;
 				}
 				for(int i=0; i<s.stateOfFires.length; i++){
-					if(s.stateOfFires[i] > NONE && s.stateOfFires[i] < BURNOUT)
+					if(s.stateOfFires[i] > Constants.NONE && s.stateOfFires[i] < Constants.BURNOUT)
 						possibleActions.add(Action.valueOf(Action.class, "PUT_OUT"+i));
 				}
 				return possibleActions;
@@ -148,7 +140,7 @@ public class MyWorld {
 					return possibleActions;
 				}
 				for(int i=0; i<s.stateOfFires.length; i++){
-					if(s.stateOfFires[i] > NONE && s.stateOfFires[i] < BURNOUT)
+					if(s.stateOfFires[i] > Constants.NONE && s.stateOfFires[i] < Constants.BURNOUT)
 						possibleActions.add(Action.valueOf(Action.class, "PUT_OUT"+i));
 				}
 				return possibleActions;
@@ -157,7 +149,7 @@ public class MyWorld {
 	}
 	
 	public static boolean isGoalState(State state){
-		return state.allItemsInState(NONE, BURNOUT);
+		return state.allItemsInState(Constants.NONE, Constants.BURNOUT);
 	}
 	
 	public State initialState(){
@@ -179,7 +171,7 @@ public class MyWorld {
 	 */
 	public double reward(State state, HumanRobotActionPair agentActions, State nextState){		
 		if(isGoalState(nextState))
-			return -(100*nextState.getNumItemsInState(BURNOUT));
+			return -(100*nextState.getNumItemsInState(Constants.BURNOUT));
 		double reward = -10;
 		for(int i=0; i<nextState.stateOfFires.length; i++){
 			reward += -1*nextState.stateOfFires[i];
@@ -201,15 +193,15 @@ public class MyWorld {
 			//} else {
 			
 				String text = "";
-				if(trainingSessionNum == PROCE_TEST_NUM){
+				if(trainingSessionNum == Constants.PROCE_TEST_NUM){
 					String str = Main.perturb0TestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
 					if(str != null)
 						text += str;	
-				} else if(trainingSessionNum == PERTURB1_TEST_NUM){
+				} else if(trainingSessionNum == Constants.PERTURB1_TEST_NUM){
 					String str = Main.perturb1TestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
 					if(str != null)
 						text += str;	
-				} else if(trainingSessionNum == PERTURB2_TEST_NUM){
+				} else if(trainingSessionNum == Constants.PERTURB2_TEST_NUM){
 					String str = Main.perturb2TestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
 					if(str != null)
 						text += str;	 
@@ -284,7 +276,7 @@ public class MyWorld {
 					else
 						newState.stateOfFires[humanFireIndex]-=2;
 					if(newState.stateOfFires[humanFireIndex] < 0)
-						newState.stateOfFires[humanFireIndex] = NONE;
+						newState.stateOfFires[humanFireIndex] = Constants.NONE;
 				} else {
 					if(humanFireIndex >= 0){
 						int randNum1 = Tools.rand.nextInt(100);
@@ -293,7 +285,7 @@ public class MyWorld {
 						else
 							newState.stateOfFires[humanFireIndex]-=2;
 						if(newState.stateOfFires[humanFireIndex] < 0)
-							newState.stateOfFires[humanFireIndex] = NONE;
+							newState.stateOfFires[humanFireIndex] = Constants.NONE;
 					}
 	
 					if(robotFireIndex >= 0){
@@ -303,24 +295,24 @@ public class MyWorld {
 						else
 							newState.stateOfFires[robotFireIndex]-=2;
 						if(newState.stateOfFires[robotFireIndex] < 0)
-							newState.stateOfFires[robotFireIndex] = NONE;
+							newState.stateOfFires[robotFireIndex] = Constants.NONE;
 					}
 				}
 			} else {
 				if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){
 					newState.stateOfFires[humanFireIndex]-=3;
 					if(newState.stateOfFires[humanFireIndex] < 0)
-						newState.stateOfFires[humanFireIndex] = NONE;
+						newState.stateOfFires[humanFireIndex] = Constants.NONE;
 				} else {
 					if(humanFireIndex >= 0){
 						newState.stateOfFires[humanFireIndex]-=1;
 						if(newState.stateOfFires[humanFireIndex] < 0)
-							newState.stateOfFires[humanFireIndex] = NONE;
+							newState.stateOfFires[humanFireIndex] = Constants.NONE;
 					}
 					if(robotFireIndex >= 0){
 						newState.stateOfFires[robotFireIndex]-=1;
 						if(newState.stateOfFires[robotFireIndex] < 0)
-							newState.stateOfFires[robotFireIndex] = NONE;
+							newState.stateOfFires[robotFireIndex] = Constants.NONE;
 					}
 				}
 			}
@@ -336,10 +328,10 @@ public class MyWorld {
 				//	System.out.println("burnoutpercent "+highBurnoutPercent);
 				//System.out.println("burnout percent "+highBurnoutPercent);
 				for(int i=0; i<newState.stateOfFires.length; i++){
-					if(newState.stateOfFires[i] == HIGHEST){
+					if(newState.stateOfFires[i] == Constants.HIGHEST){
 						int randNum = Tools.rand.nextInt(100);
 						if(randNum < highBurnoutPercent){
-							newState.stateOfFires[i] = BURNOUT;
+							newState.stateOfFires[i] = Constants.BURNOUT;
 							String text = getBurnoutMessage(i);
 						}
 					}
@@ -354,11 +346,11 @@ public class MyWorld {
 				
 				for(int i=0; i<newState.stateOfFires.length; i++){
 					int burnoutPercent = 0;
-					if(newState.stateOfFires[i] == HIGHEST-2)
+					if(newState.stateOfFires[i] == Constants.HIGHEST-2)
 						burnoutPercent = lowBurnoutPercent;
-					else if(newState.stateOfFires[i] == HIGHEST-1)
+					else if(newState.stateOfFires[i] == Constants.HIGHEST-1)
 						burnoutPercent = mediumBurnoutPercent;
-					else if(newState.stateOfFires[i] == HIGHEST)
+					else if(newState.stateOfFires[i] == Constants.HIGHEST)
 						burnoutPercent = highBurnoutPercent;
 					if(burnoutPercent > 0){
 						if(checkIfValidFireLoc(i-1, newState.stateOfFires)){
@@ -389,7 +381,7 @@ public class MyWorld {
 	
 	public State getNextStateAfterBurnout(State state, int fire){
 		State newState = state.clone();
-		newState.stateOfFires[fire] = BURNOUT;
+		newState.stateOfFires[fire] = Constants.BURNOUT;
 		return newState;
 	}
 	
@@ -409,6 +401,6 @@ public class MyWorld {
 	}
 	
 	public boolean checkIfValidFireLoc(int index, int[] stateOfFires) {
-		return index >= 0 && index < NUM_FIRES && stateOfFires[index] < HIGHEST;
+		return index >= 0 && index < Constants.NUM_FIRES && stateOfFires[index] < Constants.HIGHEST;
 	}
 }

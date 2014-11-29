@@ -20,6 +20,9 @@ public class TaskExecution {
 		this.perturb = perturb;
 	}
 	
+	/**
+	 * Run training and testing phases
+	 */
 	public void executeTask(){
 		initPriorProbabilities();
 
@@ -27,6 +30,11 @@ public class TaskExecution {
 		runTestingPhase(trainedResult.getFirst(), trainedResult.getSecond());
 	}
 	
+	/**
+	 * Run all training sessions
+	 * Regardless of the training type, the first session runs through the base task
+	 * The second and third sessions either have perturbations or are repeated rounds of the base task
+	 */
 	public Pair<List<QLearner>, PolicyLibrary> runTrainingPhase(){
 		List<QLearner> learners = new ArrayList<QLearner>();
 		PolicyLibrary library = new PolicyLibrary();
@@ -49,7 +57,7 @@ public class TaskExecution {
 				learners.add(perturbLearner);
 			}
 		} else {
-			//procedural extra training sessions
+			//procedural extra training sessions after base session
 			for(int i=1; i<trainingWorlds.size(); i++){
 				baseQLearner.run(trainingWorlds.get(i), false, false);
 				baseQLearner.run(trainingWorlds.get(i), false, false);
@@ -59,6 +67,11 @@ public class TaskExecution {
 		return new Pair<List<QLearner>, PolicyLibrary>(learners, library);
 	}
 	
+	/**
+	 * Runs the testing phase
+	 * Procedural uses Q-learning and is initialized with Q-values learned from training
+	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
+	 */
 	public void runTestingPhase(List<QLearner> trainedLearners, PolicyLibrary library){
 		if(perturb){
 			for(MyWorld testWorld : testingWorlds){
@@ -74,7 +87,6 @@ public class TaskExecution {
 			}
 		} else {
 			//procedural testing sessions
-			//continue to use qlearning with the q-values learned from training
 			for(MyWorld testWorld : testingWorlds){
 				QLearner testQLearner = new QLearner(Main.connect, new QValuesSet(
 						trainedLearners.get(0).robotQValues, trainedLearners.get(0).jointQValues), false);
@@ -90,7 +102,7 @@ public class TaskExecution {
 	 */
 	public double[] calculatePrior(List<MyWorld> trainingWorlds, MyWorld testWorld) {
 		//testWorld.setWindAndDryness();
-		int[][] trainingRealValues = new int[trainingWorlds.size()][MyWorld.NUM_VARIABLES];
+		int[][] trainingRealValues = new int[trainingWorlds.size()][Constants.NUM_VARIABLES];
 		for(int i=0; i<trainingWorlds.size(); i++){
 			trainingRealValues[i][0] = trainingWorlds.get(i).simulationWind;
 			trainingRealValues[i][1] = trainingWorlds.get(i).simulationDryness;

@@ -13,7 +13,7 @@ public class State {
 	public int getId(){
 		int id = 0;
 		for(int i=0; i<stateOfFires.length; i++)
-			id += Math.pow(MyWorld.STATES_PER_FIRE, i)*stateOfFires[i];
+			id += Math.pow(Constants.STATES_PER_FIRE, i)*stateOfFires[i];
 		return id;
 	}
 	
@@ -98,7 +98,7 @@ public class State {
 	}
 	
 	public String getCharFromIntensity(int intensity){
-		if(intensity==MyWorld.BURNOUT)
+		if(intensity==Constants.BURNOUT)
 			return "#";
 		return intensity+"";
 			

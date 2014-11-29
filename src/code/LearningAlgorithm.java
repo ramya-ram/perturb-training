@@ -241,7 +241,7 @@ public class LearningAlgorithm {
 			connect.sendMessage("-------------------------------------");
 			connect.sendMessage("Fire Names:  A B C D E");
 			connect.sendMessage(""+state);
-			if(state.anyItemInState(MyWorld.BURNOUT))
+			if(state.anyItemInState(Constants.BURNOUT))
 				connect.sendMessage("-------------------------------------\nOh no! One or more of your buildings have burned out! All of the people have died there! "
 						+ "\n-------------------------------------\n");
 			HumanRobotActionPair actions = null;
@@ -468,7 +468,7 @@ public class LearningAlgorithm {
 		int stateScore = 0;
 		for(int i=0; i<state.stateOfFires.length; i++){
 			int num = state.stateOfFires[i];
-			if(num == MyWorld.BURNOUT)
+			if(num == Constants.BURNOUT)
 				stateScore += 0;
 			else
 				stateScore += num;

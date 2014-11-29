@@ -47,7 +47,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 //		} else {
 //			this.epsilon = Main.SIMULATION_EPSILON;
 //		}
-		if(myWorld.trainingSessionNum == MyWorld.PROCE_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB2_TEST_NUM)
+		if(myWorld.trainingSessionNum == Constants.PROCE_TEST_NUM || myWorld.trainingSessionNum == Constants.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == Constants.PERTURB2_TEST_NUM)
 			currCommunicator = 1; //robot initiates
 		
 		resetCommunicationCounts();
@@ -101,7 +101,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				}
 				cumulativeReward += reward;
 				cumulativeIter += iterations;
-				if(Main.currWithSimulatedHuman && Main.saveToFile && (myWorld.trainingSessionNum == MyWorld.PROCE_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB2_TEST_NUM)){
+				if(Main.currWithSimulatedHuman && Main.saveToFile && (myWorld.trainingSessionNum == Constants.PROCE_TEST_NUM || myWorld.trainingSessionNum == Constants.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == Constants.PERTURB2_TEST_NUM)){
 					rewardWriter.write(""+reward+", ");
 				}
 	           
