@@ -1,10 +1,12 @@
 package code;
 
 import java.util.Random;
+import java.util.Scanner;
 
 public class Tools {
 	public static Random rand = new Random(); 
-
+	public static Scanner scan = new Scanner(System.in);
+	
 	/**
 	 * Calculate index of max value in array
 	 */

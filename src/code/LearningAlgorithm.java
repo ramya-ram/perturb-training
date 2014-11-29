@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import javax.swing.Timer;
 
@@ -21,9 +20,7 @@ public class LearningAlgorithm {
 	public double[][] robotQValues; 
 	public double[][][] jointQValues;
 
-	protected boolean communication;
 	protected int currCommunicator = 1; //human = 0, robot = 1
-	public Scanner scan = new Scanner(System.in);
 	public static double THRESHOLD_SUGG = 0;
 	public static double THRESHOLD_REJECT = 4;
 	
@@ -79,7 +76,6 @@ public class LearningAlgorithm {
 					if(MyWorld.isGoalState(state)){
 						iterations = count;
 						reachedGoalState = true;
-					
 					}
 					
             	}

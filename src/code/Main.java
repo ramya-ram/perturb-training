@@ -12,14 +12,12 @@ import sockettest.SocketTest;
 
 public class Main {
 	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2;
-	public static int CURRENT_EXECUTION = SIMULATION;
+	public static int CURRENT_EXECUTION = SIMULATION_HUMAN;
 	
 	//socket to send messages to SocketTest
 	public static SocketConnect connect;
 	
 	public static boolean currWithSimulatedHuman = false;
-	
-	public static int humanInteractionNum;
 	public static boolean saveToFile;
 	public static SocketTest st;
 	
@@ -54,24 +52,40 @@ public class Main {
 				readInPredefinedTestCases();
 			
 			saveToFile = true;
-			humanInteractionNum = 0;
 			
-			for(int i=0; i<Constants.NUM_AVERAGING; i++){				
-				//PROCEDURAL
-				TaskExecution proce = new TaskExecution(trainingWorldsProce, testingWorlds, false);
-				proce.executeTask();
-				//TODO: make sure the human sessions are run for only 1 episode
-				
-				//PERTURBATION
-				TaskExecution perturb = new TaskExecution(trainingWorldsPerturb, testingWorlds, true);
-				perturb.executeTask();
-				
-				BufferedWriter rewardPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbName), true));
-				BufferedWriter rewardProceWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceName), true));
-				rewardPerturbWriter.write("\n");
-				rewardProceWriter.write("\n");
-				rewardPerturbWriter.close();
-				rewardProceWriter.close();
+			if(CURRENT_EXECUTION == SIMULATION){
+				for(int i=0; i<Constants.NUM_AVERAGING; i++){				
+					//PROCEDURAL
+					TaskExecution proce = new TaskExecution(trainingWorldsProce, testingWorlds, false);
+					proce.executeTask();
+					//TODO: make sure the human sessions are run for only 1 episode
+					
+					//PERTURBATION
+					TaskExecution perturb = new TaskExecution(trainingWorldsPerturb, testingWorlds, true);
+					perturb.executeTask();
+					
+					BufferedWriter rewardPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbName), true));
+					BufferedWriter rewardProceWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceName), true));
+					rewardPerturbWriter.write("\n");
+					rewardProceWriter.write("\n");
+					rewardPerturbWriter.close();
+					rewardProceWriter.close();
+				}
+			} else {
+				System.out.print("Please enter the participant's name: ");
+				String name = Tools.scan.next();
+				Constants.participantDir +=name+"\\";
+				System.out.print("Please enter which condition (PQ or BH or BQ): ");
+				String condition = Tools.scan.next();
+				if(condition.equalsIgnoreCase("PQ") || condition.equalsIgnoreCase("BQ")){
+					//PROCEDURAL
+					TaskExecution proce = new TaskExecution(trainingWorldsProce, testingWorlds, false);
+					proce.executeTask();
+				} else if(condition.equals("BH")){
+					//PERTURBATION
+					TaskExecution perturb = new TaskExecution(trainingWorldsPerturb, testingWorlds, true);
+					perturb.executeTask();
+				}
 			}
 		} catch(Exception e){
 			e.printStackTrace();
@@ -94,7 +108,6 @@ public class Main {
 			System.out.println("joint size "+jointValues.length);
 			System.out.println("robot size "+robotValues.length);
 
-			
 			jointReader.close();
 			robotReader.close();
 							
