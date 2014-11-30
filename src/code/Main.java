@@ -34,15 +34,15 @@ public class Main {
 		List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
 		List<MyWorld> trainingWorldsPerturb = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TRAINING_SESSIONS; i++){
-			MyWorld proceWorld = new MyWorld(false, i);
+			MyWorld proceWorld = new MyWorld(Constants.TRAINING, false, i);
 			trainingWorldsProce.add(proceWorld);
-			MyWorld perturbWorld = new MyWorld(true, i);
+			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i);
 			trainingWorldsPerturb.add(perturbWorld);
 		}
 		//construct testing worlds for both training
 		List<MyWorld> testingWorlds = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
-			MyWorld testWorld = new MyWorld(true, i+Constants.NUM_TRAINING_SESSIONS);
+			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i+Constants.NUM_TRAINING_SESSIONS);
 			testingWorlds.add(testWorld);
 		}
 		

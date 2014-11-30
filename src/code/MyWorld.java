@@ -12,44 +12,49 @@ public class MyWorld {
 	public int testDryness = 0;
 	public int simulationWind = 0;
 	public int simulationDryness = 0;
-	public int trainingSessionNum;
-	public boolean perturb;
+	public int sessionNum; //specifies which training or testing round it is
+	public boolean perturb; //specifies if this world is for perturbation or procedural training
+	public int typeOfWorld; //specifies if this world is for training or testing
 	
-	public MyWorld(boolean perturb, int trainingSessionNum){
+	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum){
+		this.typeOfWorld = typeOfWorld;
 		this.perturb = perturb;
-		this.trainingSessionNum = trainingSessionNum;
+		this.sessionNum = sessionNum;
 		if(mdp == null)
 			mdp = initializeMDP();
-		System.out.println("Initializing MDP "+trainingSessionNum);
+		System.out.println("Initializing MDP "+sessionNum);
 		setWindAndDryness();
 	}
 	
 	public void setWindAndDryness(){		
-		if(trainingSessionNum == Constants.PROCE_TEST_NUM){
-			testWind = 3;
-			testDryness = 9;
-		} else if(trainingSessionNum == Constants.PERTURB1_TEST_NUM){
-			testWind = 9;
-			testDryness = 3;
-		} else if(trainingSessionNum == Constants.PERTURB2_TEST_NUM){
-			testWind = 4;
-			testDryness = 6;
-		} 
-		else if(trainingSessionNum == 2){
-			if(perturb){
-				//testWind = 8;
-				//testDryness = 1;
-				
-				simulationWind = 5;
-				simulationDryness = 0;
-			}
-		} else if(trainingSessionNum == 3){
-			if(perturb){
-				//testWind = 1;
-				//testDryness = 8;
-				
-				simulationWind = 0;
-				simulationDryness = 5;
+		if(typeOfWorld == Constants.TESTING){
+			if(sessionNum == 1){
+				testWind = 3;
+				testDryness = 9;
+			} else if(sessionNum == 2){
+				testWind = 9;
+				testDryness = 3;
+			} else if(sessionNum == 3){
+				testWind = 4;
+				testDryness = 6;
+			} 
+		} else if(typeOfWorld == Constants.TRAINING){
+			if(sessionNum == 2){
+				if(perturb){
+					//testWind = 8;
+					//testDryness = 1;
+					
+					simulationWind = 5;
+					simulationDryness = 0;
+				}
+			} else if(sessionNum == 3){
+				if(perturb){
+					//testWind = 1;
+					//testDryness = 8;
+					
+					simulationWind = 0;
+					simulationDryness = 5;
+				}
 			}
 		}
 		System.out.println("Wind "+testWind+" Dryness "+testDryness);
@@ -153,7 +158,7 @@ public class MyWorld {
 	}
 	
 	public State initialState(){
-		/*if(trainingSessionNum == PROCE_TEST_NUM || trainingSessionNum == PERTURB1_TEST_NUM || trainingSessionNum == PERTURB2_TEST_NUM){
+		/*if(sessionNum == PROCE_TEST_NUM || sessionNum == PERTURB1_TEST_NUM || sessionNum == PERTURB2_TEST_NUM){
 			int[] stateOfFires = {1,1,0,3,3};
 			return new State(stateOfFires);
 		}*/
@@ -188,24 +193,26 @@ public class MyWorld {
 			System.out.println("USING PREDEFINED");
 			nextState = getStateFromFile(Main.proceTestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()]);
 			//Main.connect.sendMessage("-------------------------------------\nState after your actions: "+nextState.toStringSimple());
-			//if(trainingSessionNum == PROCE_TEST_NUM){
+			//if(sessionNum == PROCE_TEST_NUM){
 			//	return nextState;
 			//} else {
 			
 				String text = "";
-				if(trainingSessionNum == Constants.PROCE_TEST_NUM){
-					String str = Main.perturb0TestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
-					if(str != null)
-						text += str;	
-				} else if(trainingSessionNum == Constants.PERTURB1_TEST_NUM){
-					String str = Main.perturb1TestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
-					if(str != null)
-						text += str;	
-				} else if(trainingSessionNum == Constants.PERTURB2_TEST_NUM){
-					String str = Main.perturb2TestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
-					if(str != null)
-						text += str;	 
-				} 
+				if(typeOfWorld == Constants.TESTING){
+					if(sessionNum == 1){
+						String str = Main.perturb0TestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
+						if(str != null)
+							text += str;	
+					} else if(sessionNum == 2){
+						String str = Main.perturb1TestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
+						if(str != null)
+							text += str;	
+					} else if(sessionNum == 3){
+						String str = Main.perturb2TestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
+						if(str != null)
+							text += str;	 
+					} 
+				}
 				for(int i=0; i<text.length(); i+=3){
 					System.out.println("i "+i+" i+3 "+(i+3));
 					String str = text.substring(i, i+3);
@@ -242,7 +249,7 @@ public class MyWorld {
 			int wind = 0;
 			int dryness = 0;
 			if(Main.currWithSimulatedHuman){
-				/*if(Main.predefined && (trainingSessionNum == PROCE_TEST_NUM || trainingSessionNum == PERTURB1_TEST_NUM || trainingSessionNum == PERTURB2_TEST_NUM)){
+				/*if(Main.predefined && (sessionNum == PROCE_TEST_NUM || sessionNum == PERTURB1_TEST_NUM || sessionNum == PERTURB2_TEST_NUM)){
 					newState = getPredefinedNextState(newState, agentActions);
 					return newState;
 				}*/
@@ -264,7 +271,7 @@ public class MyWorld {
 			if(robotAction != Action.WAIT)
 				robotFireIndex = Integer.parseInt(robotAction.name().substring(7, 8));
 			
-			//(trainingSessionNum == PROCE_TEST_NUM || trainingSessionNum == PERTURB1_TEST_NUM || trainingSessionNum == PERTURB2_TEST_NUM)
+			//(sessionNum == PROCE_TEST_NUM || sessionNum == PERTURB1_TEST_NUM || sessionNum == PERTURB2_TEST_NUM)
 			//	System.out.println("test simulation wind "+wind+" dryness "+dryness);
 			
 			if(Main.currWithSimulatedHuman){
@@ -319,7 +326,7 @@ public class MyWorld {
 			
 			//State beforeStochasticity = newState.clone();
 			
-			//if(trainingSessionNum == PROCE_TEST_NUM)
+			//if(sessionNum == PROCE_TEST_NUM)
 			//	return newState;
 
 			if(dryness > 0){
