@@ -1,6 +1,10 @@
 package code;
 
+/**
+ * A class specifying all constants and data file directories
+ */
 public class Constants {
+	
 	public static final double GAMMA = 1; // gamma is penalty on delayed result
 	public static final double ALPHA = 0.05; // learning rate
 	public static final double TEMP = 0.5; //temperature parameter 

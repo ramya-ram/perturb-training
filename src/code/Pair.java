@@ -1,5 +1,8 @@
 package code;
 
+/**
+ * Represents a pair object that can be used to return two values in a method
+ */
 public class Pair<First, Second> {
 
 	private First first;

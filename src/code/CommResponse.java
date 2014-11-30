@@ -1,5 +1,9 @@
 package code;
 
+/**
+ * A communication object that contains the type of communication (suggestion, update, accept, or reject)
+ * and the appropriate human action and robot actions (suggestion will be the only comm type that has a non-null action)
+ */
 public class CommResponse {
 	public CommType commType;
 	public Action humanAction;

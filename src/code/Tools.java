@@ -3,6 +3,9 @@ package code;
 import java.util.Random;
 import java.util.Scanner;
 
+/**
+ * A Tools class that contains common methods
+ */
 public class Tools {
 	public static Random rand = new Random(); 
 	public static Scanner scan = new Scanner(System.in);

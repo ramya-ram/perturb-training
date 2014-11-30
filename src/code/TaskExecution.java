@@ -3,6 +3,10 @@ package code;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Executes the training and testing phase using the given worlds
+ * Appropriately runs procedural or perturbation depending on the boolean perturb parameter
+ */
 public class TaskExecution {
 	List<MyWorld> trainingWorlds;
 	List<MyWorld> testingWorlds;

@@ -1,5 +1,8 @@
 package code;
 
+/**
+ * Represents a tuple object that can be used to return three values in a method
+ */
 public class Tuple<First, Second, Third> {
 	private First first;
 	private Second second;

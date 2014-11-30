@@ -8,13 +8,14 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import code.*;
 
 import javax.swing.Timer;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.websocket.server.WebSocketHandler;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
+
+import code.*;
 
 public class MyServer {
     private ServerSocket regularSocket;
