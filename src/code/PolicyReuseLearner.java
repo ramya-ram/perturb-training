@@ -40,15 +40,21 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 	 */
 	public Policy policyReuse(boolean withHuman, boolean computePolicy) {
 		this.mdp = MyWorld.mdp;
-		Main.currWithSimulatedHuman = withHuman;
+		this.withHuman = withHuman;
 //		if(withHuman){
 //			this.epsilon = Main.HUMAN_EPSILON;
 //			//Main.humanInteractionNum++;
 //		} else {
 //			this.epsilon = Main.SIMULATION_EPSILON;
 //		}
+		if(withHuman && Main.CURRENT_EXECUTION == Main.SIMULATION)
+			return null;
+		
 		if(myWorld.typeOfWorld == Constants.TESTING)
-			currCommunicator = 1; //robot initiates
+			currCommunicator = Constants.ROBOT; //robot initiates
+		int numEpisodes = Constants.NUM_EPISODES;
+		if(withHuman)
+			numEpisodes = 1;
 		
 		resetCommunicationCounts();
 		
@@ -64,11 +70,11 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 			double currTemp = Constants.TEMP;
 			double cumulativeReward = 0;
 			double cumulativeIter = 0;
-			for(int k=0; k<Constants.NUM_EPISODES; k++){
+			for(int k=0; k<numEpisodes; k++){
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
 				double[] probForPolicies = getProbForPolicies(weights, currTemp);
 				int policyNum = 0;
-				if(Main.currWithSimulatedHuman){
+				if(withHuman){
 					System.out.println("using current policy");
 					policyNum = probForPolicies.length-1;
 				} else {
@@ -101,7 +107,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				}
 				cumulativeReward += reward;
 				cumulativeIter += iterations;
-				if(Main.currWithSimulatedHuman && Main.saveToFile && myWorld.typeOfWorld == Constants.TESTING){
+				if(withHuman && Main.saveToFile && myWorld.typeOfWorld == Constants.TESTING){
 					rewardWriter.write(""+reward+", ");
 				}
 	           

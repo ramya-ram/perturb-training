@@ -1,5 +1,6 @@
 package code;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +30,41 @@ public class TaskExecution {
 	 */
 	public void executeTask(){
 		initPriorProbabilities();
+		
+		if(Main.CURRENT_EXECUTION != Main.SIMULATION)
+			runPracticeSession();
 
 		Pair<List<QLearner>, PolicyLibrary> trainedResult = runTrainingPhase();
 		runTestingPhase(trainedResult.getFirst(), trainedResult.getSecond());
+	}
+	
+	public void runPracticeSession(){
+		MyWorld practiceWorld1 = new MyWorld(Constants.TRAINING, false, 0);
+		MyWorld practiceWorld2 = new MyWorld(Constants.TRAINING, false, 0);
+		
+		//practice session	
+		QLearner practice1 = new QLearner(Main.connect, null, true);
+		QLearner practice2 = new QLearner(Main.connect, null, true);
+		
+		try{
+			Main.connect.sendMessage("Hi! When the experimenter indicates you can start your experiment, please click the next button below!");
+			Main.connect.sendMessage("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			LearningAlgorithm.waitForClick();
+			
+			LearningAlgorithm.enableSend(true);
+			LearningAlgorithm.disableNext();
+			
+			Main.st.server.trainingTextPanel.setBackground(Color.WHITE);
+			Main.st.server.trainingTextLabel.setText("Practice Session 1 -- Observation: Wind = 0, Dryness = 0");
+			practice1.run(practiceWorld1, true, false);
+			
+			Constants.MAX_TIME = 10;
+			Main.st.server.trainingTextPanel.setBackground(Color.WHITE);
+			Main.st.server.trainingTextLabel.setText("Practice Session 2 -- Observation: Wind = 0, Dryness = 0");
+			practice2.run(practiceWorld2, true, false);
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -39,14 +72,16 @@ public class TaskExecution {
 	 * Regardless of the training type, the first session runs through the base task
 	 * The second and third sessions either have perturbations or are repeated rounds of the base task
 	 */
-	public Pair<List<QLearner>, PolicyLibrary> runTrainingPhase(){
+	public Pair<List<QLearner>, PolicyLibrary> runTrainingPhase(){		
 		List<QLearner> learners = new ArrayList<QLearner>();
 		PolicyLibrary library = new PolicyLibrary();
 		
 		//first training session -- same for procedural and perturbation
 		QLearner baseQLearner = new QLearner(Main.connect, null, true);
 		baseQLearner.run(trainingWorlds.get(0), false /*withHuman*/, false /*computePolicy*/);
+		baseQLearner.run(trainingWorlds.get(0), true, false);
 		baseQLearner.run(trainingWorlds.get(0), false, false);
+		baseQLearner.run(trainingWorlds.get(0), true, false);
 		//TODO: possibly get policy from training session 1 for the library
 		learners.add(baseQLearner);
 		
@@ -56,7 +91,9 @@ public class TaskExecution {
 				QLearner perturbLearner = new QLearner(Main.connect, 
 						new QValuesSet(baseQLearner.robotQValues, baseQLearner.jointQValues), false);
 				perturbLearner.run(trainingWorlds.get(i), false, false);
-				Policy policy = perturbLearner.run(trainingWorlds.get(i), false, true);
+				perturbLearner.run(trainingWorlds.get(i), true, false);
+				perturbLearner.run(trainingWorlds.get(i), false, false);
+				Policy policy = perturbLearner.run(trainingWorlds.get(i), true, true);
 				library.add(policy);
 				learners.add(perturbLearner);
 			}

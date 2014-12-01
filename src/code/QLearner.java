@@ -46,7 +46,9 @@ public class QLearner extends LearningAlgorithm {
 	public Policy run(MyWorld myWorld, boolean withHuman, boolean computePolicy) {
 		this.myWorld = myWorld;
 		this.mdp = MyWorld.mdp;
-		Main.currWithSimulatedHuman = withHuman;
+		this.withHuman = withHuman;
+		if(withHuman && Main.CURRENT_EXECUTION == Main.SIMULATION)
+			return null;
 //		if(withHuman){
 //			this.epsilon = Main.HUMAN_EPSILON;
 //			//Main.humanInteractionNum++;
@@ -54,7 +56,10 @@ public class QLearner extends LearningAlgorithm {
 //			this.epsilon = Main.SIMULATION_EPSILON;
 //		}
 		if(myWorld.typeOfWorld == Constants.TESTING)
-			currCommunicator = 1; //robot initiates
+			currCommunicator = Constants.ROBOT; //robot initiates
+		int numEpisodes = Constants.NUM_EPISODES;
+		if(withHuman)
+			numEpisodes = 1;
 		
 		resetCommunicationCounts();
 		
@@ -62,9 +67,9 @@ public class QLearner extends LearningAlgorithm {
 		
 		try{
 			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceName), true));
-	        for(int i = 0; i < Constants.NUM_EPISODES; i++) {
+	        for(int i = 0; i < numEpisodes; i++) {
 				Tuple<Double, Integer, Long> tuple = run(false /*egreedy*/, Constants.NUM_STEPS_PER_EPISODE);
-	            if(Main.currWithSimulatedHuman && Main.saveToFile && myWorld.typeOfWorld == Constants.TESTING){
+	            if(withHuman && Main.saveToFile && myWorld.typeOfWorld == Constants.TESTING){
 		            rewardWriter.write(""+tuple.getFirst()+", ");
 	            }
 	        }

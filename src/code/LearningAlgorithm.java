@@ -20,6 +20,7 @@ public class LearningAlgorithm {
 	public double[][] robotQValues; 
 	public double[][][] jointQValues;
 
+	protected boolean withHuman;
 	public static int currCommunicator = Constants.ROBOT;
 	public static double THRESHOLD_SUGG = 0;
 	public static double THRESHOLD_REJECT = 4;
@@ -51,14 +52,14 @@ public class LearningAlgorithm {
 	        	HumanRobotActionPair agentActions = null;
 	        	//if(myWorld.trainingSessionNum == MyWorld.PROCE_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB2_TEST_NUM)
 	        	//	System.out.println("state "+state.toStringFile());
-				//if(withHuman && !reachedGoalState)
-				//	agentActions = getAgentActionsCommWithHuman(state, null); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
-				//else{
+				if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION && !reachedGoalState)
+					agentActions = getAgentActionsCommWithHuman(state, null); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
+				else{
 					if(fullyGreedy)
 						agentActions = getAgentActionsFullyGreedySimulation(state); //for policy reuse, fully greedy is used
 					else
 						agentActions = getAgentActionsSimulation(state); //uses e-greedy approach (with probability epsilon, choose a random action) 
-				//}
+				}
 				
 	            State nextState = myWorld.getNextState(state, agentActions);
 	            double reward = myWorld.reward(state, agentActions, nextState);
@@ -76,8 +77,24 @@ public class LearningAlgorithm {
 					if(MyWorld.isGoalState(state)){
 						iterations = count;
 						reachedGoalState = true;
+						if(withHuman && connect != null){
+							connect.sendMessage("-------------------------------------\nCONGRATS! You and your teammate have completed this round!\n"
+									+ "-------------------------------------\nPLEASE CLICK NEXT AND THEN ANSWER QUESTIONS!"); 
+						}
 					}
-					
+					if(withHuman){
+						if(connect != null){
+							enableNextButton();
+							waitForClick();
+						}
+						if(Main.gameView != null){
+							Main.gameView.setNextEnable(true);
+							Main.gameView.waitForNextClick();
+							if(reachedGoalState){
+								Main.gameView.initTitleGUI("congrats");
+							}
+						}
+					}
             	}
 	        }
         } catch(Exception e){
@@ -234,12 +251,19 @@ public class LearningAlgorithm {
 	 */
 	public HumanRobotActionPair getAgentActionsCommWithHuman(State state, Action pastRobotAction){
 		try{
-			connect.sendMessage("-------------------------------------");
-			connect.sendMessage("Fire Names:  A B C D E");
-			connect.sendMessage(""+state);
-			if(state.anyItemInState(Constants.BURNOUT))
-				connect.sendMessage("-------------------------------------\nOh no! One or more of your buildings have burned out! All of the people have died there! "
-						+ "\n-------------------------------------\n");
+			if(connect != null){
+				connect.sendMessage("-------------------------------------");
+				connect.sendMessage("Fire Names:  A B C D E");
+				connect.sendMessage(""+state);
+			} 
+			if(Main.gameView != null){
+				Main.gameView.setAnnouncements("");
+				Main.gameView.setTeammateText("");
+				Main.gameView.updateState(state);
+			}
+			//if(state.anyItemInState(Constants.BURNOUT))
+			//	connect.sendMessage("-------------------------------------\nOh no! One or more of your buildings have burned out! All of the people have died there! "
+			//			+ "\n-------------------------------------\n");
 			HumanRobotActionPair actions = null;
 			if(currCommunicator == Constants.HUMAN){
 				actions = humanComm(state, pastRobotAction);
@@ -249,7 +273,15 @@ public class LearningAlgorithm {
 				currCommunicator = Constants.HUMAN;
 			}
 			timer.stop();
-			Main.st.server.timeDisplay.setText("");
+			if(connect != null)
+				Main.st.server.timeDisplay.setText("");
+			if(Main.gameView != null){
+				Main.gameView.setTime(-1);
+				if(actions.getRobotAction() != Action.WAIT){
+					String msg = Main.myServer.getRobotMessage(); //wait until robot completes the action
+					System.out.println("msg from robot: "+msg);
+				}
+			}
 			return actions;
 		} catch(Exception e){
 			e.printStackTrace();
@@ -461,29 +493,29 @@ public class LearningAlgorithm {
 	 * Adds wait time to simulate a human playing
 	 */
 	public void simulateWaitTime(State state) {
-		int stateScore = 0;
-		for(int i=0; i<state.stateOfFires.length; i++){
-			int num = state.stateOfFires[i];
-			if(num == Constants.BURNOUT)
-				stateScore += 0;
-			else
-				stateScore += num;
-		}
-		System.out.println("score "+stateScore);
-		try{
-			if(stateScore < 10){
-				int shortRandomTime = 6; //Main.rand.nextInt(3)+5;
-				System.out.println(shortRandomTime*1000);
-				Thread.sleep(shortRandomTime*1000);
-			} else {
-				int longRandomTime = 8; //Main.rand.nextInt(5)+8;
-				System.out.println(longRandomTime*1000);
-				Thread.sleep(longRandomTime*1000);
-			}
-			
-		} catch(Exception e){
-			e.printStackTrace();
-		}
+//		int stateScore = 0;
+//		for(int i=0; i<state.stateOfFires.length; i++){
+//			int num = state.stateOfFires[i];
+//			if(num == Constants.BURNOUT)
+//				stateScore += 0;
+//			else
+//				stateScore += num;
+//		}
+//		System.out.println("score "+stateScore);
+//		try{
+//			if(stateScore < 10){
+//				int shortRandomTime = 6; //Main.rand.nextInt(3)+5;
+//				System.out.println(shortRandomTime*1000);
+//				Thread.sleep(shortRandomTime*1000);
+//			} else {
+//				int longRandomTime = 8; //Main.rand.nextInt(5)+8;
+//				System.out.println(longRandomTime*1000);
+//				Thread.sleep(longRandomTime*1000);
+//			}
+//			
+//		} catch(Exception e){
+//			e.printStackTrace();
+//		}
 	}
 	
 	/**

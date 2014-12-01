@@ -1,5 +1,6 @@
 package code;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,6 +9,8 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import PR2_robot.GameView;
+import PR2_robot.MyServer;
 import sockettest.SocketTest;
 
 public class Main {
@@ -19,7 +22,13 @@ public class Main {
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
+	
+	//for simulation experiments with humans
 	public static SocketTest st;
+	
+	//for robot experiments with humans
+	public static GameView gameView;
+	public static MyServer myServer;
 	
 	public static double[][][] jointQValuesOffline;
 	public static double[][] robotQValuesOffline;
@@ -47,8 +56,9 @@ public class Main {
 		}
 		
 		try {
-			populateOfflineQValues();
-			if(Constants.predefined)
+			if(Constants.useOfflineValues)
+				populateOfflineQValues();
+			if(Constants.usePredefinedTestCases)
 				readInPredefinedTestCases();
 			
 			saveToFile = true;
@@ -72,19 +82,45 @@ public class Main {
 					rewardProceWriter.close();
 				}
 			} else {
-				System.out.print("Please enter the participant's name: ");
-				String name = Tools.scan.next();
-				Constants.participantDir +=name+"\\";
-				System.out.print("Please enter which condition (PQ or BH or BQ): ");
-				String condition = Tools.scan.next();
-				if(condition.equalsIgnoreCase("PQ") || condition.equalsIgnoreCase("BQ")){
+				if(CURRENT_EXECUTION == SIMULATION_HUMAN)
+					st = SocketTest.startSocketTest();
+				else if(CURRENT_EXECUTION == SIMULATION_HUMAN){
+					gameView = new GameView();
+					myServer = new MyServer();
+					myServer.initConnections();
+				}
+				
+				System.out.print("ParticipantID: ");
+				String nameParticipant = Tools.scan.next();
+				File dir = new File(Constants.participantDir+nameParticipant);
+				dir.mkdir();
+				Constants.participantDir = Constants.participantDir+nameParticipant+"\\";
+				System.out.print("TrainingType (PQ or BH or BQ): "); 
+				String trainingType = Tools.scan.next();
+				
+				if(CURRENT_EXECUTION == SIMULATION_HUMAN){
+					connect = new SocketConnect();
+					connect.initializeConnection();	
+				}
+				
+				if(trainingType.equalsIgnoreCase("PQ") || trainingType.equalsIgnoreCase("BQ")){
 					//PROCEDURAL
 					TaskExecution proce = new TaskExecution(trainingWorldsProce, testingWorlds, false);
 					proce.executeTask();
-				} else if(condition.equals("BH")){
+				} else if(trainingType.equals("BH")){
 					//PERTURBATION
 					TaskExecution perturb = new TaskExecution(trainingWorldsPerturb, testingWorlds, true);
 					perturb.executeTask();
+				}
+				
+				if(CURRENT_EXECUTION == SIMULATION_HUMAN){
+					st.server.trainingTextPanel.setBackground(Color.YELLOW);
+					st.server.trainingTextLabel.setText("Thank you! Please stay seated and quiet!");
+					connect.sendMessage("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+					connect.sendMessage("Thanks so much for participating! Please wait at your seat until the experimenter comes to assist you!\n"
+							+ "Please stay silent as other participants may still be doing their experiment.");
+					connect.sendMessage("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+					SocketConnect.writer.close();
 				}
 			}
 		} catch(Exception e){

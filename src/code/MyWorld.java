@@ -20,13 +20,18 @@ public class MyWorld {
 		this.typeOfWorld = typeOfWorld;
 		this.perturb = perturb;
 		this.sessionNum = sessionNum;
+		
+		//initialize the mdp only once
 		if(mdp == null)
 			mdp = initializeMDP();
 		System.out.println("Initializing MDP "+sessionNum);
+		
+		//set appropriate levels of wind and dryness
 		setWindAndDryness();
 	}
 	
-	public void setWindAndDryness(){		
+	public void setWindAndDryness(){
+		//setting testWind and testDryness for the testing scenarios
 		if(typeOfWorld == Constants.TESTING){
 			if(sessionNum == 1){
 				testWind = 3;
@@ -158,10 +163,6 @@ public class MyWorld {
 	}
 	
 	public State initialState(){
-		/*if(sessionNum == PROCE_TEST_NUM || sessionNum == PERTURB1_TEST_NUM || sessionNum == PERTURB2_TEST_NUM){
-			int[] stateOfFires = {1,1,0,3,3};
-			return new State(stateOfFires);
-		}*/
 		if(Main.currWithSimulatedHuman){
 			System.out.println("USING TEST STATE");
 			int[] stateOfFires = {1,1,0,3,3};
@@ -192,11 +193,12 @@ public class MyWorld {
 			State nextState = state.clone();
 			System.out.println("USING PREDEFINED");
 			nextState = getStateFromFile(Main.proceTestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()]);
-			//Main.connect.sendMessage("-------------------------------------\nState after your actions: "+nextState.toStringSimple());
-			//if(sessionNum == PROCE_TEST_NUM){
-			//	return nextState;
-			//} else {
+			if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
+				Main.connect.sendMessage("-------------------------------------\nState after your actions: "+nextState.toStringSimple());
 			
+			if(sessionNum == 1){ //base task
+				return nextState;
+			} else {		
 				String text = "";
 				if(typeOfWorld == Constants.TESTING){
 					if(sessionNum == 1){
@@ -219,16 +221,19 @@ public class MyWorld {
 					System.out.println("str "+str);
 					if(str.charAt(0) == 'B'){
 						int fire = str.charAt(1)-48;
-						Main.connect.sendMessage(getBurnoutMessage(fire));
+						if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
+							Main.connect.sendMessage(getBurnoutMessage(fire));
 						nextState = getNextStateAfterBurnout(nextState, fire);
 					} else if(str.charAt(0) == 'S'){
 						int spreadTo = str.charAt(2)-48;
-						Main.connect.sendMessage(getSpreadMessage(str.charAt(1)-48, spreadTo));
+						if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
+							Main.connect.sendMessage(getSpreadMessage(str.charAt(1)-48, spreadTo));
 						nextState = getNextStateAfterSpread(nextState, spreadTo);
 					}
 				}
-			//}
-			Main.connect.sendMessage("-------------------------------------\nFinal state: "+nextState.toStringSimple());
+			}
+			if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
+				Main.connect.sendMessage("-------------------------------------\nFinal state: "+nextState.toStringSimple());
 			return nextState;
 		} catch(Exception e){
 			e.printStackTrace();
@@ -249,10 +254,10 @@ public class MyWorld {
 			int wind = 0;
 			int dryness = 0;
 			if(Main.currWithSimulatedHuman){
-				/*if(Main.predefined && (sessionNum == PROCE_TEST_NUM || sessionNum == PERTURB1_TEST_NUM || sessionNum == PERTURB2_TEST_NUM)){
+				if(Constants.usePredefinedTestCases && typeOfWorld == Constants.TESTING){
 					newState = getPredefinedNextState(newState, agentActions);
 					return newState;
-				}*/
+				}
 				wind = testWind;
 				dryness = testDryness;
 				//System.out.println("currSimulating with human wind "+wind+" dryness "+dryness);
@@ -324,10 +329,12 @@ public class MyWorld {
 				}
 			}
 			
-			//State beforeStochasticity = newState.clone();
+			State beforeStochasticity = newState.clone();
+			if(Main.currWithSimulatedHuman && Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
+				Main.connect.sendMessage("State after your actions: "+beforeStochasticity.toStringSimple());
 			
-			//if(sessionNum == PROCE_TEST_NUM)
-			//	return newState;
+			if(typeOfWorld == Constants.TESTING && sessionNum == 1)
+				return newState;
 
 			if(dryness > 0){
 				int highBurnoutPercent = dryness*10 + 10;
@@ -340,6 +347,8 @@ public class MyWorld {
 						if(randNum < highBurnoutPercent){
 							newState.stateOfFires[i] = Constants.BURNOUT;
 							String text = getBurnoutMessage(i);
+							if(Main.currWithSimulatedHuman && Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
+								Main.connect.sendMessage(text);
 						}
 					}
 				}
@@ -366,6 +375,8 @@ public class MyWorld {
 								newState.stateOfFires[i-1]++;
 								numSpreaded++;
 								String text = getSpreadMessage(i, i-1);
+								if(Main.currWithSimulatedHuman && Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
+									Main.connect.sendMessage(text);
 							}
 						}
 							
@@ -375,6 +386,8 @@ public class MyWorld {
 								newState.stateOfFires[i+1]++;
 								numSpreaded++;
 								String text = getSpreadMessage(i, i+1);
+								if(Main.currWithSimulatedHuman && Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
+									Main.connect.sendMessage(text);
 							}
 						}
 					}

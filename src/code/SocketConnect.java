@@ -21,10 +21,10 @@ public class SocketConnect {
     BufferedReader in;
     static BufferedWriter writer;
     
-    public SocketConnect(String ipaddress, int portnumber){
+    /*public SocketConnect(){
     	this.ipaddress = ipaddress;
     	this.portnumber = portnumber;
-    }
+    }*/
     
     /**
      * Sends a message from the server to the client
