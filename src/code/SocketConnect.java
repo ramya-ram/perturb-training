@@ -21,11 +21,6 @@ public class SocketConnect {
     BufferedReader in;
     static BufferedWriter writer;
     
-    /*public SocketConnect(){
-    	this.ipaddress = ipaddress;
-    	this.portnumber = portnumber;
-    }*/
-    
     /**
      * Sends a message from the server to the client
      */

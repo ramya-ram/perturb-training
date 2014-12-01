@@ -10,20 +10,25 @@ import java.util.List;
 
 import javax.swing.Timer;
 
+import PR2_robot.MyServer;
+
 /**
  * Parent class for QLearner and PolicyReuseLearner
  */
 public class LearningAlgorithm {
 	protected MyWorld myWorld = null;
 	protected MDP mdp;
+	
 	public SocketConnect connect;	
+	public MyServer myServer;
+
 	public double[][] robotQValues; 
 	public double[][][] jointQValues;
 
 	protected boolean withHuman;
 	public static int currCommunicator = Constants.ROBOT;
 	public static double THRESHOLD_SUGG = 0;
-	public static double THRESHOLD_REJECT = 4;
+	public static double THRESHOLD_REJECT = 2;
 	
 	public int numHumanSuggestions = 0;
 	public int numHumanUpdates = 0;
@@ -198,6 +203,26 @@ public class LearningAlgorithm {
 	}
 	
 	/**
+	 * Converts an index to the corresponding letter
+	 */
+	public static String convertToFireName(int index){
+		//return (char)(index + 'A');
+		switch(index){
+			case 0:
+				return "Alpha";
+			case 1:
+				return "Bravo";
+			case 2:
+				return "Charlie";
+			case 3:
+				return "Delta";
+			case 4:
+				return "Echo";		
+		}
+		return "None";
+	}
+	
+	/**
 	 * Converts human input to an action
 	 */
 	public Action getActionFromStr(String entered, List<Action> possibleActions) {
@@ -255,6 +280,9 @@ public class LearningAlgorithm {
 				connect.sendMessage("-------------------------------------");
 				connect.sendMessage("Fire Names:  A B C D E");
 				connect.sendMessage(""+state);
+				if(state.anyItemInState(Constants.BURNOUT))
+					connect.sendMessage("-------------------------------------\nOh no! One or more of your buildings have burned down!"
+							+ "\n-------------------------------------\n");
 			} 
 			if(Main.gameView != null){
 				Main.gameView.setAnnouncements("");

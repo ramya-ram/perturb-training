@@ -31,7 +31,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 			numOfEpisodesChosen[i] = 0;
 			System.out.println("weights["+i+"] = "+weights[i]);
 		}
-		weights[library.size()] = 0;//100;
+		weights[library.size()] = 0;
 		System.out.println("weights["+library.size()+"] = "+weights[library.size()]);
 	}
 	
@@ -41,6 +41,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 	public Policy policyReuse(boolean withHuman, boolean computePolicy) {
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
+		Main.currWithSimulatedHuman = withHuman;
 //		if(withHuman){
 //			this.epsilon = Main.HUMAN_EPSILON;
 //			//Main.humanInteractionNum++;
@@ -49,7 +50,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 //		}
 		if(withHuman && Main.CURRENT_EXECUTION == Main.SIMULATION)
 			return null;
-		
+		myWorld.setWindAndDryness();
 		if(myWorld.typeOfWorld == Constants.TESTING)
 			currCommunicator = Constants.ROBOT; //robot initiates
 		int numEpisodes = Constants.NUM_EPISODES;
@@ -60,6 +61,15 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		
 		System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
 		
+		if(withHuman && Main.connect != null){
+			Main.st.server.startRound.setEnabled(true);
+			while(!Main.st.server.startClicked){
+				System.out.print("");
+			}
+			Main.st.server.startRound.setEnabled(false);
+			Main.st.server.startClicked = false;
+		}
+		
 		//starting policy reuse algorithm
 		System.out.println("weights: ");
 		Tools.printArray(weights);
@@ -68,8 +78,8 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		try{
 			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbName), true));
 			double currTemp = Constants.TEMP;
-			double cumulativeReward = 0;
-			double cumulativeIter = 0;
+			//double cumulativeReward = 0;
+			//double cumulativeIter = 0;
 			for(int k=0; k<numEpisodes; k++){
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
 				double[] probForPolicies = getProbForPolicies(weights, currTemp);
@@ -105,10 +115,19 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
 				}
-				cumulativeReward += reward;
-				cumulativeIter += iterations;
-				if(withHuman && Main.saveToFile && myWorld.typeOfWorld == Constants.TESTING){
-					rewardWriter.write(""+reward+", ");
+				//cumulativeReward += reward;
+				//cumulativeIter += iterations;
+				/*if(Main.saveToFile){
+					rewardWriter.write(""+(cumulativeReward/(k+1))+", ");
+		            iterWriter.write(""+(cumulativeIter/(k+1))+", ");
+				}*/
+				if(withHuman && Main.saveToFile){
+					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
+						saveDataToFile(reward, iterations, duration);
+					else{
+						if(myWorld.typeOfWorld == Constants.TESTING)
+							rewardWriter.write(""+reward+", ");
+					}
 				}
 	           
 				weights[policyNum] = (weights[policyNum]*numOfEpisodesChosen[policyNum] + reward)/(numOfEpisodesChosen[policyNum] + 1);
@@ -151,17 +170,17 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 					HumanRobotActionPair agentActions = null;
 					int randNum = Tools.rand.nextInt(100);
 					if(randNum < currProbPast){
-						//if(withHuman && !reachedGoalState){
+						if(withHuman && !reachedGoalState && Main.CURRENT_EXECUTION != Main.SIMULATION){
 						//	System.out.println("past policy action "+pastPolicy.action(state.getId()));
-		        		//	agentActions = getAgentActionsCommWithHuman(state, pastPolicy.action(state.getId()).getRobotAction());
-						//}
-		        		//else
+		        			agentActions = getAgentActionsCommWithHuman(state, pastPolicy.action(state.getId()).getRobotAction());
+						}
+		        		else
 		        			agentActions = pastPolicy.action(state.getId());
 					} 
 					if(randNum >= currProbPast || agentActions == null){
-		        		//if(withHuman && !reachedGoalState)
-		        		//	agentActions = getAgentActionsCommWithHuman(state, null);
-		        		//else
+		        		if(withHuman && !reachedGoalState && Main.CURRENT_EXECUTION != Main.SIMULATION)
+		        			agentActions = getAgentActionsCommWithHuman(state, null);
+		        		else
 		        			agentActions = getAgentActionsSimulation(state);
 					}  
 					
@@ -179,8 +198,25 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 						if(MyWorld.isGoalState(state)){
 							iterations = count;
 							reachedGoalState = true;
-						}		
-					}
+							if(withHuman && connect != null){
+								connect.sendMessage("-------------------------------------\nCONGRATS! You and your teammate have completed this round!\n"
+										+ "-------------------------------------\nPLEASE CLICK NEXT AND THEN ANSWER QUESTIONS!"); 
+							}
+						}
+						if(withHuman){
+							if(connect != null){
+								enableNextButton();
+								waitForClick();
+							}
+							if(Main.gameView != null){
+								Main.gameView.setNextEnable(true);
+								Main.gameView.waitForNextClick();
+								if(reachedGoalState){
+									Main.gameView.initTitleGUI("congrats");
+								}
+							}
+						}
+	            	}
 				}
 			} catch(Exception e){
 				e.printStackTrace();

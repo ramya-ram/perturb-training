@@ -51,7 +51,7 @@ public class Main {
 		//construct testing worlds for both training
 		List<MyWorld> testingWorlds = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
-			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i+Constants.NUM_TRAINING_SESSIONS);
+			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i);
 			testingWorlds.add(testWorld);
 		}
 		

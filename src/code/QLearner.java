@@ -47,8 +47,10 @@ public class QLearner extends LearningAlgorithm {
 		this.myWorld = myWorld;
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
+		Main.currWithSimulatedHuman = withHuman;
 		if(withHuman && Main.CURRENT_EXECUTION == Main.SIMULATION)
 			return null;
+		myWorld.setWindAndDryness();
 //		if(withHuman){
 //			this.epsilon = Main.HUMAN_EPSILON;
 //			//Main.humanInteractionNum++;
@@ -65,13 +67,28 @@ public class QLearner extends LearningAlgorithm {
 		
 		System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
 		
+		if(withHuman && Main.connect != null){
+			Main.st.server.startRound.setEnabled(true);
+			while(!Main.st.server.startClicked){
+				System.out.print("");
+			}
+			Main.st.server.startRound.setEnabled(false);
+			Main.st.server.startClicked = false;
+		}
+		
 		try{
 			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceName), true));
 	        for(int i = 0; i < numEpisodes; i++) {
 				Tuple<Double, Integer, Long> tuple = run(false /*egreedy*/, Constants.NUM_STEPS_PER_EPISODE);
-	            if(withHuman && Main.saveToFile && myWorld.typeOfWorld == Constants.TESTING){
-		            rewardWriter.write(""+tuple.getFirst()+", ");
-	            }
+	            
+	            if(withHuman && Main.saveToFile){
+					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
+						saveDataToFile(tuple.getFirst(), tuple.getSecond(), tuple.getThird());
+					else{
+						if(myWorld.typeOfWorld == Constants.TESTING)
+							rewardWriter.write(""+tuple.getFirst()+", ");
+					}
+				}
 	        }
 	        rewardWriter.close();
 		} catch(Exception e){

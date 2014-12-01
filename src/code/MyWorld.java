@@ -330,7 +330,7 @@ public class MyWorld {
 			}
 			
 			State beforeStochasticity = newState.clone();
-			if(Main.currWithSimulatedHuman && Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
+			if(Main.currWithSimulatedHuman && Main.connect != null)
 				Main.connect.sendMessage("State after your actions: "+beforeStochasticity.toStringSimple());
 			
 			if(typeOfWorld == Constants.TESTING && sessionNum == 1)
@@ -347,7 +347,7 @@ public class MyWorld {
 						if(randNum < highBurnoutPercent){
 							newState.stateOfFires[i] = Constants.BURNOUT;
 							String text = getBurnoutMessage(i);
-							if(Main.currWithSimulatedHuman && Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
+							if(Main.currWithSimulatedHuman && Main.connect != null)
 								Main.connect.sendMessage(text);
 						}
 					}
@@ -375,7 +375,7 @@ public class MyWorld {
 								newState.stateOfFires[i-1]++;
 								numSpreaded++;
 								String text = getSpreadMessage(i, i-1);
-								if(Main.currWithSimulatedHuman && Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
+								if(Main.currWithSimulatedHuman && Main.connect != null)
 									Main.connect.sendMessage(text);
 							}
 						}
@@ -386,7 +386,7 @@ public class MyWorld {
 								newState.stateOfFires[i+1]++;
 								numSpreaded++;
 								String text = getSpreadMessage(i, i+1);
-								if(Main.currWithSimulatedHuman && Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
+								if(Main.currWithSimulatedHuman && Main.connect != null)
 									Main.connect.sendMessage(text);
 							}
 						}
