@@ -27,8 +27,6 @@ public class LearningAlgorithm {
 
 	protected boolean withHuman;
 	public static int currCommunicator = Constants.ROBOT;
-	public static double THRESHOLD_SUGG = 0;
-	public static double THRESHOLD_REJECT = 2;
 	
 	public int numHumanSuggestions = 0;
 	public int numHumanUpdates = 0;
@@ -55,8 +53,6 @@ public class LearningAlgorithm {
         try{
 	        while (!MyWorld.isGoalState(state) && count < maxSteps) {
 	        	HumanRobotActionPair agentActions = null;
-	        	//if(myWorld.trainingSessionNum == MyWorld.PROCE_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB2_TEST_NUM)
-	        	//	System.out.println("state "+state.toStringFile());
 				if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION && !reachedGoalState)
 					agentActions = getAgentActionsCommWithHuman(state, null); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
 				else{
@@ -71,9 +67,6 @@ public class LearningAlgorithm {
 	            rewardPerEpisode+=reward;
 	            saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward);     
 	            updateQValues(state, agentActions, nextState, reward);
-//	            if(myWorld.trainingSessionNum == MyWorld.PROCE_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB1_TEST_NUM || myWorld.trainingSessionNum == MyWorld.PERTURB2_TEST_NUM){
-//	            	System.out.println(state.toStringFile()+": "+agentActions+" = "+reward);
-//	            }
 	            
 	            state = nextState.clone();
 	            count++;
@@ -289,9 +282,6 @@ public class LearningAlgorithm {
 				Main.gameView.setTeammateText("");
 				Main.gameView.updateState(state);
 			}
-			//if(state.anyItemInState(Constants.BURNOUT))
-			//	connect.sendMessage("-------------------------------------\nOh no! One or more of your buildings have burned out! All of the people have died there! "
-			//			+ "\n-------------------------------------\n");
 			HumanRobotActionPair actions = null;
 			if(currCommunicator == Constants.HUMAN){
 				actions = humanComm(state, pastRobotAction);
@@ -361,7 +351,7 @@ public class LearningAlgorithm {
 			double averageValue = cumulativeValue/humanActions.length;
 			
 			//connect.sendMessage("sugg "+maxJointValue+" average "+averageValue);
-			if((maxJointValue - averageValue) > THRESHOLD_SUGG && bestHumanAction != null){ //robot suggests human an action too
+			if((maxJointValue - averageValue) > Constants.THRESHOLD_SUGG && bestHumanAction != null){ //robot suggests human an action too
 				numRobotSuggestions++;
 				actions = new HumanRobotActionPair(bestHumanAction, bestRobotActionSuggestion);
 				enableSend(false);
@@ -483,7 +473,7 @@ public class LearningAlgorithm {
 				connect.sendMessage("Waiting for teammate...");
 				simulateWaitTime(state);
 				//connect.sendMessage("robotvalue "+robotSuggestedQValue+" humanvalue "+humanSuggestedQValue);
-				if((robotSuggestedQValue - humanSuggestedQValue) > THRESHOLD_REJECT){ //robot rejects human suggestion and chooses own action assuming human will do their suggested action
+				if((robotSuggestedQValue - humanSuggestedQValue) > Constants.THRESHOLD_REJECT){ //robot rejects human suggestion and chooses own action assuming human will do their suggested action
 					numRobotRejects++;
 					connect.sendMessage("Your teammate has a different preference and chooses to "+getPrintableFromAction(optimalRobotAction));//+" robotValue "+robotSuggestedQValue+" humanValue "+humanSuggestedQValue);
 					robotAction = optimalRobotAction;

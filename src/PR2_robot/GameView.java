@@ -106,7 +106,7 @@ public class GameView extends JFrame {
     	
         add(topPanel, BorderLayout.NORTH);
         add(panel, BorderLayout.CENTER);
-        setSize(1800, 900);
+        setSize(1600, 850);
         add(bottomPanel, BorderLayout.SOUTH);
         setTitle("Coordinated Fire Extinguishing");
         setVisible(true);
@@ -210,7 +210,7 @@ public class GameView extends JFrame {
 
         add(bottomPanel, BorderLayout.SOUTH);
         
-        setSize(1800, 900);
+        setSize(1600, 850);
         setTitle("Coordinated Fire Extinguishing");
         //setResizable(false);
         //setLocationRelativeTo(null);

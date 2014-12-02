@@ -17,6 +17,9 @@ public class Constants {
 	public static final double HUMAN_EPSILON = 0; // epsilon used in picking an action/how much should be explore
 	public static final double EPSILON = 0.1;
 	
+	public static double THRESHOLD_SUGG = 0;
+	public static double THRESHOLD_REJECT = 2;
+	
 	//num of times to run
 	public static final int NUM_EPISODES = 1000;
 	public static final int NUM_EPISODES_TEST = 1000;
