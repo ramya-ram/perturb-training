@@ -40,7 +40,10 @@ public class GameView extends JFrame {
 	private boolean startRoundClicked;
 	private JTextPane teammate;
 	public boolean titleView = true;
-    public GameView() {
+	public int typeOfExecution;
+	
+    public GameView(int typeOfExecution) {
+    	this.typeOfExecution = typeOfExecution;
     	titleLabel = new JLabel();
         nextButton = new JButton("Next");
         startRound = new JButton("Start Round!");

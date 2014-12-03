@@ -12,8 +12,7 @@ import javax.swing.Timer;
  */
 public class QLearner extends LearningAlgorithm {
 
-	public QLearner(SocketConnect connect, QValuesSet qValuesSet, boolean useFileName) {
-		this.connect = connect;
+	public QLearner(QValuesSet qValuesSet, boolean useFileName) {
 		timer = new Timer(1000, timerListener());
 		
 		//if there are no qvalues to transfer from previous tasks, initialize the q-value table
@@ -67,13 +66,10 @@ public class QLearner extends LearningAlgorithm {
 		
 		System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
 		
-		if(withHuman && Main.connect != null){
-			Main.st.server.startRound.setEnabled(true);
-			while(!Main.st.server.startClicked){
-				System.out.print("");
-			}
-			Main.st.server.startRound.setEnabled(false);
-			Main.st.server.startClicked = false;
+		if(withHuman){
+			System.out.println("with human");
+			Main.gameView.setStartRoundEnable(true);
+			Main.gameView.waitForStartRoundClick();
 		}
 		
 		try{

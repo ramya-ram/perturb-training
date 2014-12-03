@@ -60,7 +60,6 @@ public class MyServer {
     }
     
     public CommResponse parseHumanInput(String str, Action suggestedHumanAction){
-    	
     	str = str.toLowerCase();
     	CommType type = null;
     	Action humanAction = null;
@@ -169,7 +168,8 @@ public class MyServer {
 				}
 				if(LearningAlgorithm.timeLeft == 0){
 					System.out.println("time over");
-    				return new CommResponse(CommType.NONE, null, null);	
+					//return "None";
+    				return new CommResponse(CommType.NONE, Action.WAIT, Action.WAIT);	
     			}
 				System.out.print("");
 			}
@@ -183,7 +183,7 @@ public class MyServer {
         } catch(Exception e){
         	e.printStackTrace();
         }
-    	return new CommResponse(CommType.NONE, null, null);	
+    	return new CommResponse(CommType.NONE, Action.WAIT, Action.WAIT);	
     }
     
     public void initConnections() {

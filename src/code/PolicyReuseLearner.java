@@ -16,8 +16,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 	public int[] numOfEpisodesChosen;
 	public PolicyLibrary library;
 	
-	public PolicyReuseLearner(MyWorld myWorld, SocketConnect connect, PolicyLibrary library, QValuesSet qValuesSet, double[] policyWeights){
-		this.connect = connect;
+	public PolicyReuseLearner(MyWorld myWorld, PolicyLibrary library, QValuesSet qValuesSet, double[] policyWeights){
 		this.myWorld = myWorld;
 		this.library = library;
 		timer = new Timer(1000, timerListener());
@@ -61,13 +60,10 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		
 		System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
 		
-		if(withHuman && Main.connect != null){
-			Main.st.server.startRound.setEnabled(true);
-			while(!Main.st.server.startClicked){
-				System.out.print("");
-			}
-			Main.st.server.startRound.setEnabled(false);
-			Main.st.server.startClicked = false;
+		if(withHuman){
+			System.out.println("with human");
+			Main.gameView.setStartRoundEnable(true);
+			Main.gameView.waitForStartRoundClick();
 		}
 		
 		//starting policy reuse algorithm
@@ -198,16 +194,8 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 						if(MyWorld.isGoalState(state)){
 							iterations = count;
 							reachedGoalState = true;
-							if(withHuman && connect != null){
-								connect.sendMessage("-------------------------------------\nCONGRATS! You and your teammate have completed this round!\n"
-										+ "-------------------------------------\nPLEASE CLICK NEXT AND THEN ANSWER QUESTIONS!"); 
-							}
 						}
 						if(withHuman){
-							if(connect != null){
-								enableNextButton();
-								waitForClick();
-							}
 							if(Main.gameView != null){
 								Main.gameView.setNextEnable(true);
 								Main.gameView.waitForNextClick();

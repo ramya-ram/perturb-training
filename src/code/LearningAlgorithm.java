@@ -19,7 +19,6 @@ public class LearningAlgorithm {
 	protected MyWorld myWorld = null;
 	protected MDP mdp;
 	
-	public SocketConnect connect;	
 	public MyServer myServer;
 
 	public double[][] robotQValues; 
@@ -75,16 +74,8 @@ public class LearningAlgorithm {
 					if(MyWorld.isGoalState(state)){
 						iterations = count;
 						reachedGoalState = true;
-						if(withHuman && connect != null){
-							connect.sendMessage("-------------------------------------\nCONGRATS! You and your teammate have completed this round!\n"
-									+ "-------------------------------------\nPLEASE CLICK NEXT AND THEN ANSWER QUESTIONS!"); 
-						}
 					}
 					if(withHuman){
-						if(connect != null){
-							enableNextButton();
-							waitForClick();
-						}
 						if(Main.gameView != null){
 							Main.gameView.setNextEnable(true);
 							Main.gameView.waitForNextClick();
@@ -174,109 +165,11 @@ public class LearningAlgorithm {
 	}
 	
 	/**
-	 * Checks whether human input is valid
-	 */
-	public boolean isValid(String str, List<Action> possibleActions) {
-		Action action = getActionFromStr(str, possibleActions); 
-		return action != null || str.equals("BOTH");
-	}
-	
-	/**
-	 * Converts the input into an integer
-	 */
-	public static int convertToInt(String str){
-		return str.charAt(0) - 'A';
-	}
-	
-	/**
-	 * Converts an index to the corresponding letter
-	 */
-	public static char convertToLetter(int index){
-		return (char)(index + 'A');
-	}
-	
-	/**
-	 * Converts an index to the corresponding letter
-	 */
-	public static String convertToFireName(int index){
-		//return (char)(index + 'A');
-		switch(index){
-			case 0:
-				return "Alpha";
-			case 1:
-				return "Bravo";
-			case 2:
-				return "Charlie";
-			case 3:
-				return "Delta";
-			case 4:
-				return "Echo";		
-		}
-		return "None";
-	}
-	
-	/**
-	 * Converts human input to an action
-	 */
-	public Action getActionFromStr(String entered, List<Action> possibleActions) {
-		String enteredAction = "";
-		if(entered.equals("NONE")){
-			return Action.WAIT;
-		}
-		if(entered.equals("A") || entered.equals("B") || entered.equals("C") || entered.equals("D") || entered.equals("E")){
-			enteredAction = "PUT_OUT"+convertToInt(entered);
-		}
-		if(enteredAction.length() == 0)
-			return null;
-		Action resultAction = Action.valueOf(Action.class, enteredAction);
-		if(!possibleActions.contains(resultAction))
-			return null;
-		return resultAction;
-	}
-	
-	/**
-	 * Handles incorrect input
-	 */
-	public Action getCorrectedResponse(List<Action> possibleActions) {
-		Action action = null;
-		while(action == null){
-			try {
-				connect.sendMessage("Sorry that was an invalid response, please enter again: ");
-				String entered = connect.getMessage().trim().toUpperCase();
-				action = getActionFromStr(entered, possibleActions);
-			} catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-		return action;
-	}
-	
-	public String getPrintableFromAction(Action action){
-		if(action != Action.WAIT){
-			int fireIndex = Integer.parseInt(action.name().substring(7, 8));
-			return "extinguish "+convertToLetter(fireIndex);
-		}
-		return "wait.";
-	}
-	
-	public boolean isValidResponseToSuggestion(String str){
-		return str.equals("Y") || str.equals("N") || str.equals("NONE");
-	}
-	
-	/**
 	 * Prints to SocketTest to get human input
 	 * The human and robot communicate to choose a joint action for this state
 	 */
 	public HumanRobotActionPair getAgentActionsCommWithHuman(State state, Action pastRobotAction){
 		try{
-			if(connect != null){
-				connect.sendMessage("-------------------------------------");
-				connect.sendMessage("Fire Names:  A B C D E");
-				connect.sendMessage(""+state);
-				if(state.anyItemInState(Constants.BURNOUT))
-					connect.sendMessage("-------------------------------------\nOh no! One or more of your buildings have burned down!"
-							+ "\n-------------------------------------\n");
-			} 
 			if(Main.gameView != null){
 				Main.gameView.setAnnouncements("");
 				Main.gameView.setTeammateText("");
@@ -291,8 +184,6 @@ public class LearningAlgorithm {
 				currCommunicator = Constants.HUMAN;
 			}
 			timer.stop();
-			if(connect != null)
-				Main.st.server.timeDisplay.setText("");
 			if(Main.gameView != null){
 				Main.gameView.setTime(-1);
 				if(actions.getRobotAction() != Action.WAIT){
@@ -307,6 +198,14 @@ public class LearningAlgorithm {
 		return null;
 	}
 	
+	public String getPrintableFromAction(Action action){
+		if(action != Action.WAIT){
+			int fireIndex = Integer.parseInt(action.name().substring(7, 8));
+			return "extinguish "+MyWorld.convertToFireName(fireIndex);
+		}
+		return "wait";
+	}
+	
 	/**
 	 * Robot's turn to initiate communication
 	 * If the computed joint action is better than the average value, the robot will suggest a joint action, which the human can accept or reject
@@ -316,7 +215,7 @@ public class LearningAlgorithm {
 		try{
 			HumanRobotActionPair actions;
 			double maxJointValue = Integer.MIN_VALUE;
-			Action bestHumanAction = null;
+			Action bestHumanActionSuggestion = null;
 			Action bestRobotActionSuggestion = null;
 			Action bestRobotActionUpdate = null;
 			double cumulativeValue = 0;
@@ -330,7 +229,7 @@ public class LearningAlgorithm {
 					cumulativeValue += value;
 					if(value > maxJointValue){
 						maxJointValue = value;
-						bestHumanAction = humanAction;
+						bestHumanActionSuggestion = humanAction;
 					}
 				}
 			} else {
@@ -338,7 +237,7 @@ public class LearningAlgorithm {
 				Pair<HumanRobotActionPair, Double> pair = getGreedyJointAction(state);
 				HumanRobotActionPair agentActions = pair.getFirst();
 				maxJointValue = pair.getSecond();
-				bestHumanAction = agentActions.getHumanAction();
+				bestHumanActionSuggestion = agentActions.getHumanAction();
 				bestRobotActionSuggestion = agentActions.getRobotAction();
 				
 				bestRobotActionUpdate = getGreedyRobotAction(state, null);
@@ -350,70 +249,33 @@ public class LearningAlgorithm {
 			}
 			double averageValue = cumulativeValue/humanActions.length;
 			
-			//connect.sendMessage("sugg "+maxJointValue+" average "+averageValue);
-			if((maxJointValue - averageValue) > Constants.THRESHOLD_SUGG && bestHumanAction != null){ //robot suggests human an action too
+			updateGUIMessage("Waiting for teammate...\n");
+			simulateWaitTime(state);
+			
+			if((maxJointValue - averageValue) > Constants.THRESHOLD_SUGG && bestHumanActionSuggestion != null){ //robot suggests human an action too
 				numRobotSuggestions++;
-				actions = new HumanRobotActionPair(bestHumanAction, bestRobotActionSuggestion);
-				enableSend(false);
-				connect.sendMessage("Waiting for teammate...\n");
-				simulateWaitTime(state);
-				connect.sendMessage("Your teammate will choose to "+getPrintableFromAction(bestRobotActionSuggestion)+" and suggests you to "+getPrintableFromAction(bestHumanAction));
-				enableSend(true);
-				connect.sendMessage("Would you like to accept the suggestion? (Enter Y or N)");
-				startTimer();
-				String entered = connect.getMessage().trim().toUpperCase();
-				while(!isValidResponseToSuggestion(entered)){
-					connect.sendMessage("Sorry that was an invalid response, please enter again: ");
-					entered = connect.getMessage().trim().toUpperCase();
-				}
-				if(entered.equals("N")){
-					numHumanRejects++;
-					connect.sendMessage("Please enter which fire you would like to extinguish instead (A, B, C, D, E).");
-					entered = connect.getMessage().trim().toUpperCase();
-					Action humanEnteredAction = getActionFromStr(entered, mdp.humanAgent.actionsAsList(state));
-					if(humanEnteredAction == null || !mdp.humanAgent.actionsAsList(state).contains(humanEnteredAction)){
-						if(humanEnteredAction != Action.WAIT)
-							humanEnteredAction = getCorrectedResponse(mdp.humanAgent.actionsAsList(state));
-					}
-					if(humanEnteredAction == Action.WAIT){
-						connect.sendMessage("\nSorry you ran out of time!\nSummary:\n"
-								+ "Your teammate chose to "+getPrintableFromAction(bestRobotActionSuggestion));
-						return new HumanRobotActionPair(Action.WAIT, bestRobotActionSuggestion);
-					}
-					connect.sendMessage("\nSummary:\nYou chose to "+getPrintableFromAction(humanEnteredAction)+"\nYour teammate chose to "+getPrintableFromAction(bestRobotActionSuggestion)+"\n");
-					return new HumanRobotActionPair(humanEnteredAction, bestRobotActionSuggestion);
-				} else if(entered.equals("Y")){
-					numHumanAccepts++;
-					connect.sendMessage("\nSummary:\nYou chose to "+getPrintableFromAction(actions.getHumanAction())+"\nYour teammate chose to "+getPrintableFromAction(actions.getRobotAction())+"\n");
-					return actions;
-				} else {
-					connect.sendMessage("\nSorry you ran out of time!\nSummary:\n"
-							+ "Your teammate chose to "+getPrintableFromAction(bestRobotActionSuggestion));
-					return new HumanRobotActionPair(Action.WAIT, bestRobotActionSuggestion);
-				}
+				//enableSend(false);			
+				updateGUIMessage("Your teammate will choose to "+getPrintableFromAction(bestRobotActionSuggestion)+" and suggests you to "+getPrintableFromAction(bestHumanActionSuggestion));
+				//enableSend(true);
+				updateGUIMessage("Would you like to accept the suggestion? (Y or N [A, B, C, D, E])");
+				CommResponse response = getHumanMessage(bestHumanActionSuggestion);
+				if(response.commType == CommType.NONE)
+					outOfTimeMessage();
+				actions = new HumanRobotActionPair(response.humanAction, bestRobotActionSuggestion);
+				
 			} else { //robot just updates
 				numRobotUpdates++;
-				enableSend(false);
-				connect.sendMessage("Waiting for teammate...\n");
-				simulateWaitTime(state);
-				connect.sendMessage("Your teammate will "+getPrintableFromAction(bestRobotActionUpdate));
-				enableSend(true);
-				connect.sendMessage("Please enter which fire you would like to extinguish (A, B, C, D, E).");
-				startTimer();
-				String entered = connect.getMessage().trim().toUpperCase();
-				Action humanEnteredAction = getActionFromStr(entered, mdp.humanAgent.actionsAsList(state));
-				if(humanEnteredAction == null || !mdp.humanAgent.actionsAsList(state).contains(humanEnteredAction)){
-					if(humanEnteredAction != Action.WAIT)
-						humanEnteredAction = getCorrectedResponse(mdp.humanAgent.actionsAsList(state));
-				}
-				if(humanEnteredAction == Action.WAIT){
-					connect.sendMessage("\nSorry you ran out of time!\nSummary:\n"
-							+ "Your teammate chose to "+getPrintableFromAction(bestRobotActionUpdate));
-					return new HumanRobotActionPair(Action.WAIT, bestRobotActionUpdate);
-				}
-				connect.sendMessage("\nSummary:\nYou chose to "+getPrintableFromAction(humanEnteredAction)+"\nYour teammate chose to "+getPrintableFromAction(bestRobotActionUpdate)+"\n");
-				return new HumanRobotActionPair(humanEnteredAction, bestRobotActionUpdate);
+				//enableSend(false);
+				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionUpdate));
+				//enableSend(true);
+				updateGUIMessage("Which fire you would like to extinguish (A, B, C, D, or E)?");
+				CommResponse response = getHumanMessage(null);
+				if(response.commType == CommType.NONE)
+					outOfTimeMessage();
+				actions = new HumanRobotActionPair(response.humanAction, bestRobotActionUpdate);			
 			}
+			updateGUIMessage("\nSummary:\nYou chose to "+getPrintableFromAction(actions.getHumanAction())+"\nYour teammate chose to "+getPrintableFromAction(actions.getRobotAction())+"\n");
+			return actions;
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -428,83 +290,82 @@ public class LearningAlgorithm {
 	 */
 	public HumanRobotActionPair humanComm(State state, Action pastRobotAction) {
 		try{
-			Action humanAction;
-			Action robotAction;
-			connect.sendMessage("Please enter the fire you would like to extinguish (A, B, C, D, E) or \'BOTH\' for specifying the fires for both you and your teammate: ");
-			enableSend(true);
-			startTimer();
-			String entered = connect.getMessage().trim().toUpperCase();
-			while(!isValid(entered, mdp.humanAgent.actionsAsList(state))){
-				connect.sendMessage("Sorry that was an invalid response, please enter again: ");
-				entered = connect.getMessage().trim().toUpperCase();
-			}
-			if(entered.equalsIgnoreCase("BOTH")){
-				numHumanSuggestions++;
-				connect.sendMessage("Please enter first which fire YOU want to extinguish (A, B, C, D, E): ");
-				entered = connect.getMessage().trim().toUpperCase();
-				humanAction = getActionFromStr(entered, mdp.humanAgent.actionsAsList(state));
-				if(humanAction == null || !mdp.humanAgent.actionsAsList(state).contains(humanAction)){
-					if(humanAction != Action.WAIT)
-						humanAction = getCorrectedResponse(mdp.humanAgent.actionsAsList(state));
-				}
-				
-				connect.sendMessage("Please enter which fire you would like YOUR TEAMMATE to extinguish (A, B, C, D, E): ");
-				entered = connect.getMessage().trim().toUpperCase();
-				robotAction = getActionFromStr(entered, mdp.robotAgent.actionsAsList(state));
-				if(robotAction == null || !mdp.robotAgent.actionsAsList(state).contains(robotAction)){
-					if(robotAction != Action.WAIT)
-						robotAction = getCorrectedResponse(mdp.robotAgent.actionsAsList(state));
-				}
-				
-				if(humanAction == Action.WAIT || robotAction == Action.WAIT){
-					connect.sendMessage("\nSorry you ran out of time!\nSummary:\n"
-							+ "Both you and your teammate have to wait this turn.");
-					return new HumanRobotActionPair(Action.WAIT, Action.WAIT);
-				}
-				double humanSuggestedQValue = getJointQValue(state, new HumanRobotActionPair(humanAction, robotAction));
-				Action optimalRobotAction = null;
-				if(pastRobotAction != null)
-					optimalRobotAction = pastRobotAction;
-				else
-					optimalRobotAction = getGreedyRobotAction(state, humanAction);
-				double robotSuggestedQValue = getJointQValue(state, new HumanRobotActionPair(humanAction, optimalRobotAction));
-				enableSend(false);
-				stopTimer();
-				connect.sendMessage("Waiting for teammate...");
-				simulateWaitTime(state);
-				//connect.sendMessage("robotvalue "+robotSuggestedQValue+" humanvalue "+humanSuggestedQValue);
-				if((robotSuggestedQValue - humanSuggestedQValue) > Constants.THRESHOLD_REJECT){ //robot rejects human suggestion and chooses own action assuming human will do their suggested action
-					numRobotRejects++;
-					connect.sendMessage("Your teammate has a different preference and chooses to "+getPrintableFromAction(optimalRobotAction));//+" robotValue "+robotSuggestedQValue+" humanValue "+humanSuggestedQValue);
-					robotAction = optimalRobotAction;
-				} else {
-					numRobotAccepts++;
-					connect.sendMessage("Your teammate accepts to "+getPrintableFromAction(robotAction));// robotValue "+robotSuggestedQValue+" humanValue "+humanSuggestedQValue);
+			updateGUIMessage("Which fire you would like to extinguish (A, B, C, D, E)? If you want to make a suggestion, add a space and one more letter the action you suggest for the robot: ");
+			//enableSend(true);
+			CommResponse response = getHumanMessage(null);			
+			Action humanAction = response.humanAction;
+			Action robotAction = response.robotAction;
+			if(response.commType != CommType.NONE){
+				if(response.commType == CommType.SUGGEST){
+					double humanSuggestedQValue = getJointQValue(state, new HumanRobotActionPair(humanAction, robotAction));
+					Action optimalRobotAction = null;
+					if(pastRobotAction != null)
+						optimalRobotAction = pastRobotAction;
+					else
+						optimalRobotAction = getGreedyRobotAction(state, humanAction);
+					double robotSuggestedQValue = getJointQValue(state, new HumanRobotActionPair(humanAction, optimalRobotAction));
+					//enableSend(false);
+					updateGUIMessage("Waiting for teammate...");
+					simulateWaitTime(state);
+					//robot rejects human suggestion and chooses own action assuming human will do their suggested action
+					if((robotSuggestedQValue - humanSuggestedQValue) > Constants.THRESHOLD_REJECT){ 
+						numRobotRejects++;
+						updateGUIMessage("Your teammate has a different preference and chooses to "+getPrintableFromAction(optimalRobotAction));
+						robotAction = optimalRobotAction;
+					} else {
+						numRobotAccepts++;
+						updateGUIMessage("Your teammate accepts to "+getPrintableFromAction(robotAction));
+					}
+				} else if(response.commType == CommType.UPDATE){
+					numHumanUpdates++;				
+					//enableSend(false);				
+					updateGUIMessage("Waiting for teammate...");
+					simulateWaitTime(state);
+					robotAction = getGreedyRobotAction(state, humanAction);
 				}
 			} else {
-				numHumanUpdates++;
-				humanAction = getActionFromStr(entered, mdp.humanAgent.actionsAsList(state));
-				if(humanAction == null || !mdp.humanAgent.actionsAsList(state).contains(humanAction)){
-					if(humanAction != Action.WAIT)
-						humanAction = getCorrectedResponse(mdp.humanAgent.actionsAsList(state));
-				}
-				if(humanAction == Action.WAIT){
-					connect.sendMessage("\nSorry you ran out of time!\nSummary:\n"
-							+ "Both you and your teammate have to wait this turn.");
-					return new HumanRobotActionPair(Action.WAIT, Action.WAIT);
-				}
-				enableSend(false);
-				stopTimer();
-				connect.sendMessage("Waiting for teammate...");
-				simulateWaitTime(state);
-				robotAction = getGreedyRobotAction(state, humanAction);
+				outOfTimeMessage();
 			}
-			connect.sendMessage("\nSummary:\nYou chose to "+getPrintableFromAction(humanAction)+"\nYour teammate chose to "+getPrintableFromAction(robotAction)+"\n");
+			updateGUIMessage("\nSummary:\nYou chose to "+getPrintableFromAction(humanAction)+"\nYour teammate chose to "+getPrintableFromAction(robotAction)+"\n");
 			return new HumanRobotActionPair(humanAction, robotAction);
 		} catch(Exception e){
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public CommResponse getHumanMessage(Action suggestedHumanAction){
+		startTimer();
+		CommResponse response = null;
+		try {
+			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN)
+				response = myServer.getHumanMessage(suggestedHumanAction);
+			else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
+				
+			}
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		stopTimer();
+		return response;
+	}
+	
+	public void outOfTimeMessage(){
+		updateGUIMessage("\nSorry you ran out of time!\n");
+	}
+	
+	public void updateGUIMessage(String str){
+		Main.gameView.setTeammateText(str);
+	}
+	
+	public void sendMessageToRobot(String str, int client){
+		try{
+			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){
+				myServer.sendMessage(str, client);
+			}
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -702,40 +563,14 @@ public class LearningAlgorithm {
 		numHumanRejects = 0;
 	}
 	
-	public static void enableNextButton() {
-		Main.st.server.nextButton.setEnabled(true);
-		Main.st.server.sendField.setEnabled(false);
-		Main.st.server.sendButton.setEnabled(false);
-	}
-	
-	public static void waitForClick() {
-		while(!Main.st.server.nextClicked){
-			System.out.print("");
-        }
-		Main.st.server.nextButton.setEnabled(false);
-		Main.st.server.sendField.setEnabled(true);
-		Main.st.server.sendButton.setEnabled(true);
-		Main.st.server.nextClicked = false;
-	}
-	
-	public static void enableSend(boolean enable) {
-		Main.st.server.sendField.setEnabled(enable);
-		Main.st.server.sendButton.setEnabled(enable);
-		Main.st.server.sendField.requestFocus();
-	}
-	
-	public static void disableNext(){
-		Main.st.server.nextButton.setEnabled(false);
-	}
-	
 	public void startTimer(){
 		timeLeft = Constants.MAX_TIME;
-	    Main.st.server.timeDisplay.setText(""+timeLeft);
+		Main.gameView.setTime(timeLeft);
 	    timer.start();
 	}
 	
 	public void stopTimer(){
-		Main.st.server.timeDisplay.setText("");
+		Main.gameView.setTime(timeLeft);
 		timer.stop();
 		timeLeft = Constants.MAX_TIME;
 	}
@@ -744,7 +579,7 @@ public class LearningAlgorithm {
 		return new ActionListener() {
 		  public void actionPerformed(ActionEvent evt) {
 			  timeLeft--;
-		      Main.st.server.timeDisplay.setText(""+timeLeft);
+			  Main.gameView.setTime(timeLeft);
 		      if(timeLeft == 0){
 		    	  timer.stop();
 		      }

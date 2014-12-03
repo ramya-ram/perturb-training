@@ -190,11 +190,11 @@ public class MyWorld {
 	 */
 	public State getPredefinedNextState(State state, HumanRobotActionPair agentActions){
 		try{
+			String textToDisplay = "";
 			State nextState = state.clone();
 			System.out.println("USING PREDEFINED");
 			nextState = getStateFromFile(Main.proceTestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()]);
-			if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
-				Main.connect.sendMessage("-------------------------------------\nState after your actions: "+nextState.toStringSimple());
+			textToDisplay += "State after your actions: "+nextState.toStringSimple()+"\n";
 			
 			if(sessionNum == 1){ //base task
 				return nextState;
@@ -216,24 +216,22 @@ public class MyWorld {
 					} 
 				}
 				for(int i=0; i<text.length(); i+=3){
-					System.out.println("i "+i+" i+3 "+(i+3));
+					//System.out.println("i "+i+" i+3 "+(i+3));
 					String str = text.substring(i, i+3);
-					System.out.println("str "+str);
+					//System.out.println("str "+str);
 					if(str.charAt(0) == 'B'){
 						int fire = str.charAt(1)-48;
-						if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
-							Main.connect.sendMessage(getBurnoutMessage(fire));
+						textToDisplay += getBurnoutMessage(fire)+"\n";
 						nextState = getNextStateAfterBurnout(nextState, fire);
 					} else if(str.charAt(0) == 'S'){
 						int spreadTo = str.charAt(2)-48;
-						if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
-							Main.connect.sendMessage(getSpreadMessage(str.charAt(1)-48, spreadTo));
+						textToDisplay += getSpreadMessage(str.charAt(1)-48, spreadTo)+"\n";
 						nextState = getNextStateAfterSpread(nextState, spreadTo);
 					}
 				}
 			}
-			if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN)
-				Main.connect.sendMessage("-------------------------------------\nFinal state: "+nextState.toStringSimple());
+			textToDisplay += "Final state: "+nextState.toStringSimple();
+			Main.gameView.setAnnouncements(textToDisplay);
 			return nextState;
 		} catch(Exception e){
 			e.printStackTrace();
@@ -260,13 +258,12 @@ public class MyWorld {
 				}
 				wind = testWind;
 				dryness = testDryness;
-				//System.out.println("currSimulating with human wind "+wind+" dryness "+dryness);
 			} else {
 				wind = simulationWind;
 				dryness = simulationDryness;
 			}
-			//System.out.println("wind "+wind+" dryness "+dryness);
 			
+			String textToDisplay = "";
 			Action humanAction = agentActions.getHumanAction();
 			Action robotAction = agentActions.getRobotAction();
 			int humanFireIndex = -1;
@@ -330,25 +327,22 @@ public class MyWorld {
 			}
 			
 			State beforeStochasticity = newState.clone();
-			if(Main.currWithSimulatedHuman && Main.connect != null)
-				Main.connect.sendMessage("State after your actions: "+beforeStochasticity.toStringSimple());
+			if(Main.currWithSimulatedHuman)
+				textToDisplay += "State after your actions: "+beforeStochasticity.toStringSimple()+"\n";
 			
 			if(typeOfWorld == Constants.TESTING && sessionNum == 1)
 				return newState;
 
 			if(dryness > 0){
 				int highBurnoutPercent = dryness*10 + 10;
-				//if(dryness == 9)
-				//	System.out.println("burnoutpercent "+highBurnoutPercent);
-				//System.out.println("burnout percent "+highBurnoutPercent);
 				for(int i=0; i<newState.stateOfFires.length; i++){
 					if(newState.stateOfFires[i] == Constants.HIGHEST){
 						int randNum = Tools.rand.nextInt(100);
 						if(randNum < highBurnoutPercent){
 							newState.stateOfFires[i] = Constants.BURNOUT;
 							String text = getBurnoutMessage(i);
-							if(Main.currWithSimulatedHuman && Main.connect != null)
-								Main.connect.sendMessage(text);
+							if(Main.currWithSimulatedHuman)
+								textToDisplay += text+"\n";
 						}
 					}
 				}
@@ -375,8 +369,8 @@ public class MyWorld {
 								newState.stateOfFires[i-1]++;
 								numSpreaded++;
 								String text = getSpreadMessage(i, i-1);
-								if(Main.currWithSimulatedHuman && Main.connect != null)
-									Main.connect.sendMessage(text);
+								if(Main.currWithSimulatedHuman)
+									textToDisplay += text+"\n";
 							}
 						}
 							
@@ -386,13 +380,18 @@ public class MyWorld {
 								newState.stateOfFires[i+1]++;
 								numSpreaded++;
 								String text = getSpreadMessage(i, i+1);
-								if(Main.currWithSimulatedHuman && Main.connect != null)
-									Main.connect.sendMessage(text);
+								if(Main.currWithSimulatedHuman)
+									textToDisplay += text+"\n";
 							}
 						}
 					}
 				}
 			}
+			if(!beforeStochasticity.equals(newState) && Main.currWithSimulatedHuman){
+				textToDisplay += "Final state: "+newState.toStringSimple();
+			}
+			if(Main.currWithSimulatedHuman)
+				Main.gameView.setAnnouncements(textToDisplay);
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -411,13 +410,32 @@ public class MyWorld {
 		return newState;
 	}
 	
+	/**
+	 * Converts an index to the corresponding letter
+	 */
+	public static String convertToFireName(int index){
+		switch(index){
+			case 0:
+				return "Alpha";
+			case 1:
+				return "Bravo";
+			case 2:
+				return "Charlie";
+			case 3:
+				return "Delta";
+			case 4:
+				return "Echo";		
+		}
+		return "None";
+	}
+	
 	public String getSpreadMessage(int spreadFrom, int spreadTo){
-		return "-------------------------------------\nFIRE "+LearningAlgorithm.convertToLetter(spreadFrom)+
-				" SPREAD TO FIRE "+LearningAlgorithm.convertToLetter(spreadTo)+" BECAUSE OF THE WIND!!";
+		return "Fire "+convertToFireName(spreadFrom)+
+				" spread to fire "+convertToFireName(spreadTo)+" because of wind!!";
 	}
 	
 	public String getBurnoutMessage(int fire){
-		return "-------------------------------------\nFIRE "+LearningAlgorithm.convertToLetter(fire)+" BURNED OUT BECAUSE OF THE DRY ENVIRONMENT!!";
+		return "Fire "+convertToFireName(fire)+" burned down the building because of dryness!!";
 	}
 	
 	public boolean checkIfValidFireLoc(int index, int[] stateOfFires) {

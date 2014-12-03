@@ -1,6 +1,5 @@
 package code;
 
-import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,20 +10,13 @@ import java.util.List;
 
 import PR2_robot.GameView;
 import PR2_robot.MyServer;
-import sockettest.SocketTest;
 
 public class Main {
 	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2;
 	public static int CURRENT_EXECUTION = SIMULATION_HUMAN;
 	
-	//socket to send messages to SocketTest
-	public static SocketConnect connect;
-	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
-	
-	//for simulation experiments with humans
-	public static SocketTest st;
 	
 	//for robot experiments with humans
 	public static GameView gameView;
@@ -66,12 +58,12 @@ public class Main {
 			if(CURRENT_EXECUTION == SIMULATION){
 				for(int i=0; i<Constants.NUM_AVERAGING; i++){				
 					//PROCEDURAL
-					TaskExecution proce = new TaskExecution(trainingWorldsProce, testingWorlds, false);
+					TaskExecution proce = new TaskExecution(null, trainingWorldsProce, testingWorlds, false);
 					proce.executeTask();
 					//TODO: make sure the human sessions are run for only 1 episode
 					
 					//PERTURBATION
-					TaskExecution perturb = new TaskExecution(trainingWorldsPerturb, testingWorlds, true);
+					TaskExecution perturb = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, true);
 					perturb.executeTask();
 					
 					BufferedWriter rewardPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbName), true));
@@ -82,10 +74,8 @@ public class Main {
 					rewardProceWriter.close();
 				}
 			} else {
-				if(CURRENT_EXECUTION == SIMULATION_HUMAN)
-					st = SocketTest.startSocketTest();
-				else if(CURRENT_EXECUTION == SIMULATION_HUMAN){
-					gameView = new GameView();
+				gameView = new GameView(CURRENT_EXECUTION);
+				if(CURRENT_EXECUTION == ROBOT_HUMAN){
 					myServer = new MyServer();
 					myServer.initConnections();
 				}
@@ -97,30 +87,15 @@ public class Main {
 				Constants.participantDir = Constants.participantDir+nameParticipant+"\\";
 				System.out.print("TrainingType (PQ or BH or BQ): "); 
 				String trainingType = Tools.scan.next();
-				
-				if(CURRENT_EXECUTION == SIMULATION_HUMAN){
-					connect = new SocketConnect();
-					connect.initializeConnection();	
-				}
-				
+
 				if(trainingType.equalsIgnoreCase("PQ") || trainingType.equalsIgnoreCase("BQ")){
 					//PROCEDURAL
-					TaskExecution proce = new TaskExecution(trainingWorldsProce, testingWorlds, false);
+					TaskExecution proce = new TaskExecution(gameView, trainingWorldsProce, testingWorlds, false);
 					proce.executeTask();
 				} else if(trainingType.equals("BH")){
 					//PERTURBATION
-					TaskExecution perturb = new TaskExecution(trainingWorldsPerturb, testingWorlds, true);
+					TaskExecution perturb = new TaskExecution(gameView, trainingWorldsPerturb, testingWorlds, true);
 					perturb.executeTask();
-				}
-				
-				if(CURRENT_EXECUTION == SIMULATION_HUMAN){
-					st.server.trainingTextPanel.setBackground(Color.YELLOW);
-					st.server.trainingTextLabel.setText("Thank you! Please stay seated and quiet!");
-					connect.sendMessage("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-					connect.sendMessage("Thanks so much for participating! Please wait at your seat until the experimenter comes to assist you!\n"
-							+ "Please stay silent as other participants may still be doing their experiment.");
-					connect.sendMessage("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-					SocketConnect.writer.close();
 				}
 			}
 		} catch(Exception e){
