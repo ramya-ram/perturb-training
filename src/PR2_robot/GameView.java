@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -14,12 +16,14 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import code.Main;
 import code.State;
 	
 public class GameView extends JFrame {
@@ -28,6 +32,7 @@ public class GameView extends JFrame {
 	private JLabel timeLabel;
 	private JLabel titleLabel;
 	private JTextPane textPane;
+	private JTextField textField;
 	private static final int NUM_FIRES = 5;
 	private String fileBase = "C:\\Users\\julie\\Pictures\\";
 	private String fireIntensityFile = fileBase+"fireIntensity";
@@ -42,6 +47,8 @@ public class GameView extends JFrame {
 	public boolean titleView = true;
 	public int typeOfExecution;
 	
+	public String humanMessage;
+	
     public GameView(int typeOfExecution) {
     	this.typeOfExecution = typeOfExecution;
     	titleLabel = new JLabel();
@@ -49,22 +56,28 @@ public class GameView extends JFrame {
         startRound = new JButton("Start Round!");
         initTitleGUI("start");
         
-        addMouseListener(new MouseAdapter(){
-		    public void mousePressed(MouseEvent e){
-		    	System.out.println("event "+e);
-		    	if(e.getButton() == 3){
-		    		System.out.println("button 3 clicked");
-		    		if(nextClicked == false && nextButton.isEnabled() && !titleView){
-		    			nextClicked = true;
-		    			System.out.println("setting nextClicked to true");
-		    		}
-		    		if(startRoundClicked == false && startRound.isEnabled() && titleView){
-		    			startRoundClicked = true;
-		    			System.out.println("setting startRoundClicked to true");
-		    		}
-		    	}
-		    }
-        });
+    	if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
+    		nextButton.addActionListener(new NextButtonListener());
+    		startRound.addActionListener(new StartRoundListener());
+    	} else if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){  	
+    		addMouseListener(new MouseAdapter(){
+			    public void mousePressed(MouseEvent e){
+			    	System.out.println("event "+e);
+			    	int buttonToPress = 3;
+			    	if(e.getButton() == buttonToPress){
+			    		System.out.println("button "+buttonToPress+" clicked");
+			    		if(nextClicked == false && nextButton.isEnabled() && !titleView){
+			    			nextClicked = true;
+			    			System.out.println("setting nextClicked to true");
+			    		}
+			    		if(startRoundClicked == false && startRound.isEnabled() && titleView){
+			    			startRoundClicked = true;
+			    			System.out.println("setting startRoundClicked to true");
+			    		}
+			    	}
+			    }
+	        });
+    	}
     }
     
     public void initTitleGUI(String title){
@@ -97,7 +110,7 @@ public class GameView extends JFrame {
         inBetween.setPreferredSize(new Dimension(50,100));
         panel.add(inBetween);
         
-        startRound.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 25));
+        startRound.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
         startRound.setAlignmentX(Component.CENTER_ALIGNMENT);
         startRound.setAlignmentY(Component.CENTER_ALIGNMENT);
         startRound.setEnabled(false);
@@ -118,17 +131,19 @@ public class GameView extends JFrame {
 
     public void initGUI() {
     	titleView = false;
+    	getContentPane().removeAll();
+    	getContentPane().repaint();
     	setLayout(new BorderLayout());
     	JPanel topPanel = new JPanel();
     	topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
     	//titleLabel.setText(Main.title);
-        titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 50));
+        titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 40));
         titleLabel.setForeground(Color.BLUE);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
 
         timeLabel = new JLabel("Time Left: ", SwingConstants.CENTER);
-        timeLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 40));
+        timeLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
         timeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         //centerPanel.add(timeLabel);//, BorderLayout.NORTH);
         topPanel.add(timeLabel);
@@ -148,7 +163,7 @@ public class GameView extends JFrame {
         }
   
         JLabel firesLabel = new JLabel("Fire Intensities:", SwingConstants.CENTER);
-        firesLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 35));
+        firesLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 25));
         //firesLabel.setForeground(Color.RED);
         firesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         centerPanel.add(firesLabel);
@@ -172,7 +187,7 @@ public class GameView extends JFrame {
         
         teammate = new JTextPane();
         teammate.setContentType("text/plain");
-        teammate.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
+        teammate.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 25));
         teammate.setEditable(false);
         teammate.setPreferredSize(new Dimension(1800,130));
         
@@ -189,12 +204,12 @@ public class GameView extends JFrame {
         //burnedDownMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
         //centerPanel.add(burnedDownMessage); 
         
-        JPanel bottomPanel = new JPanel();
+        JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         //textLabel = new JLabel("", SwingConstants.CENTER);
         textPane = new JTextPane();
         textPane.setContentType("text/plain");
-        textPane.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 25));
+        textPane.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
         textPane.setEditable(false);
         
         doc = textPane.getStyledDocument();
@@ -203,13 +218,37 @@ public class GameView extends JFrame {
         doc.setParagraphAttributes(0, doc.getLength(), center, false);
         
         //textPane.setAlignmentX(Component.CENTER_ALIGNMENT);
-        bottomPanel.add(textPane);//, BorderLayout.SOUTH);
+        bottomPanel.add(textPane, BorderLayout.NORTH);//, BorderLayout.SOUTH);
         
-        nextButton.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 25));
+        JPanel leftGlue = new JPanel();
+        leftGlue.setPreferredSize(new Dimension(50,100));
+        bottomPanel.add(leftGlue, BorderLayout.WEST);
+        
+        JPanel rightGlue = new JPanel();
+        rightGlue.setPreferredSize(new Dimension(50,100));
+        bottomPanel.add(rightGlue, BorderLayout.EAST);
+        
+        textField = new JTextField();
+        textField.setEnabled(true);
+        textField.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
+        textField.setPreferredSize(new Dimension(100,50));
+        textField.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+            	System.out.println("e: "+e+" source: "+e.getSource());
+            	String text = textField.getText();
+            	if(text.length() > 0){
+            		humanMessage = text;
+            		textField.setText("");
+            	}
+            }
+        });
+        bottomPanel.add(textField, BorderLayout.CENTER);
+        
+        nextButton.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
         nextButton.setAlignmentX(CENTER_ALIGNMENT);
         nextButton.setEnabled(false);
         //nextButton.addActionListener(new NextButtonListener());
-        bottomPanel.add(nextButton);
+        bottomPanel.add(nextButton, BorderLayout.SOUTH);
 
         add(bottomPanel, BorderLayout.SOUTH);
         
@@ -232,6 +271,10 @@ public class GameView extends JFrame {
     	teammate.setText(""+text);
     }
     
+    public String getTeammateText(){
+    	return teammate.getText();
+    }
+    
     public void addTeammateText(String text){
     	teammate.setText(teammate.getText()+"\n"+text);
     }
@@ -245,6 +288,8 @@ public class GameView extends JFrame {
     }
     
     public void waitForNextClick() {
+		focusNextButton();
+
     	while(!nextClicked){
 			System.out.print("");
         }
@@ -254,14 +299,14 @@ public class GameView extends JFrame {
     }
     
     public void waitForStartRoundClick() {
+		focusStartRound();
+
     	while(!startRoundClicked){
 			System.out.print("");
         }
     	System.out.println("startround clicked!");
 		startRound.setEnabled(false);
 		startRoundClicked = false;
-		getContentPane().removeAll();
-    	getContentPane().repaint();
 		initGUI();
     }
 
@@ -290,19 +335,33 @@ public class GameView extends JFrame {
     	textPane.setText(""+text);
     }
     
+    public void focusTextField(){
+    	textField.requestFocus();
+    }
+    
+    private void focusNextButton(){
+    	nextButton.requestFocus();
+    }
+    
+    private void focusStartRound(){
+    	startRound.requestFocus();
+    }
+    
     /*public void setBurnedDownMessage(String text){
     	burnedDownMessage.setText(text);
     }*/
     
-    /*public class StartRoundListener implements ActionListener { 	
+    public class StartRoundListener implements ActionListener { 	
 	    public void actionPerformed(ActionEvent e) {
-	        //startRoundClicked = true;	        
+	        startRoundClicked = true;	
+	        System.out.println("setting startRound to true");
 	    }
     }
     
     public class NextButtonListener implements ActionListener { 	
 	    public void actionPerformed(ActionEvent e) {
-	        //nextClicked = true;	        
+	        nextClicked = true;	 
+	        System.out.println("setting nextClicked to true");
 	    }
-    }*/
+    }
 }
