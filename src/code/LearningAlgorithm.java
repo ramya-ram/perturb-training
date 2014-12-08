@@ -39,6 +39,9 @@ public class LearningAlgorithm {
 	public static Timer timer;
 	public static int timeLeft = Constants.MAX_TIME;
 	
+	public int[][] samples;
+	public int numCurrentSamples = 0;
+	
 	/**
 	 * Runs one episode of the task
 	 */
@@ -67,6 +70,14 @@ public class LearningAlgorithm {
 	            saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward);     
 	            updateQValues(state, agentActions, nextState, reward);
 	            
+	            /*if(numCurrentSamples < Constants.NUM_SAMPLES){
+		            samples[numCurrentSamples][0] = state.getId();
+		            samples[numCurrentSamples][1] = agentActions.getHumanAction().ordinal();
+		            samples[numCurrentSamples][2] = agentActions.getRobotAction().ordinal();
+		            samples[numCurrentSamples][3] = nextState.getId();
+		            numCurrentSamples++;
+	            }*/
+	            
 	            state = nextState.clone();
 	            count++;
 	            
@@ -75,13 +86,11 @@ public class LearningAlgorithm {
 						iterations = count;
 						reachedGoalState = true;
 					}
-					if(withHuman){
-						if(Main.gameView != null){
-							Main.gameView.setNextEnable(true);
-							Main.gameView.waitForNextClick();
-							if(reachedGoalState){
-								Main.gameView.initTitleGUI("congrats");
-							}
+					if(withHuman && Main.gameView != null){
+						Main.gameView.setNextEnable(true);
+						Main.gameView.waitForNextClick();
+						if(reachedGoalState){
+							Main.gameView.initTitleGUI("congrats");
 						}
 					}
             	}

@@ -13,7 +13,7 @@ import PR2_robot.MyServer;
 
 public class Main {
 	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2;
-	public static int CURRENT_EXECUTION = SIMULATION_HUMAN;
+	public static int CURRENT_EXECUTION = SIMULATION;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -58,7 +58,7 @@ public class Main {
 			if(CURRENT_EXECUTION == SIMULATION){
 				for(int i=0; i<Constants.NUM_AVERAGING; i++){				
 					//PROCEDURAL
-					TaskExecution proce = new TaskExecution(null, trainingWorldsProce, testingWorlds, false);
+					TaskExecution proce = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, false);
 					proce.executeTask();
 					//TODO: make sure the human sessions are run for only 1 episode
 					

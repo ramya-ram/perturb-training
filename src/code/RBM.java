@@ -10,6 +10,7 @@ public class RBM {
 	public double[] hbias;
 	public double[] vbias;
 	public Random rng;
+	public double[][] reconstructed_X;
 	
 	public double uniform(double min, double max) {
 		return rng.nextDouble() * (max - min) + min;
@@ -33,6 +34,9 @@ public class RBM {
 		return 1.0 / (1.0 + Math.pow(Math.E, -x));
 	}
 	
+	public RBM(){
+		
+	}
 	
 	public RBM(int N, int n_visible, int n_hidden, 
 			double[][] W, double[] hbias, double[] vbias, Random rng) {
@@ -166,58 +170,36 @@ public class RBM {
 
 	
 	
-	private static void test_rbm() {
+	public void test_rbm(int[][] trainData, int[][] testData) {
 		Random rng = new Random(123);
 
 		double learning_rate = 0.1;
 		int training_epochs = 1000;
 		int k = 1;
 		  
-		int train_N = 6;
-		int test_N = 2;
-		int n_visible = 6;
+		int train_N = 1000;
+		int test_N = 1000;
+		int n_visible = 4;
 		int n_hidden = 3;
-
-		// training data
-		int[][] train_X = {
-			{1, 1, 1, 0, 0, 0},
-			{1, 0, 1, 0, 0, 0},
-			{1, 1, 1, 0, 0, 0},
-			{0, 0, 1, 1, 1, 0},
-			{0, 0, 1, 0, 1, 0},
-			{0, 0, 1, 1, 1, 0}
-		};
-
-		
 		
 		RBM rbm = new RBM(train_N, n_visible, n_hidden, null, null, null, rng);
 
 		// train
 		for(int epoch=0; epoch<training_epochs; epoch++) {
 			for(int i=0; i<train_N; i++) {
-				rbm.contrastive_divergence(train_X[i], learning_rate, k);
+				rbm.contrastive_divergence(trainData[i], learning_rate, k);
 			}
 		}
-
-		// test data
-		int[][] test_X = {
-			{1, 1, 0, 0, 0, 0},
-			{0, 0, 0, 1, 1, 0}
-		};
 		
-		double[][] reconstructed_X = new double[test_N][n_visible];
+		reconstructed_X = new double[test_N][n_visible];
 
 		for(int i=0; i<test_N; i++) {
-			rbm.reconstruct(test_X[i], reconstructed_X[i]);
-			for(int j=0; j<n_visible; j++) {
+			rbm.reconstruct(testData[i], reconstructed_X[i]);
+			/*for(int j=0; j<n_visible; j++) {
 				System.out.printf("%.5f ", reconstructed_X[i][j]);
-			}
-			System.out.println();
+			}*/
+			//System.out.println();
 		}
 	}
-	
-	/*public static void main(String[] args) {
-		test_rbm();
-	}*/
 	
 }

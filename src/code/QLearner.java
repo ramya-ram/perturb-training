@@ -14,6 +14,7 @@ public class QLearner extends LearningAlgorithm {
 
 	public QLearner(QValuesSet qValuesSet, boolean useFileName) {
 		timer = new Timer(1000, timerListener());
+		samples = new int[Constants.NUM_SAMPLES][Constants.NUM_FEATURES];
 		
 		//if there are no qvalues to transfer from previous tasks, initialize the q-value table
 		if(qValuesSet == null){
@@ -47,8 +48,11 @@ public class QLearner extends LearningAlgorithm {
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
 		Main.currWithSimulatedHuman = withHuman;
-		if(withHuman && Main.CURRENT_EXECUTION == Main.SIMULATION)
+		/*if(withHuman && Main.CURRENT_EXECUTION == Main.SIMULATION){
+			if(computePolicy)
+				return computePolicy();
 			return null;
+		}*/
 		myWorld.setWindAndDryness();
 //		if(withHuman){
 //			this.epsilon = Main.HUMAN_EPSILON;
@@ -56,9 +60,13 @@ public class QLearner extends LearningAlgorithm {
 //		} else {
 //			this.epsilon = Main.SIMULATION_EPSILON;
 //		}
-		if(myWorld.typeOfWorld == Constants.TESTING)
-			currCommunicator = Constants.ROBOT; //robot initiates
+		numCurrentSamples = 0;
+		
 		int numEpisodes = Constants.NUM_EPISODES;
+		if(myWorld.typeOfWorld == Constants.TESTING){
+			currCommunicator = Constants.ROBOT; //robot initiates
+			numEpisodes = Constants.NUM_EPISODES_TEST;
+		}
 		if(withHuman)
 			numEpisodes = 1;
 		
@@ -66,7 +74,7 @@ public class QLearner extends LearningAlgorithm {
 		
 		System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
 		
-		if(withHuman){
+		if(withHuman && Main.gameView != null){
 			System.out.println("with human");
 			Main.gameView.setStartRoundEnable(true);
 			Main.gameView.waitForStartRoundClick();
@@ -81,8 +89,10 @@ public class QLearner extends LearningAlgorithm {
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 						saveDataToFile(tuple.getFirst(), tuple.getSecond(), tuple.getThird());
 					else{
-						if(myWorld.typeOfWorld == Constants.TESTING)
+						if(myWorld.typeOfWorld == Constants.TESTING){
+							System.out.println("writing");
 							rewardWriter.write(""+tuple.getFirst()+", ");
+						}
 					}
 				}
 	        }

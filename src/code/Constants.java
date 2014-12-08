@@ -21,12 +21,15 @@ public class Constants {
 	public static double THRESHOLD_REJECT = 2;
 	
 	//num of times to run
-	public static final int NUM_EPISODES = 1000;
+	public static final int NUM_EPISODES = 200000;
 	public static final int NUM_EPISODES_TEST = 1000;
 	public static final int NUM_STEPS_PER_EPISODE = 20;
 	
 	public static final int NUM_TRAINING_SESSIONS = 3;
 	public static final int NUM_TESTING_SESSIONS = 3;
+	
+	public static final int NUM_SAMPLES = 1000;
+	public static final int NUM_FEATURES = 4; //state, human action, robot action, nextState
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = true;
@@ -57,8 +60,8 @@ public class Constants {
 	public static String participantDir = dataDir;
 	
 	public static String simulationDir = "C:\\RSS_SimulationResults\\";
-	public static String rewardProceName = simulationDir+"testproceReward_39_93_46_05Train_EntireStates_test11033_1000iter.csv";
-	public static String rewardPerturbName = simulationDir+"testperturbReward_39_93_46_05Train_EntireStates_test11033_1000iter.csv";
+	public static String rewardProceName = simulationDir+"testperturbMatchReward_29_92_39_60_06Train_200000.csv";
+	public static String rewardPerturbName = simulationDir+"testperturbHRPRReward_29_92_39_60_06Train_200000.csv";
 
 	public static String fileBase = Constants.participantDir;
 	public static String rewardName = fileBase+"Reward.csv";

@@ -20,6 +20,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		this.myWorld = myWorld;
 		this.library = library;
 		timer = new Timer(1000, timerListener());
+		samples = new int[Constants.NUM_SAMPLES][Constants.NUM_FEATURES];
 		
 		robotQValues = qValuesSet.getRobotQValues();
 		jointQValues = qValuesSet.getJointQValues();
@@ -47,12 +48,19 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 //		} else {
 //			this.epsilon = Main.SIMULATION_EPSILON;
 //		}
-		if(withHuman && Main.CURRENT_EXECUTION == Main.SIMULATION)
+		/*if(withHuman && Main.CURRENT_EXECUTION == Main.SIMULATION){
+			if(computePolicy)
+				return computePolicy();
 			return null;
+		}*/
 		myWorld.setWindAndDryness();
-		if(myWorld.typeOfWorld == Constants.TESTING)
-			currCommunicator = Constants.ROBOT; //robot initiates
+		numCurrentSamples = 0;
+		
 		int numEpisodes = Constants.NUM_EPISODES;
+		if(myWorld.typeOfWorld == Constants.TESTING){
+			currCommunicator = Constants.ROBOT; //robot initiates
+			numEpisodes = Constants.NUM_EPISODES_TEST;
+		}	
 		if(withHuman)
 			numEpisodes = 1;
 		
@@ -60,7 +68,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		
 		System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
 		
-		if(withHuman){
+		if(withHuman && Main.gameView != null){
 			System.out.println("with human");
 			Main.gameView.setStartRoundEnable(true);
 			Main.gameView.waitForStartRoundClick();
@@ -195,13 +203,11 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 							iterations = count;
 							reachedGoalState = true;
 						}
-						if(withHuman){
-							if(Main.gameView != null){
-								Main.gameView.setNextEnable(true);
-								Main.gameView.waitForNextClick();
-								if(reachedGoalState){
-									Main.gameView.initTitleGUI("congrats");
-								}
+						if(withHuman && Main.gameView != null){
+							Main.gameView.setNextEnable(true);
+							Main.gameView.waitForNextClick();
+							if(reachedGoalState){
+								Main.gameView.initTitleGUI("congrats");
 							}
 						}
 	            	}

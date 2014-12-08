@@ -77,30 +77,40 @@ public class TaskExecution {
 		baseQLearner.run(trainingWorlds.get(0), false /*withHuman*/, false /*computePolicy*/);
 		baseQLearner.run(trainingWorlds.get(0), true, false);
 		baseQLearner.run(trainingWorlds.get(0), false, false);
-		baseQLearner.run(trainingWorlds.get(0), true, false);
+		Policy basePolicy = baseQLearner.run(trainingWorlds.get(0), true, true);
 		//TODO: possibly get policy from training session 1 for the library
 		learners.add(baseQLearner);
+		library.add(basePolicy);
 		
 		if(perturb){
 			//perturbation training sessions
-			for(MyWorld trainWorld : trainingWorlds){
+			for(int i=1; i<trainingWorlds.size(); i++){
 				QLearner perturbLearner = new QLearner(new QValuesSet(baseQLearner.robotQValues, baseQLearner.jointQValues), false);
-				setTitleLabel(trainWorld, colorsTraining[trainWorld.sessionNum]);
-				perturbLearner.run(trainWorld, false, false);
-				perturbLearner.run(trainWorld, true, false);
-				perturbLearner.run(trainWorld, false, false);
-				Policy policy = perturbLearner.run(trainWorld, true, true);
+				setTitleLabel(trainingWorlds.get(i), colorsTraining[trainingWorlds.get(i).sessionNum-1]);
+				perturbLearner.run(trainingWorlds.get(i), false, false);
+				perturbLearner.run(trainingWorlds.get(i), true, false);
+				perturbLearner.run(trainingWorlds.get(i), false, false);
+				Policy policy = perturbLearner.run(trainingWorlds.get(i), true, true);
 				library.add(policy);
 				learners.add(perturbLearner);
 			}
 		} else {
 			//procedural extra training sessions after base session
-			for(MyWorld trainWorld : trainingWorlds){
-				setTitleLabel(trainWorld, colorsTraining[trainWorld.sessionNum]);
+			for(int i=1; i<trainingWorlds.size(); i++){
+				/*System.out.println("trainworld "+trainWorld.sessionNum);
+				setTitleLabel(trainWorld, colorsTraining[trainWorld.sessionNum-1]);
 				baseQLearner.run(trainWorld, false, false);
 				baseQLearner.run(trainWorld, true, false);
 				baseQLearner.run(trainWorld, false, false);
-				baseQLearner.run(trainWorld, true, false);
+				baseQLearner.run(trainWorld, true, false);*/
+				QLearner perturbLearner = new QLearner(new QValuesSet(baseQLearner.robotQValues, baseQLearner.jointQValues), false);
+				setTitleLabel(trainingWorlds.get(i), colorsTraining[trainingWorlds.get(i).sessionNum-1]);
+				perturbLearner.run(trainingWorlds.get(i), false, false);
+				perturbLearner.run(trainingWorlds.get(i), true, false);
+				perturbLearner.run(trainingWorlds.get(i), false, false);
+				perturbLearner.run(trainingWorlds.get(i), true, false);
+				//library.add(policy);
+				learners.add(perturbLearner);
 			}
 		}
 		
@@ -113,6 +123,7 @@ public class TaskExecution {
 	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
 	 */
 	public void runTestingPhase(List<QLearner> trainedLearners, PolicyLibrary library){
+		RBM rbm = new RBM();
 		if(perturb){
 			for(MyWorld testWorld : testingWorlds){
 				calculateTestSimulationWindDryness(testWorld);
@@ -120,7 +131,7 @@ public class TaskExecution {
 				int maxPolicy = Tools.calculateMax(priorProbs);
 				PolicyReuseLearner PRLearner = new PolicyReuseLearner(testWorld, library,
 						new QValuesSet(trainedLearners.get(maxPolicy).robotQValues, trainedLearners.get(maxPolicy).jointQValues), priorProbs);
-				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum]);
+				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum-1]);
 				PRLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "before", Constants.print);
 				PRLearner.policyReuse(false, false);
 				PRLearner.policyReuse(true, false);
@@ -128,10 +139,14 @@ public class TaskExecution {
 		} else {
 			//procedural testing sessions
 			for(MyWorld testWorld : testingWorlds){
+				double[] priorProbs = calculatePrior(trainingWorlds, testWorld);
+				int maxPolicy = Tools.calculateMax(priorProbs);
 				QLearner testQLearner = new QLearner(new QValuesSet(
-						trainedLearners.get(0).robotQValues, trainedLearners.get(0).jointQValues), false);
-				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum]);
+						trainedLearners.get(maxPolicy).robotQValues, trainedLearners.get(maxPolicy).jointQValues), false);
+				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum-1]);
 				testQLearner.run(testWorld, false, false);
+				//for(QLearner qlearner : trainedLearners)
+					//rbm.test_rbm(qlearner.samples, testQLearner.samples);
 				testQLearner.run(testWorld, true, false);
 			}
 		}
@@ -145,7 +160,8 @@ public class TaskExecution {
 		else
 			str+= "Testing Session ";
 		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
-		gameView.setTitleLabel(str);
+		if(gameView != null)
+			gameView.setTitleLabel(str);
 	}
 	
 	/**

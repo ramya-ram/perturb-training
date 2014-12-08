@@ -34,14 +34,14 @@ public class MyWorld {
 		//setting testWind and testDryness for the testing scenarios
 		if(typeOfWorld == Constants.TESTING){
 			if(sessionNum == 1){
-				testWind = 3;
+				testWind = 2;
 				testDryness = 9;
 			} else if(sessionNum == 2){
 				testWind = 9;
-				testDryness = 3;
+				testDryness = 2;
 			} else if(sessionNum == 3){
-				testWind = 4;
-				testDryness = 6;
+				testWind = 3;
+				testDryness = 9;
 			} 
 		} else if(typeOfWorld == Constants.TRAINING){
 			if(sessionNum == 2){
@@ -49,7 +49,7 @@ public class MyWorld {
 					//testWind = 8;
 					//testDryness = 1;
 					
-					simulationWind = 5;
+					simulationWind = 6;
 					simulationDryness = 0;
 				}
 			} else if(sessionNum == 3){
@@ -58,7 +58,7 @@ public class MyWorld {
 					//testDryness = 8;
 					
 					simulationWind = 0;
-					simulationDryness = 5;
+					simulationDryness = 6;
 				}
 			}
 		}
@@ -390,7 +390,7 @@ public class MyWorld {
 			if(!beforeStochasticity.equals(newState) && Main.currWithSimulatedHuman){
 				textToDisplay += "Final state: "+newState.toStringSimple();
 			}
-			if(Main.currWithSimulatedHuman)
+			if(Main.currWithSimulatedHuman && Main.gameView != null)
 				Main.gameView.setAnnouncements(textToDisplay);
 		} catch(Exception e){
 			e.printStackTrace();
