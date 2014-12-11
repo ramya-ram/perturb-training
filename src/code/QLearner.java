@@ -11,10 +11,10 @@ import javax.swing.Timer;
  * Used to learn policies during training
  */
 public class QLearner extends LearningAlgorithm {
-
-	public QLearner(QValuesSet qValuesSet, boolean useFileName) {
+	public ExperimentCondition condition;
+	public QLearner(QValuesSet qValuesSet, boolean useFileName, ExperimentCondition condition) {
+		this.condition = condition;
 		timer = new Timer(1000, timerListener());
-		samples = new int[Constants.NUM_SAMPLES][Constants.NUM_FEATURES];
 		
 		//if there are no qvalues to transfer from previous tasks, initialize the q-value table
 		if(qValuesSet == null){
@@ -60,7 +60,6 @@ public class QLearner extends LearningAlgorithm {
 //		} else {
 //			this.epsilon = Main.SIMULATION_EPSILON;
 //		}
-		numCurrentSamples = 0;
 		
 		int numEpisodes = Constants.NUM_EPISODES;
 		if(myWorld.typeOfWorld == Constants.TESTING){
@@ -81,7 +80,6 @@ public class QLearner extends LearningAlgorithm {
 		}
 		
 		try{
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceName), true));
 	        for(int i = 0; i < numEpisodes; i++) {
 				Tuple<Double, Integer, Long> tuple = run(false /*egreedy*/, Constants.NUM_STEPS_PER_EPISODE);
 	            
@@ -90,13 +88,20 @@ public class QLearner extends LearningAlgorithm {
 						saveDataToFile(tuple.getFirst(), tuple.getSecond(), tuple.getThird());
 					else{
 						if(myWorld.typeOfWorld == Constants.TESTING){
+							String fileName = "";
+							if(condition == ExperimentCondition.PERTURB_Q)
+			    				fileName = Constants.rewardPerturbQName;
+			    			else if(condition == ExperimentCondition.PROCE_Q)
+			    				fileName = Constants.rewardProceQName;
+							BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
+
 							System.out.println("writing");
 							rewardWriter.write(""+tuple.getFirst()+", ");
+							rewardWriter.close();
 						}
 					}
 				}
 	        }
-	        rewardWriter.close();
 		} catch(Exception e){
 			e.printStackTrace();
 		}

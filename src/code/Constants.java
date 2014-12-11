@@ -13,8 +13,8 @@ public class Constants {
 	public static final double DECAY_VALUE = 0.95; //decay the probability of choosing past policies
 	
 	public static int MAX_TIME = 15;
-	public static final double SIMULATION_EPSILON = 0.1; // epsilon used in picking an action/how much should be explore
-	public static final double HUMAN_EPSILON = 0; // epsilon used in picking an action/how much should be explore
+	//public static final double SIMULATION_EPSILON = 0.1; // epsilon used in picking an action/how much should be explore
+	//public static final double HUMAN_EPSILON = 0; // epsilon used in picking an action/how much should be explore
 	public static final double EPSILON = 0.1;
 	
 	public static double THRESHOLD_SUGG = 0;
@@ -27,9 +27,6 @@ public class Constants {
 	
 	public static final int NUM_TRAINING_SESSIONS = 3;
 	public static final int NUM_TESTING_SESSIONS = 3;
-	
-	public static final int NUM_SAMPLES = 1000;
-	public static final int NUM_FEATURES = 4; //state, human action, robot action, nextState
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = true;
@@ -59,9 +56,10 @@ public class Constants {
 	
 	public static String participantDir = dataDir;
 	
-	public static String simulationDir = "C:\\RSS_SimulationResults\\";
-	public static String rewardProceName = simulationDir+"testperturbMatchReward_29_92_39_60_06Train_200000.csv";
-	public static String rewardPerturbName = simulationDir+"testperturbHRPRReward_29_92_39_60_06Train_200000.csv";
+	public static String simulationDir = "C:\\RSS_SimulationResults_Pruning\\";
+	public static String rewardProceQName = simulationDir+"proceQReward_29_92_39_Train60_06.csv";
+	public static String rewardPerturbQName = simulationDir+"perturbQReward_29_92_39_Train60_06.csv";
+	public static String rewardHRPRName = simulationDir+"HRPRReward_29_92_39_Train60_06.csv";
 
 	public static String fileBase = Constants.participantDir;
 	public static String rewardName = fileBase+"Reward.csv";

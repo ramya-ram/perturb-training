@@ -20,14 +20,13 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		this.myWorld = myWorld;
 		this.library = library;
 		timer = new Timer(1000, timerListener());
-		samples = new int[Constants.NUM_SAMPLES][Constants.NUM_FEATURES];
 		
 		robotQValues = qValuesSet.getRobotQValues();
 		jointQValues = qValuesSet.getJointQValues();
 		weights = new double[library.size()+1];
 		numOfEpisodesChosen = new int[library.size()+1];
 		for(int i=0; i<weights.length-1; i++){
-			weights[i] = policyWeights[i];
+			weights[i] = 0;//policyWeights[i];
 			numOfEpisodesChosen[i] = 0;
 			System.out.println("weights["+i+"] = "+weights[i]);
 		}
@@ -54,7 +53,6 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 			return null;
 		}*/
 		myWorld.setWindAndDryness();
-		numCurrentSamples = 0;
 		
 		int numEpisodes = Constants.NUM_EPISODES;
 		if(myWorld.typeOfWorld == Constants.TESTING){
@@ -80,7 +78,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		System.out.println("num of episodes chosen: ");
 		Tools.printArray(numOfEpisodesChosen);
 		try{
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbName), true));
+			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPRName), true));
 			double currTemp = Constants.TEMP;
 			//double cumulativeReward = 0;
 			//double cumulativeIter = 0;
@@ -195,6 +193,8 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 					updateQValues(state, agentActions, nextState, reward[k][count]);
 					
 					currProbPast = currProbPast*decayValue;
+		            //System.out.println(state.toStringFile()+" "+agentActions+" = "+nextState.toStringFile()+" R: "+reward[k][count]);
+
 					state = nextState.clone();
 					count++;
 					

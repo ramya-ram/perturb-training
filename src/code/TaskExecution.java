@@ -14,7 +14,7 @@ public class TaskExecution {
 	public GameView gameView;
 	public List<MyWorld> trainingWorlds;
 	public List<MyWorld> testingWorlds;
-	public boolean perturb;
+	public ExperimentCondition condition;
 	
 	//prior probabilities for environment variables = wind, dryness
 	public double[] probWind;
@@ -25,11 +25,11 @@ public class TaskExecution {
 	public Color[] colorsTraining = {Color.GREEN, Color.CYAN, Color.MAGENTA};
 	public Color[] colorsTesting = {Color.ORANGE, Color.RED, Color.GREEN};
 	
-	public TaskExecution(GameView gameView, List<MyWorld> trainingWorlds, List<MyWorld> testingWorlds, boolean perturb){
+	public TaskExecution(GameView gameView, List<MyWorld> trainingWorlds, List<MyWorld> testingWorlds, ExperimentCondition condition){
 		this.gameView = gameView;
 		this.trainingWorlds = trainingWorlds;
 		this.testingWorlds = testingWorlds;
-		this.perturb = perturb;
+		this.condition = condition;
 	}
 	
 	/**
@@ -38,28 +38,28 @@ public class TaskExecution {
 	public void executeTask(){
 		initPriorProbabilities();
 		
-		//if(Main.CURRENT_EXECUTION != Main.SIMULATION)
-		//	runPracticeSession();
+		if(Main.CURRENT_EXECUTION != Main.SIMULATION)
+			runPracticeSession();
 
 		Pair<List<QLearner>, PolicyLibrary> trainedResult = runTrainingPhase();
 		runTestingPhase(trainedResult.getFirst(), trainedResult.getSecond());
 	}
 	
-	/*public void runPracticeSession(){
-		Main.saveToFile = false;
+	public void runPracticeSession(){
+		/*Main.saveToFile = false;
 		MyWorld practiceWorld1 = new MyWorld(Constants.TRAINING, false, 0);
 		MyWorld practiceWorld2 = new MyWorld(Constants.TRAINING, false, 0);
 		
 		//practice session	
-		QLearner practice1 = new QLearner(null, true);
-		QLearner practice2 = new QLearner(null, true);
+		QLearner practice1 = new QLearner(null, true, ExperimentCondition.PROCE_Q);
+		QLearner practice2 = new QLearner(null, true, ExperimentCondition.PROCE_Q);
 		
 		try{
 			
 		} catch(Exception e){
 			e.printStackTrace();
-		}
-	}*/
+		}*/
+	}
 	
 	/**
 	 * Run all training sessions
@@ -72,7 +72,7 @@ public class TaskExecution {
 		PolicyLibrary library = new PolicyLibrary();
 		
 		//first training session -- same for procedural and perturbation
-		QLearner baseQLearner = new QLearner(null, true);
+		QLearner baseQLearner = new QLearner(null, true, ExperimentCondition.PROCE_Q);
 		setTitleLabel(trainingWorlds.get(0), colorsTraining[0]);
 		baseQLearner.run(trainingWorlds.get(0), false /*withHuman*/, false /*computePolicy*/);
 		baseQLearner.run(trainingWorlds.get(0), true, false);
@@ -82,10 +82,10 @@ public class TaskExecution {
 		learners.add(baseQLearner);
 		library.add(basePolicy);
 		
-		if(perturb){
+		if(condition == ExperimentCondition.HRPR){
 			//perturbation training sessions
 			for(int i=1; i<trainingWorlds.size(); i++){
-				QLearner perturbLearner = new QLearner(new QValuesSet(baseQLearner.robotQValues, baseQLearner.jointQValues), false);
+				QLearner perturbLearner = new QLearner(new QValuesSet(baseQLearner.robotQValues, baseQLearner.jointQValues), false, ExperimentCondition.HRPR);
 				setTitleLabel(trainingWorlds.get(i), colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainingWorlds.get(i), false, false);
 				perturbLearner.run(trainingWorlds.get(i), true, false);
@@ -94,23 +94,15 @@ public class TaskExecution {
 				library.add(policy);
 				learners.add(perturbLearner);
 			}
-		} else {
-			//procedural extra training sessions after base session
+		} else { //both perturb and proce Q-learning use one qlearner to learn all training tasks
+			//extra training sessions after base session
 			for(int i=1; i<trainingWorlds.size(); i++){
-				/*System.out.println("trainworld "+trainWorld.sessionNum);
-				setTitleLabel(trainWorld, colorsTraining[trainWorld.sessionNum-1]);
-				baseQLearner.run(trainWorld, false, false);
-				baseQLearner.run(trainWorld, true, false);
-				baseQLearner.run(trainWorld, false, false);
-				baseQLearner.run(trainWorld, true, false);*/
-				QLearner perturbLearner = new QLearner(new QValuesSet(baseQLearner.robotQValues, baseQLearner.jointQValues), false);
+				System.out.println("trainworld "+trainingWorlds.get(i).sessionNum);
 				setTitleLabel(trainingWorlds.get(i), colorsTraining[trainingWorlds.get(i).sessionNum-1]);
-				perturbLearner.run(trainingWorlds.get(i), false, false);
-				perturbLearner.run(trainingWorlds.get(i), true, false);
-				perturbLearner.run(trainingWorlds.get(i), false, false);
-				perturbLearner.run(trainingWorlds.get(i), true, false);
-				//library.add(policy);
-				learners.add(perturbLearner);
+				baseQLearner.run(trainingWorlds.get(i), false, false);
+				baseQLearner.run(trainingWorlds.get(i), true, false);
+				baseQLearner.run(trainingWorlds.get(i), false, false);
+				baseQLearner.run(trainingWorlds.get(i), true, false);
 			}
 		}
 		
@@ -123,30 +115,28 @@ public class TaskExecution {
 	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
 	 */
 	public void runTestingPhase(List<QLearner> trainedLearners, PolicyLibrary library){
-		RBM rbm = new RBM();
-		if(perturb){
+		//RBM rbm = new RBM();
+		if(condition == ExperimentCondition.HRPR){
 			for(MyWorld testWorld : testingWorlds){
 				calculateTestSimulationWindDryness(testWorld);
-				double[] priorProbs = calculatePrior(trainingWorlds, testWorld);
-				int maxPolicy = Tools.calculateMax(priorProbs);
+				//double[] priorProbs = calculatePrior(trainingWorlds, testWorld);
+				//int maxPolicy = Tools.calculateMax(priorProbs);
 				PolicyReuseLearner PRLearner = new PolicyReuseLearner(testWorld, library,
-						new QValuesSet(trainedLearners.get(maxPolicy).robotQValues, trainedLearners.get(maxPolicy).jointQValues), priorProbs);
+						new QValuesSet(trainedLearners.get(0).robotQValues, trainedLearners.get(0).jointQValues), null);
 				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum-1]);
 				PRLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "before", Constants.print);
 				PRLearner.policyReuse(false, false);
 				PRLearner.policyReuse(true, false);
 			}
 		} else {
-			//procedural testing sessions
+			//Q-learning proce and perturb testing sessions
 			for(MyWorld testWorld : testingWorlds){
-				double[] priorProbs = calculatePrior(trainingWorlds, testWorld);
-				int maxPolicy = Tools.calculateMax(priorProbs);
+				//double[] priorProbs = calculatePrior(trainingWorlds, testWorld);
+				//int maxPolicy = Tools.calculateMax(priorProbs);
 				QLearner testQLearner = new QLearner(new QValuesSet(
-						trainedLearners.get(maxPolicy).robotQValues, trainedLearners.get(maxPolicy).jointQValues), false);
+						trainedLearners.get(0).robotQValues, trainedLearners.get(0).jointQValues), false, ExperimentCondition.PROCE_Q);
 				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum-1]);
 				testQLearner.run(testWorld, false, false);
-				//for(QLearner qlearner : trainedLearners)
-					//rbm.test_rbm(qlearner.samples, testQLearner.samples);
 				testQLearner.run(testWorld, true, false);
 			}
 		}

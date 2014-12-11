@@ -38,10 +38,7 @@ public class LearningAlgorithm {
 
 	public static Timer timer;
 	public static int timeLeft = Constants.MAX_TIME;
-	
-	public int[][] samples;
-	public int numCurrentSamples = 0;
-	
+
 	/**
 	 * Runs one episode of the task
 	 */
@@ -69,15 +66,9 @@ public class LearningAlgorithm {
 	            rewardPerEpisode+=reward;
 	            saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward);     
 	            updateQValues(state, agentActions, nextState, reward);
-	            
-	            /*if(numCurrentSamples < Constants.NUM_SAMPLES){
-		            samples[numCurrentSamples][0] = state.getId();
-		            samples[numCurrentSamples][1] = agentActions.getHumanAction().ordinal();
-		            samples[numCurrentSamples][2] = agentActions.getRobotAction().ordinal();
-		            samples[numCurrentSamples][3] = nextState.getId();
-		            numCurrentSamples++;
-	            }*/
-	            
+	           
+	           //System.out.println(state.toStringFile()+" "+agentActions+" = "+nextState.toStringFile()+" R: "+reward);
+
 	            state = nextState.clone();
 	            count++;
 	            
