@@ -7,7 +7,7 @@ import java.util.List;
  * Holds a list of policies that make up the library used in policy reuse
  */
 public class PolicyLibrary {
-	private List<Policy> policyLibrary;
+	public List<Policy> policyLibrary;
 
 	public PolicyLibrary(List<Policy> policyLibrary) {
 		this.policyLibrary = policyLibrary;
@@ -33,7 +33,23 @@ public class PolicyLibrary {
 		policyLibrary.add(policy);
 	}
 	
+	public void addAll(List<Policy> policies){
+		policyLibrary.addAll(policies);
+	}
+	
 	public void remove(Policy policy){
 		policyLibrary.remove(policy);
+	}
+	
+	public void printWeights(){
+		for(Policy policy : policyLibrary)
+			System.out.print(policy.weight+" ");
+		System.out.println();
+	}
+	
+	public void printNumEpisodesChosen(){
+		for(Policy policy : policyLibrary)
+			System.out.print(policy.numEpisodesChosen+" ");
+		System.out.println();
 	}
 }

@@ -134,7 +134,7 @@ public class TaskExecution {
 				//double[] priorProbs = calculatePrior(trainingWorlds, testWorld);
 				//int maxPolicy = Tools.calculateMax(priorProbs);
 				QLearner testQLearner = new QLearner(new QValuesSet(
-						trainedLearners.get(0).robotQValues, trainedLearners.get(0).jointQValues), false, ExperimentCondition.PROCE_Q);
+						trainedLearners.get(0).robotQValues, trainedLearners.get(0).jointQValues), false, condition);
 				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum-1]);
 				testQLearner.run(testWorld, false, false);
 				testQLearner.run(testWorld, true, false);
@@ -168,23 +168,18 @@ public class TaskExecution {
 			System.out.println(i+ " dryness = "+trainingRealValues[i][1]);
 		}
 		
-		//System.out.println("obsWind "+obsWind+" obsDryness "+obsDryness);
 		double[] probs = new double[trainingWorlds.size()];
 		for(int i=0; i<trainingWorlds.size(); i++){
 			//P(Ow|w)P(w)
 			double numWind = probObsGivenWind[testWorld.simulationWind][trainingRealValues[i][0]] * probWind[trainingRealValues[i][0]];
-			//System.out.println("numWind "+numWind);
 			double denomWind = 0;
 			for(int index=0; index<probObsGivenWind.length; index++)
 				denomWind += probObsGivenWind[testWorld.simulationWind][index] * probWind[index];
-			//System.out.println("denomWind "+denomWind);
 			
 			double numDryness = probObsGivenDryness[testWorld.simulationDryness][trainingRealValues[i][1]] * probDryness[trainingRealValues[i][1]];
-			//System.out.println("numDryness "+numDryness);
 			double denomDryness = 0;
 			for(int index=0; index<probObsGivenDryness.length; index++)
 				denomDryness += probObsGivenDryness[testWorld.simulationDryness][index] * probDryness[index];
-			//System.out.println("denomDryness "+denomDryness);
 			
 			double probOfWind = denomWind>0?(numWind/denomWind):numWind;
 			double probOfDryness = denomDryness>0?(numDryness/denomDryness):numDryness;

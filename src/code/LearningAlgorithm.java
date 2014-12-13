@@ -42,56 +42,48 @@ public class LearningAlgorithm {
 	/**
 	 * Runs one episode of the task
 	 */
-	public Tuple<Double, Integer, Long> run(boolean fullyGreedy, int maxSteps){
-		boolean reachedGoalState = false;
-		State state = myWorld.initialState().clone();
-        double rewardPerEpisode = 0;
+	public Tuple<Double, Integer, Long> run(Policy pastPolicy, boolean fullyGreedy, int maxSteps){
+        double episodeReward = 0;
         int iterations = 0;
-        int count = 0;
         long startTime = System.currentTimeMillis();
+        
+		State state = myWorld.initialState().clone();
         try{
-	        while (!MyWorld.isGoalState(state) && count < maxSteps) {
+	        while (!MyWorld.isGoalState(state) && iterations < maxSteps) {
 	        	HumanRobotActionPair agentActions = null;
-				if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION && !reachedGoalState)
+				if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION) {
 					agentActions = getAgentActionsCommWithHuman(state, null); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
-				else{
-					if(fullyGreedy)
-						agentActions = getAgentActionsFullyGreedySimulation(state); //for policy reuse, fully greedy is used
-					else
-						agentActions = getAgentActionsSimulation(state); //uses e-greedy approach (with probability epsilon, choose a random action) 
+				} else if(pastPolicy != null) {
+					agentActions = pastPolicy.action(state.getId());
+				} else if(fullyGreedy){
+					agentActions = getAgentActionsFullyGreedySimulation(state); //for policy reuse, fully greedy is used
+				} else {
+					agentActions = getAgentActionsSimulation(state); //uses e-greedy approach (with probability epsilon, choose a random action) 
 				}
 				
 	            State nextState = myWorld.getNextState(state, agentActions);
 	            double reward = myWorld.reward(state, agentActions, nextState);
-	            rewardPerEpisode+=reward;
+	            episodeReward += reward;
 	            saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward);     
 	            updateQValues(state, agentActions, nextState, reward);
-	           
-	           //System.out.println(state.toStringFile()+" "+agentActions+" = "+nextState.toStringFile()+" R: "+reward);
-
-	            state = nextState.clone();
-	            count++;
 	            
-            	if(!reachedGoalState){
+	            state = nextState.clone();
+	            iterations++;
+	            
+				if(withHuman && Main.gameView != null){
+					Main.gameView.setNextEnable(true);
+					Main.gameView.waitForNextClick();
 					if(MyWorld.isGoalState(state)){
-						iterations = count;
-						reachedGoalState = true;
+						Main.gameView.initTitleGUI("congrats");
 					}
-					if(withHuman && Main.gameView != null){
-						Main.gameView.setNextEnable(true);
-						Main.gameView.waitForNextClick();
-						if(reachedGoalState){
-							Main.gameView.initTitleGUI("congrats");
-						}
-					}
-            	}
+				}
 	        }
         } catch(Exception e){
         	e.printStackTrace();
         }
         
         long endTime = System.currentTimeMillis();
-        return new Tuple<Double,Integer,Long>(rewardPerEpisode, iterations, (endTime - startTime));
+        return new Tuple<Double,Integer,Long>(episodeReward, iterations, (endTime - startTime));
 	}
 	
 	/**
@@ -241,7 +233,6 @@ public class LearningAlgorithm {
 				bestRobotActionSuggestion = agentActions.getRobotAction();
 				
 				bestRobotActionUpdate = getGreedyRobotAction(state, null);
-				//Main.connect.sendMessage("for sugg human "+bestHumanAction+" robot "+bestRobotActionSuggestion+" for update "+bestRobotActionUpdate);
 				for(Action humanAction : humanActions){
 					double value = getJointQValue(state, new HumanRobotActionPair(humanAction, bestRobotActionUpdate));
 					cumulativeValue += value;
@@ -254,9 +245,7 @@ public class LearningAlgorithm {
 			
 			if((maxJointValue - averageValue) > Constants.THRESHOLD_SUGG && bestHumanActionSuggestion != null){ //robot suggests human an action too
 				numRobotSuggestions++;
-				//enableSend(false);			
 				updateGUIMessage("Your teammate will choose to "+getPrintableFromAction(bestRobotActionSuggestion)+" and suggests you to "+getPrintableFromAction(bestHumanActionSuggestion));
-				//enableSend(true);
 				addToGUIMessage("Would you like to accept the suggestion? (Y or N [A, B, C, D, E])");
 				CommResponse response = getHumanMessage(bestHumanActionSuggestion);
 				if(response.commType == CommType.NONE)
@@ -265,9 +254,7 @@ public class LearningAlgorithm {
 				
 			} else { //robot just updates
 				numRobotUpdates++;
-				//enableSend(false);
 				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionUpdate));
-				//enableSend(true);
 				addToGUIMessage("Which fire you would like to extinguish (A, B, C, D, or E)?");
 				CommResponse response = getHumanMessage(null);
 				if(response.commType == CommType.NONE)
@@ -291,7 +278,6 @@ public class LearningAlgorithm {
 	public HumanRobotActionPair humanComm(State state, Action pastRobotAction) {
 		try{
 			updateGUIMessage("Which fire you would like to extinguish (A, B, C, D, E)? If you want to make a suggestion, add a space and one more letter the action you suggest for the robot: ");
-			//enableSend(true);
 			CommResponse response = getHumanMessage(null);			
 			Action humanAction = response.humanAction;
 			Action robotAction = response.robotAction;
@@ -308,7 +294,6 @@ public class LearningAlgorithm {
 					else
 						optimalRobotAction = getGreedyRobotAction(state, humanAction);
 					double robotSuggestedQValue = getJointQValue(state, new HumanRobotActionPair(humanAction, optimalRobotAction));
-					//enableSend(false);
 					addToGUIMessage("Waiting for teammate...");
 					simulateWaitTime(state);
 					//robot rejects human suggestion and chooses own action assuming human will do their suggested action
@@ -322,7 +307,6 @@ public class LearningAlgorithm {
 					}
 				} else if(response.commType == CommType.UPDATE){
 					numHumanUpdates++;				
-					//enableSend(false);				
 					addToGUIMessage("Waiting for teammate...");
 					simulateWaitTime(state);
 					robotAction = getGreedyRobotAction(state, humanAction);
@@ -450,7 +434,6 @@ public class LearningAlgorithm {
 	 * Computes a policy (indicating what action should be taken for each state) given the q value table
 	 */
 	public Policy computePolicy(){
-		//HashMap<Integer, HumanRobotActionPair> policy = new HashMap<Integer, HumanRobotActionPair>();
 		HumanRobotActionPair[] policy = new HumanRobotActionPair[mdp.states.size()];
 		for(State state : mdp.states()){
 			HumanRobotActionPair actions = getGreedyJointAction(state).getFirst();
@@ -545,17 +528,17 @@ public class LearningAlgorithm {
 	
 	public void saveDataToFile(double reward, int iterations, long time){
 		try{
-			BufferedWriter rewardHumanWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHumanName), true));
-			BufferedWriter iterHumanWriter = new BufferedWriter(new FileWriter(new File(Constants.iterHumanName), true));
-			BufferedWriter timeWriter = new BufferedWriter(new FileWriter(new File(Constants.timeName), true));
-			BufferedWriter robotUpdatesWriter = new BufferedWriter(new FileWriter(new File(Constants.robotUpdatesName), true));
-			BufferedWriter robotSuggWriter = new BufferedWriter(new FileWriter(new File(Constants.robotSuggName), true));
-			BufferedWriter humanUpdatesWriter = new BufferedWriter(new FileWriter(new File(Constants.humanUpdatesName), true));
-			BufferedWriter humanSuggWriter = new BufferedWriter(new FileWriter(new File(Constants.humanSuggName), true));
-			BufferedWriter robotAccWriter = new BufferedWriter(new FileWriter(new File(Constants.robotAccName), true));
-			BufferedWriter robotRejWriter = new BufferedWriter(new FileWriter(new File(Constants.robotRejName), true));
-			BufferedWriter humanAccWriter = new BufferedWriter(new FileWriter(new File(Constants.humanAccName), true));
-			BufferedWriter humanRejWriter = new BufferedWriter(new FileWriter(new File(Constants.humanRejName), true));
+			BufferedWriter rewardHumanWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"RewardHuman.csv"), true));
+			BufferedWriter iterHumanWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"IterHuman.csv"), true));
+			BufferedWriter timeWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"Time.csv"), true));
+			BufferedWriter robotUpdatesWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"robotUpdates.csv"), true));
+			BufferedWriter robotSuggWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"robotSuggestions.csv"), true));
+			BufferedWriter humanUpdatesWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"humanUpdates.csv"), true));
+			BufferedWriter humanSuggWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"humanSuggestions.csv"), true));
+			BufferedWriter robotAccWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"robotAccepts.csv"), true));
+			BufferedWriter robotRejWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"robotRejects.csv"), true));
+			BufferedWriter humanAccWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"humanAccepts.csv"), true));
+			BufferedWriter humanRejWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"humanRejects.csv"), true));
 	
 	    	robotUpdatesWriter.write(numRobotUpdates+", ");
 			robotSuggWriter.write(numRobotSuggestions+", ");

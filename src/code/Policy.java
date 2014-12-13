@@ -5,10 +5,20 @@ package code;
  * For every state in the task, this policy specifies what joint action to take 
  */
 public class Policy {
-	HumanRobotActionPair[] policy;
+	public HumanRobotActionPair[] policy;
+	public double weight;
+	public int numEpisodesChosen;
+	
+	public Policy() {
+		this.policy = null;
+		weight = 0;
+		numEpisodesChosen = 0;
+	}
 	
 	public Policy(HumanRobotActionPair[] policy) {
 		this.policy = policy;
+		weight = 0;
+		numEpisodesChosen = 0;
 	}
 
 	public HumanRobotActionPair action(int stateId){

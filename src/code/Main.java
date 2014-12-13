@@ -13,7 +13,7 @@ import PR2_robot.MyServer;
 
 public class Main {
 	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2;
-	public static int CURRENT_EXECUTION = SIMULATION;
+	public static int CURRENT_EXECUTION = SIMULATION_HUMAN;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
