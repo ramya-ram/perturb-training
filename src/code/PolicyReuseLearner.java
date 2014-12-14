@@ -114,13 +114,13 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				if(isPastPolicy(library, policyNum)){
 					//System.out.println("using policy num "+policyNum);
 					Policy currPolicy = library.get(policyNum);
-					Tuple<Double, Integer, Long> tuple = run(currPolicy, true, Constants.NUM_STEPS_PER_EPISODE);
+					Tuple<Double, Integer, Long> tuple = run(currPolicy, /*true, */Constants.NUM_STEPS_PER_EPISODE);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
 				} else {
 					//System.out.println("using curr policy");
-					Tuple<Double, Integer, Long> tuple = run(null, true, Constants.NUM_STEPS_PER_EPISODE);
+					Tuple<Double, Integer, Long> tuple = run(null, /*true,*/ Constants.NUM_STEPS_PER_EPISODE);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
