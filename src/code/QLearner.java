@@ -49,6 +49,7 @@ public class QLearner extends LearningAlgorithm {
 		this.withHuman = withHuman;
 		Main.currWithSimulatedHuman = withHuman;
 		
+    	long start = System.currentTimeMillis();		
 		int numEpisodes = Constants.NUM_EPISODES;
 		if(myWorld.typeOfWorld == Constants.TESTING){
 			currCommunicator = Constants.ROBOT; //robot initiates
@@ -66,6 +67,7 @@ public class QLearner extends LearningAlgorithm {
 			Main.gameView.setStartRoundEnable(true);
 			Main.gameView.waitForStartRoundClick();
 		}
+		Policy policy = null;
 		
 		try{
 	        for(int i = 0; i < numEpisodes; i++) {
@@ -90,11 +92,18 @@ public class QLearner extends LearningAlgorithm {
 					}
 				}
 	        }
+			if(computePolicy)
+				policy = computePolicy();
+			long end = System.currentTimeMillis();
+			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
+				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration.csv"), true));
+				System.out.println("policyReuse duration "+(end-start));
+				writer.write((end-start)+"\n");
+				writer.close();
+			}
 		} catch(Exception e){
 			e.printStackTrace();
 		}
-		if(computePolicy)
-			return computePolicy();
-		return null;
+		return policy;
     }
 }

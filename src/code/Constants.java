@@ -8,19 +8,21 @@ public class Constants {
 	public static final double GAMMA = 1; // gamma is penalty on delayed result
 	public static final double ALPHA = 0.05; // learning rate
 	public static final double TEMP = 0; //temperature parameter 
-	public static final double DELTA_TEMP = 0.05; //change in temperature parameter 
+	public static final double DELTA_TEMP = 0.1; //change in temperature parameter 
 	
 	public static int MAX_TIME = 15;
 	public static final double EPSILON = 0.1;
-	public static final int NUM_EPISODES_PRUNING = 2;
 	
 	public static double THRESHOLD_SUGG = 0;
 	public static double THRESHOLD_REJECT = 2;
 	
 	//num of times to run
-	public static final int NUM_EPISODES = 200000;
-	public static final int NUM_EPISODES_TEST = 3000;
+	public static final int NUM_EPISODES = 100000;
+	public static final int NUM_EPISODES_TEST = 1000;
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
+	
+	public static final int NUM_EPISODES_PRUNING = 100;
+	public static final int PRUNING_THRESHOLD = 20;
 	
 	public static final int NUM_TRAINING_SESSIONS = 3;
 	public static final int NUM_TESTING_SESSIONS = 3;
@@ -51,7 +53,7 @@ public class Constants {
 	public static String participantDir = dataDir;
 	
 	public static String simulationDir = "C:\\RSS_SimulationResults_Pruning\\";
-	public static String rewardProceQName = simulationDir+"testingproceQReward_29_92_39_Train60_06.csv";
-	public static String rewardPerturbQName = simulationDir+"testingperturbQReward_29_92_39_Train60_06.csv";
-	public static String rewardHRPRName = simulationDir+"testingHRPRReward_29_92_39_Train60_06.csv";
+	public static String rewardProceQName = simulationDir+"proceQReward_29_92_39_Train60_06_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+"_currPolicyCanRemove.csv";
+	public static String rewardPerturbQName = simulationDir+"perturbQReward_29_92_39_Train60_06_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+"_currPolicyCanRemove.csv";
+	public static String rewardHRPRName = simulationDir+"HRPRReward_29_92_39_Train60_06_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+"_currPolicyCanRemove.csv";
 }

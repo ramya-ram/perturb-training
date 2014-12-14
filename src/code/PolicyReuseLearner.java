@@ -39,6 +39,8 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
 		Main.currWithSimulatedHuman = withHuman;
+		
+		long start = System.currentTimeMillis();
 		myWorld.setWindAndDryness();
 		
 		int numEpisodes = Constants.NUM_EPISODES;
@@ -58,7 +60,8 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 			Main.gameView.setStartRoundEnable(true);
 			Main.gameView.waitForStartRoundClick();
 		}
-		
+		Policy policy = null;
+
 		//starting policy reuse algorithm
 		try{
 			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPRName), true));
@@ -73,7 +76,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 					libraryNew.add(library.get(0)); //always add current policy
 					//prune policies with less weight
 					for(int num=1; num<library.size(); num++){ //cannot remove policy 0 (current policy)
-						if(probForPolicies[num] > 10){
+						if(probForPolicies[num] > Constants.PRUNING_THRESHOLD){
 							libraryNew.add(library.get(num));
 						}
 					}
@@ -84,9 +87,18 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				probForPolicies = getAccumulatedArray(probForPolicies);
 				
 				int policyNum = 0;
-				/*if(withHuman){
-					policyNum = 0; //if working with the human, use the current policy
-				} else {*/
+				if(withHuman){
+					//policyNum = 0; //if working with the human, use the current policy
+					double maxWeight = Integer.MIN_VALUE;
+					policyNum = -1;
+					for(int i=0; i<library.size(); i++){
+						if(library.get(i).weight > maxWeight){
+							maxWeight = library.get(i).weight;
+							policyNum = i;
+						}
+					}
+					System.out.println("working with human, best policy = "+policyNum);
+				} else {
 					int randNum = Tools.rand.nextInt(100);
 					while(randNum>probForPolicies[policyNum]){
 						policyNum++;
@@ -95,7 +107,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 							break;
 						}
 					}
-				//}
+				}
 				double reward = 0;
 				int iterations = 0;
 				long duration = 0;
@@ -134,12 +146,20 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				library.printNumEpisodesChosen();
 			}
 			rewardWriter.close();
+			
+			if(computePolicy)
+				policy = computePolicy();
+			long end = System.currentTimeMillis();
+			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
+				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration.csv"), true));
+				System.out.println("policyReuse duration "+(end-start));
+				writer.write((end-start)+"\n");
+				writer.close();
+			}
 		} catch(Exception e){
 			e.printStackTrace();
-		}
-		if(computePolicy)
-			return computePolicy();
-		return null;
+		}	
+		return policy;
 	}
 	
 	/**
