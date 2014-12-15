@@ -42,10 +42,7 @@ public class LearningAlgorithm {
 	/**
 	 * Runs one episode of the task
 	 */
-	public Tuple<Double, Integer, Long> run(Policy pastPolicy, /*boolean fullyGreedy, */int maxSteps){
-		//if(myWorld.typeOfWorld == Constants.TESTING)
-		//	System.out.println("test");
-		
+	public Tuple<Double, Integer, Long> run(Policy pastPolicy, int maxSteps){
         double episodeReward = 0;
         int iterations = 0;
         long startTime = System.currentTimeMillis();
@@ -58,10 +55,7 @@ public class LearningAlgorithm {
 					agentActions = getAgentActionsCommWithHuman(state, null); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
 				} else if(pastPolicy != null) {
 					agentActions = pastPolicy.action(state.getId());
-				} //else if(fullyGreedy){
-				//	agentActions = getAgentActionsFullyGreedySimulation(state); //for policy reuse, fully greedy is used
-				//} 
-				else {
+				} else {
 					agentActions = getAgentActionsSimulation(state); //uses e-greedy approach (with probability epsilon, choose a random action) 
 				}
 				
@@ -145,7 +139,7 @@ public class LearningAlgorithm {
 					for(int k=0; k<jointQValues[stateId][j].length; k++){
 						if(jointQValues[stateId][j][k] < 0 || jointQValues[stateId][j][k] > 0){
 							count++;
-							//	System.out.println("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+jointQValues[stateId][j][k]);
+							//System.out.println("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+jointQValues[stateId][j][k]);
 							writer.write("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+jointQValues[stateId][j][k]+"\n");
 						}
 					}
@@ -449,8 +443,7 @@ public class LearningAlgorithm {
 			HumanRobotActionPair actions = getGreedyJointAction(state).getFirst();
 			policy[state.getId()] = actions;
 		}
-		System.out.println("policy for "+myWorld.sessionNum);
-		return new Policy(policy, myWorld.sessionNum);
+		return new Policy(policy);
 	}
 	
 	/**

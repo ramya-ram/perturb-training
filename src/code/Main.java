@@ -58,13 +58,13 @@ public class Main {
 			if(CURRENT_EXECUTION == SIMULATION){
 				for(int i=0; i<Constants.NUM_AVERAGING; i++){				
 					//PROCEDURAL - Q-learning
-//					TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
-//					proceQ.executeTask();
+					TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
+					proceQ.executeTask();
 					//TODO: make sure the human sessions are run for only 1 episode
 					
 					//PERTURBATION - Q-learning
-//					TaskExecution perturbQ = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PERTURB_Q);
-//					perturbQ.executeTask();
+					TaskExecution perturbQ = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PERTURB_Q);
+					perturbQ.executeTask();
 					
 					//PERTURBATION - HRPR
 					TaskExecution HRPR = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.HRPR);

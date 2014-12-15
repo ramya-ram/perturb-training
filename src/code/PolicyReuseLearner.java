@@ -71,33 +71,13 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPRName), true));
 			double currTemp = Constants.TEMP;
 			for(int k=0; k<numEpisodes; k++){
-				//System.out.print(k+" ");
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
 				double[] probForPolicies = getProbForPolicies(library, currTemp);
-				
-				/*if(k%Constants.NUM_EPISODES_PRUNING == 0 && k != 0){
-					Tools.printArray(probForPolicies);
-					List<Policy> libraryNew = new ArrayList<Policy>();
-					libraryNew.add(library.get(0)); //always add current policy
-					//prune policies with less weight
-					mainWriter.write("removing ");
-					for(int num=1; num<library.size(); num++){ //cannot remove policy 0 (current policy)
-						if(probForPolicies[num] > Constants.PRUNING_THRESHOLD){
-							libraryNew.add(library.get(num));
-						} else {
-							mainWriter.write(library.get(num).originalPolicyNum+", ");
-						}
-					}
-					mainWriter.write("\n");
-					library = new PolicyLibrary(libraryNew);
-				}*/
-				
-				probForPolicies = getProbForPolicies(library, currTemp);
 				probForPolicies = getAccumulatedArray(probForPolicies);
 				
 				int policyNum = 0;
 				if(withHuman){
-					//policyNum = 0; //if working with the human, use the current policy
+					//if working with the human, choose the policy with the highest weight
 					double maxWeight = Integer.MIN_VALUE;
 					policyNum = -1;
 					for(int i=0; i<library.size(); i++){
@@ -105,9 +85,9 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 							maxWeight = library.get(i).weight;
 							policyNum = i;
 						}
-						mainWriter.write(library.get(i).originalPolicyNum+" "+library.get(i).weight+"\n");
+						mainWriter.write(i+" "+library.get(i).weight+"\n");
 					}
-					mainWriter.write("finally using "+library.get(policyNum).originalPolicyNum+"\n");
+					mainWriter.write("finally using "+policyNum+"\n");
 					System.out.println("working with human, best policy = "+policyNum);
 				} else {
 					int randNum = Tools.rand.nextInt(100);
