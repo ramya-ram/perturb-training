@@ -65,6 +65,9 @@ public class LearningAlgorithm {
 	            saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward);     
 	            updateQValues(state, agentActions, nextState, reward);
 	            
+	            if(myWorld.typeOfWorld == Constants.TESTING && Main.currWithSimulatedHuman)
+	            	System.out.println(state.toStringFile()+" "+agentActions+" "+nextState.toStringFile()+" = "+reward);
+	            
 	            state = nextState.clone();
 	            iterations++;
 	            
@@ -79,7 +82,8 @@ public class LearningAlgorithm {
         } catch(Exception e){
         	e.printStackTrace();
         }
-        
+        if(myWorld.typeOfWorld == Constants.TESTING && Main.currWithSimulatedHuman)
+        	System.out.println("EPISODE REWARD "+episodeReward);
         long endTime = System.currentTimeMillis();
         return new Tuple<Double,Integer,Long>(episodeReward, iterations, (endTime - startTime));
 	}

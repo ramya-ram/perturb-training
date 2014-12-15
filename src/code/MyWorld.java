@@ -163,7 +163,7 @@ public class MyWorld {
 	}
 	
 	public State initialState(){
-		if(Main.currWithSimulatedHuman && Main.CURRENT_EXECUTION != Main.SIMULATION){
+		if(Main.currWithSimulatedHuman){
 			int[] stateOfFires = {1,1,0,3,3};
 			return new State(stateOfFires);
 		}

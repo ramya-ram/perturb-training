@@ -50,9 +50,9 @@ public class Constants {
 	public static String participantDir = dataDir;
 	
 	public static String simulationDir = "C:\\RSS_SimulationResults_Pruning2\\";
-	public static String rewardProceQName = simulationDir+"testproceQReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter.csv";
-	public static String rewardPerturbQName = simulationDir+"testperturbQReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter.csv";
-	public static String rewardHRPRName = simulationDir+"testHRPRReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter.csv";
+	public static String rewardProceQName = simulationDir+"proceQReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter.csv";
+	public static String rewardPerturbQName = simulationDir+"perturbQReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter.csv";
+	public static String rewardHRPRName = simulationDir+"HRPRReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter.csv";
 
 	public static String qvaluesDir = "C:\\RSS_SimulationResults_QValues\\";
 }

@@ -36,9 +36,10 @@ public class TaskExecution {
 	 * Run training and testing phases
 	 */
 	public void executeTask(){
-		initPriorProbabilities();
+		//initPriorProbabilities();
 		//for(MyWorld testWorld : testingWorlds)
 		//	calculateTestSimulationWindDryness(testWorld);
+		System.out.println("EXECUTE TASK");
 		
 		if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 			runPracticeSession();
