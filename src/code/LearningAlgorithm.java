@@ -135,24 +135,29 @@ public class LearningAlgorithm {
 	/**
 	 * Prints out q-values of a particular state, for debugging purposes
 	 */
-	public void numOfNonZeroQValues(State state, String text, boolean print){
-		if(print){
-			System.out.println(text);
-			try{
-				int count = 0;
-				int stateId = state.getId();
-				for(int j=0; j<jointQValues[stateId].length; j++){
-					for(int k=0; k<jointQValues[stateId][j].length; k++){
-						if(jointQValues[stateId][j][k] < 0 || jointQValues[stateId][j][k] > 0){
-							count++;
-							System.out.println("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+jointQValues[stateId][j][k]);
+	public void numOfNonZeroQValues(State state, String fileName, boolean writeToFile){
+			//System.out.println(text);
+		try{
+			int count = 0;
+			int stateId = state.getId();
+			for(int j=0; j<jointQValues[stateId].length; j++){
+				for(int k=0; k<jointQValues[stateId][j].length; k++){
+					if(jointQValues[stateId][j][k] < 0 || jointQValues[stateId][j][k] > 0){
+						count++;
+						//if(!writeToFile)
+						//	System.out.println("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+jointQValues[stateId][j][k]);
+						//else{
+						if(writeToFile){
+							BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.qvaluesDir+fileName+".txt")));
+							writer.write("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+jointQValues[stateId][j][k]+"\n");
+							writer.close();
 						}
 					}
 				}
-				System.out.println("count of nonzero "+count);
-			} catch(Exception e){
-				e.printStackTrace();
 			}
+			System.out.println("count of nonzero "+count);
+		} catch(Exception e){
+			e.printStackTrace();
 		}
 	}
 	

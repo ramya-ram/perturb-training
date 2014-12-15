@@ -30,7 +30,7 @@ public class Constants {
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = true;
 	public static boolean print = true;
-	public static int NUM_AVERAGING = 20;
+	public static int NUM_AVERAGING = 1;
 	
 	public static int STATES_PER_FIRE = 5;
 	public static int NUM_FIRES = 5;
@@ -53,7 +53,9 @@ public class Constants {
 	public static String participantDir = dataDir;
 	
 	public static String simulationDir = "C:\\RSS_SimulationResults_Pruning2\\";
-	public static String rewardProceQName = simulationDir+"proceQReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+".csv";
-	public static String rewardPerturbQName = simulationDir+"perturbQReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+".csv";
-	public static String rewardHRPRName = simulationDir+"HRPRReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+".csv";
+	public static String rewardProceQName = simulationDir+"testproceQReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+".csv";
+	public static String rewardPerturbQName = simulationDir+"testperturbQReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+".csv";
+	public static String rewardHRPRName = simulationDir+"testHRPRReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+".csv";
+
+	public static String qvaluesDir = "C:\\RSS_SimulationResults_QValues\\";
 }
