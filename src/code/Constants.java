@@ -18,7 +18,7 @@ public class Constants {
 	
 	//num of times to run
 	public static final int NUM_EPISODES = 200000;
-	public static final int NUM_EPISODES_TEST = 2500;
+	public static final int NUM_EPISODES_TEST = 1000;
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
 	public static final int NUM_EPISODES_PRUNING = 100;
@@ -29,7 +29,7 @@ public class Constants {
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = true;
-	public static boolean print = true;
+	public static boolean print = false;
 	public static int NUM_AVERAGING = 1;
 	
 	public static int STATES_PER_FIRE = 5;

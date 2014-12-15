@@ -66,6 +66,8 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 
 		//starting policy reuse algorithm
 		try{
+			BufferedWriter mainWriter = new BufferedWriter(new FileWriter(new File(Constants.qvaluesDir+"mainWriter_HRPR_test_"+(myWorld.sessionNum-1)+".txt"), true));
+			mainWriter.write("wind "+myWorld.testWind+" dryness "+myWorld.testDryness+"\n");
 			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPRName), true));
 			double currTemp = Constants.TEMP;
 			for(int k=0; k<numEpisodes; k++){
@@ -78,11 +80,15 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 					List<Policy> libraryNew = new ArrayList<Policy>();
 					libraryNew.add(library.get(0)); //always add current policy
 					//prune policies with less weight
+					mainWriter.write("removing ");
 					for(int num=1; num<library.size(); num++){ //cannot remove policy 0 (current policy)
 						if(probForPolicies[num] > Constants.PRUNING_THRESHOLD){
 							libraryNew.add(library.get(num));
+						} else {
+							mainWriter.write(library.get(num).originalPolicyNum+", ");
 						}
 					}
+					mainWriter.write("\n");
 					library = new PolicyLibrary(libraryNew);
 				}
 				
@@ -100,6 +106,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 							policyNum = i;
 						}
 					}
+					mainWriter.write("finally using "+library.get(policyNum).originalPolicyNum+"\n");
 					System.out.println("working with human, best policy = "+policyNum);
 				} else {
 					int randNum = Tools.rand.nextInt(100);
@@ -159,6 +166,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				writer.write((end-start)+"\n");
 				writer.close();
 			}
+			mainWriter.close();
 		} catch(Exception e){
 			e.printStackTrace();
 		}	

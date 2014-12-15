@@ -449,7 +449,8 @@ public class LearningAlgorithm {
 			HumanRobotActionPair actions = getGreedyJointAction(state).getFirst();
 			policy[state.getId()] = actions;
 		}
-		return new Policy(policy);
+		System.out.println("policy for "+myWorld.sessionNum);
+		return new Policy(policy, myWorld.sessionNum);
 	}
 	
 	/**

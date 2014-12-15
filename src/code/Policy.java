@@ -8,17 +8,21 @@ public class Policy {
 	public HumanRobotActionPair[] policy;
 	public double weight;
 	public int numEpisodesChosen;
+	public int originalPolicyNum;
 	
 	public Policy() {
 		this.policy = null;
 		weight = 0;
 		numEpisodesChosen = 0;
+		originalPolicyNum = 0; //current policy
 	}
 	
-	public Policy(HumanRobotActionPair[] policy) {
+	public Policy(HumanRobotActionPair[] policy, int originalPolicyNum) {
 		this.policy = policy;
+		this.originalPolicyNum = originalPolicyNum;
 		weight = 0;
 		numEpisodesChosen = 0;
+		
 	}
 
 	public HumanRobotActionPair action(int stateId){
