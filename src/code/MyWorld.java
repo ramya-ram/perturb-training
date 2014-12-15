@@ -40,13 +40,13 @@ public class MyWorld {
 				testWind = 9;
 				testDryness = 0;
 			} else if(sessionNum == 3){
-				testWind = 2;
+				testWind = 4;
 				testDryness = 9;
 			} 
 		} else if(typeOfWorld == Constants.TRAINING){
 			if(sessionNum == 2){
 				if(perturb){
-					testWind = 9;
+					testWind = 6;
 					testDryness = 0;
 					
 					//simulationWind = 9;
@@ -55,7 +55,7 @@ public class MyWorld {
 			} else if(sessionNum == 3){
 				if(perturb){
 					testWind = 0;
-					testDryness = 9;
+					testDryness = 6;
 					
 					//simulationWind = 0;
 					//simulationDryness = 9;
