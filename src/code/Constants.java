@@ -18,7 +18,7 @@ public class Constants {
 	
 	//num of times to run
 	public static final int NUM_EPISODES = 200000;
-	public static final int NUM_EPISODES_TEST = 3000;
+	public static final int NUM_EPISODES_TEST = 2500;
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
 	public static final int NUM_EPISODES_PRUNING = 100;
@@ -29,7 +29,7 @@ public class Constants {
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = true;
-	public static boolean print = false;
+	public static boolean print = true;
 	public static int NUM_AVERAGING = 20;
 	
 	public static int STATES_PER_FIRE = 5;
@@ -52,8 +52,8 @@ public class Constants {
 	
 	public static String participantDir = dataDir;
 	
-	public static String simulationDir = "C:\\RSS_SimulationResults_Pruning\\";
-	public static String rewardProceQName = simulationDir+"oldproceQReward_29_92_39_Train60_06_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+"_currPolicyCanRemove.csv";
-	public static String rewardPerturbQName = simulationDir+"oldperturbQReward_29_92_39_Train60_06_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+"_currPolicyCanRemove.csv";
-	public static String rewardHRPRName = simulationDir+"oldHRPRReward_29_92_39_Train60_06_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+"_currPolicyCanRemove.csv";
+	public static String simulationDir = "C:\\RSS_SimulationResults_Pruning2\\";
+	public static String rewardProceQName = simulationDir+"proceQReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+".csv";
+	public static String rewardPerturbQName = simulationDir+"perturbQReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+".csv";
+	public static String rewardHRPRName = simulationDir+"HRPRReward_09_90_29_Train90_09_"+NUM_EPISODES_TEST+"iter_prune"+NUM_EPISODES_PRUNING+"_thres"+PRUNING_THRESHOLD+".csv";
 }

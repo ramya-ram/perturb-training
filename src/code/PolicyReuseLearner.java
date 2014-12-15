@@ -53,7 +53,9 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		
 		resetCommunicationCounts();
 		
-		System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
+		//System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
+		
+		System.out.println("wind="+myWorld.testWind+" dryness="+myWorld.testDryness);
 		
 		if(withHuman && Main.gameView != null){
 			System.out.println("with human");
@@ -67,6 +69,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPRName), true));
 			double currTemp = Constants.TEMP;
 			for(int k=0; k<numEpisodes; k++){
+				//System.out.print(k+" ");
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
 				double[] probForPolicies = getProbForPolicies(library, currTemp);
 				
@@ -151,7 +154,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				policy = computePolicy();
 			long end = System.currentTimeMillis();
 			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
-				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration.csv"), true));
+				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration"+Constants.NUM_EPISODES_TEST+".csv"), true));
 				System.out.println("policyReuse duration "+(end-start));
 				writer.write((end-start)+"\n");
 				writer.close();

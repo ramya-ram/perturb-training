@@ -37,8 +37,8 @@ public class TaskExecution {
 	 */
 	public void executeTask(){
 		initPriorProbabilities();
-		for(MyWorld testWorld : testingWorlds)
-			calculateTestSimulationWindDryness(testWorld);
+		//for(MyWorld testWorld : testingWorlds)
+		//	calculateTestSimulationWindDryness(testWorld);
 		
 		if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 			runPracticeSession();
@@ -83,6 +83,7 @@ public class TaskExecution {
 		//TODO: possibly get policy from training session 1 for the library
 		learners.add(baseQLearner);
 		library.add(basePolicy);
+		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "after training 0", Constants.print);
 		
 		if(condition == ExperimentCondition.HRPR){
 			//perturbation training sessions
@@ -95,6 +96,7 @@ public class TaskExecution {
 				Policy policy = perturbLearner.run(trainingWorlds.get(i), true, true);
 				library.add(policy);
 				learners.add(perturbLearner);
+				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "HRPR after training "+i, Constants.print);
 			}
 		} else { //both perturb and proce Q-learning use one qlearner to learn all training tasks
 			//extra training sessions after base session
@@ -105,6 +107,7 @@ public class TaskExecution {
 				baseQLearner.run(trainingWorlds.get(i), true, false);
 				baseQLearner.run(trainingWorlds.get(i), false, false);
 				baseQLearner.run(trainingWorlds.get(i), true, false);
+				baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "q-learning after training "+i, Constants.print);
 			}
 		}
 		
@@ -122,9 +125,10 @@ public class TaskExecution {
 				PolicyReuseLearner PRLearner = new PolicyReuseLearner(testWorld, library,
 						new QValuesSet(trainedLearners.get(0).robotQValues, trainedLearners.get(0).jointQValues), null);
 				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum-1]);
-				PRLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "before", Constants.print);
+				PRLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "before "+condition+" testing", Constants.print);
 				PRLearner.policyReuse(false, false);
 				PRLearner.policyReuse(true, false);
+				PRLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "after "+condition+" testing", Constants.print);
 			}
 		} else {
 			//Q-learning proce and perturb testing sessions
@@ -132,8 +136,10 @@ public class TaskExecution {
 				QLearner testQLearner = new QLearner(new QValuesSet(
 						trainedLearners.get(0).robotQValues, trainedLearners.get(0).jointQValues), false, condition);
 				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum-1]);
+				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "before "+condition+" testing", Constants.print);
 				testQLearner.run(testWorld, false, false);
 				testQLearner.run(testWorld, true, false);
+				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "after "+condition+" testing", Constants.print);
 			}
 		}
 	}
@@ -144,7 +150,7 @@ public class TaskExecution {
 			str+= "Training Session ";
 		else
 			str+= "Testing Session ";
-		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
+		//str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
 		if(gameView != null)
 			gameView.setTitleLabel(str);
 	}
@@ -153,7 +159,7 @@ public class TaskExecution {
 	 * Given the training scenarios and sensor observations of the new scenario, 
 	 * the robot tries to determine what's the probability of each training scenario being relevant to the new one.
 	 */
-	public double[] calculatePrior(List<MyWorld> trainingWorlds, MyWorld testWorld) {
+	/*public double[] calculatePrior(List<MyWorld> trainingWorlds, MyWorld testWorld) {
 		int[][] trainingRealValues = new int[trainingWorlds.size()][Constants.NUM_VARIABLES];
 		for(int i=0; i<trainingWorlds.size(); i++){
 			trainingRealValues[i][0] = trainingWorlds.get(i).simulationWind;
@@ -189,7 +195,7 @@ public class TaskExecution {
 		}
 		
 		return probs;
-	}
+	}*/
 	
 	/**
 	 * Initialize the prior probabilities of wind and dryness occurring 
@@ -222,8 +228,8 @@ public class TaskExecution {
 					probObsGivenWind[i][j] = 0.2;
 				else if(Math.abs(i-j) == 2)
 					probObsGivenWind[i][j] = 0.1;
-				else
-					probObsGivenWind[i][j] = 0.01;
+				//else
+					//probObsGivenWind[i][j] = 0.01;
 			}
 		}
 		for(int j=0; j<probObsGivenWind[0].length; j++){
@@ -248,7 +254,7 @@ public class TaskExecution {
 		}
 	}
 	
-	public void calculateTestSimulationWindDryness(MyWorld world){
+	/*public void calculateTestSimulationWindDryness(MyWorld world){
 		int randNumWind = Tools.rand.nextInt(100);
 		int randNumDryness = Tools.rand.nextInt(100);
 		double sum = 0;
@@ -273,5 +279,5 @@ public class TaskExecution {
 		}
 		world.simulationDryness = count;
 		System.out.println("obsDryness "+world.simulationDryness);
-	}
+	}*/
 }

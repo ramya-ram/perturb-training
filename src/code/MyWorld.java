@@ -10,8 +10,8 @@ public class MyWorld {
 	
 	public int testWind = 0;
 	public int testDryness = 0;
-	public int simulationWind = 0;
-	public int simulationDryness = 0;
+	//public int simulationWind = 0;
+	//public int simulationDryness = 0;
 	public int sessionNum; //specifies which training or testing round it is
 	public boolean perturb; //specifies if this world is for perturbation or procedural training
 	public int typeOfWorld; //specifies if this world is for training or testing
@@ -34,31 +34,31 @@ public class MyWorld {
 		//setting testWind and testDryness for the testing scenarios
 		if(typeOfWorld == Constants.TESTING){
 			if(sessionNum == 1){
-				testWind = 2;
+				testWind = 0;
 				testDryness = 9;
 			} else if(sessionNum == 2){
 				testWind = 9;
-				testDryness = 2;
+				testDryness = 0;
 			} else if(sessionNum == 3){
-				testWind = 3;
+				testWind = 2;
 				testDryness = 9;
 			} 
 		} else if(typeOfWorld == Constants.TRAINING){
 			if(sessionNum == 2){
 				if(perturb){
-					//testWind = 8;
-					//testDryness = 1;
+					testWind = 9;
+					testDryness = 0;
 					
-					simulationWind = 6;
-					simulationDryness = 0;
+					//simulationWind = 9;
+					//simulationDryness = 0;
 				}
 			} else if(sessionNum == 3){
 				if(perturb){
-					//testWind = 1;
-					//testDryness = 8;
+					testWind = 0;
+					testDryness = 9;
 					
-					simulationWind = 0;
-					simulationDryness = 6;
+					//simulationWind = 0;
+					//simulationDryness = 9;
 				}
 			}
 		}
@@ -163,8 +163,7 @@ public class MyWorld {
 	}
 	
 	public State initialState(){
-		if(Main.currWithSimulatedHuman){
-			System.out.println("USING TEST STATE");
+		if(Main.currWithSimulatedHuman && Main.CURRENT_EXECUTION != Main.SIMULATION){
 			int[] stateOfFires = {1,1,0,3,3};
 			return new State(stateOfFires);
 		}
@@ -197,7 +196,7 @@ public class MyWorld {
 			textToDisplay += "State after your actions: "+nextState.toStringSimple()+"\n";
 			
 			if(sessionNum == 1){ //base task
-				return nextState;
+				return nextState;  //TODO: change if 1st test task is not procedural (no wind/dryness)
 			} else {		
 				String text = "";
 				if(typeOfWorld == Constants.TESTING){
@@ -256,12 +255,14 @@ public class MyWorld {
 					newState = getPredefinedNextState(newState, agentActions);
 					return newState;
 				}
-				wind = testWind;
-				dryness = testDryness;
+				//wind = testWind;
+				//dryness = testDryness;
 			} else {
-				wind = simulationWind;
-				dryness = simulationDryness;
+				//wind = simulationWind;
+				//dryness = simulationDryness;
 			}
+			wind = testWind;
+			dryness = testDryness;
 			
 			String textToDisplay = "";
 			Action humanAction = agentActions.getHumanAction();
@@ -330,8 +331,8 @@ public class MyWorld {
 			if(Main.currWithSimulatedHuman)
 				textToDisplay += "State after your actions: "+beforeStochasticity.toStringSimple()+"\n";
 			
-			if(typeOfWorld == Constants.TESTING && sessionNum == 1)
-				return newState;
+			//if(typeOfWorld == Constants.TESTING && sessionNum == 1)
+			//	return newState;
 
 			if(dryness > 0){
 				int highBurnoutPercent = dryness*10 + 10;

@@ -43,6 +43,9 @@ public class LearningAlgorithm {
 	 * Runs one episode of the task
 	 */
 	public Tuple<Double, Integer, Long> run(Policy pastPolicy, /*boolean fullyGreedy, */int maxSteps){
+		//if(myWorld.typeOfWorld == Constants.TESTING)
+		//	System.out.println("test");
+		
         double episodeReward = 0;
         int iterations = 0;
         long startTime = System.currentTimeMillis();
@@ -103,7 +106,9 @@ public class LearningAlgorithm {
         double jointQ = getJointQValue(state, agentActions);
 		double jointMaxQ = maxJointQ(nextState);
 		double jointValue = (1 - Constants.ALPHA) * jointQ + Constants.ALPHA * (reward + Constants.GAMMA * jointMaxQ);
+		//System.out.println("jointQValues["+stateId+"]["+humanAction+"]["+robotAction+"] = "+jointQValues[stateId][humanAction][robotAction]);
 		jointQValues[stateId][humanAction][robotAction] = jointValue;
+		//System.out.println("jointQValues["+stateId+"]["+humanAction+"]["+robotAction+"] = "+jointQValues[stateId][humanAction][robotAction]);
 	}
 	
 	/**
@@ -113,12 +118,14 @@ public class LearningAlgorithm {
 	public HumanRobotActionPair getAgentActionsSimulation(State state){
 		HumanRobotActionPair proposedJointAction = null;
 		if(Tools.rand.nextDouble() < Constants.EPSILON){
+			//System.out.println("random");
 			Action[] possibleRobotActions = mdp.robotAgent.actions(state);
 			Action[] possibleHumanActions = mdp.humanAgent.actions(state); //from robot state because that's what robot sees
 	        Action robotAction = possibleRobotActions[Tools.rand.nextInt(possibleRobotActions.length)];
 	        Action humanAction = possibleHumanActions[Tools.rand.nextInt(possibleHumanActions.length)];
 	        proposedJointAction = new HumanRobotActionPair(humanAction, robotAction);
 		} else { // otherwise, choose the best action/the one with the highest q value
+			//System.out.println("exploit");
 			Pair<HumanRobotActionPair, Double> proposed = getGreedyJointAction(state);
 			proposedJointAction = proposed.getFirst();
 		}
@@ -128,9 +135,9 @@ public class LearningAlgorithm {
 	/**
 	 * Prints out q-values of a particular state, for debugging purposes
 	 */
-	public void numOfNonZeroQValues(State state, String beforeOrAfter, boolean print){
+	public void numOfNonZeroQValues(State state, String text, boolean print){
 		if(print){
-			System.out.println(beforeOrAfter+" simulation");
+			System.out.println(text);
 			try{
 				int count = 0;
 				int stateId = state.getId();

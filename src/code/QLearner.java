@@ -60,7 +60,9 @@ public class QLearner extends LearningAlgorithm {
 		
 		resetCommunicationCounts();
 		
-		System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
+		//System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
+		
+		System.out.println("wind="+myWorld.testWind+" dryness="+myWorld.testDryness);
 		
 		if(withHuman && Main.gameView != null){
 			System.out.println("with human");
@@ -72,6 +74,7 @@ public class QLearner extends LearningAlgorithm {
 		try{
 	        for(int i = 0; i < numEpisodes; i++) {
 				Tuple<Double, Integer, Long> tuple = run(null/*, false egreedy*/, Constants.NUM_STEPS_PER_EPISODE);
+				//System.out.print(i+" ");
 	            
 	            if(withHuman && Main.saveToFile){
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
@@ -96,8 +99,8 @@ public class QLearner extends LearningAlgorithm {
 				policy = computePolicy();
 			long end = System.currentTimeMillis();
 			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
-				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration.csv"), true));
-				System.out.println("policyReuse duration "+(end-start));
+				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration"+Constants.NUM_EPISODES_TEST+".csv"), true));
+				System.out.println("qlearner duration "+(end-start));
 				writer.write((end-start)+"\n");
 				writer.close();
 			}
