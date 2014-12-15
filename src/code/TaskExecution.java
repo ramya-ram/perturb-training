@@ -16,12 +16,6 @@ public class TaskExecution {
 	public List<MyWorld> testingWorlds;
 	public ExperimentCondition condition;
 	
-	//prior probabilities for environment variables = wind, dryness
-	public double[] probWind;
-	public double[] probDryness;
-	public double[][] probObsGivenWind;
-	public double[][] probObsGivenDryness;
-	
 	public Color[] colorsTraining = {Color.GREEN, Color.CYAN, Color.MAGENTA};
 	public Color[] colorsTesting = {Color.ORANGE, Color.RED, Color.GREEN};
 	
@@ -35,12 +29,7 @@ public class TaskExecution {
 	/**
 	 * Run training and testing phases
 	 */
-	public void executeTask(){
-		initPriorProbabilities();
-		for(MyWorld trainWorld : trainingWorlds)
-			calculateSimulationWindDryness(trainWorld);
-		for(MyWorld testWorld : testingWorlds)
-			calculateSimulationWindDryness(testWorld);
+	public void executeTask(){		
 		System.out.println("EXECUTE TASK");
 		
 		if(Main.CURRENT_EXECUTION != Main.SIMULATION)
@@ -156,89 +145,5 @@ public class TaskExecution {
 		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
 		if(gameView != null)
 			gameView.setTitleLabel(str);
-	}
-	
-	/**
-	 * Initialize the prior probabilities of wind and dryness occurring 
-	 * and the conditional probabilities of the observation being correct given the real values.
-	 */
-	public void initPriorProbabilities(){
-		probWind = new double[10];
-		probDryness = new double[10];
-		for(int i=0; i<probWind.length; i++){
-			if(i==0 || i==1 || i==8 || i==9){
-				probWind[i] = 0.05;
-				probDryness[i] = 0.05;
-			} else if(i==2 || i==7){
-				probWind[i] = 0.1;
-				probDryness[i] = 0.1;
-			} else{
-				probWind[i] = 0.15;
-				probDryness[i] = 0.15;
-			}
-		}
-		
-		probObsGivenWind = new double[10][10];
-		probObsGivenDryness = new double[10][10];
-		
-		for(int i=0; i<probObsGivenWind.length; i++){
-			for(int j=0; j<probObsGivenWind[i].length; j++){
-				if(i==j)
-					probObsGivenWind[i][j] = 0.4;
-				else if(Math.abs(i-j) == 1)
-					probObsGivenWind[i][j] = 0.2;
-				else if(Math.abs(i-j) == 2)
-					probObsGivenWind[i][j] = 0.1;
-				//else
-					//probObsGivenWind[i][j] = 0.01;
-			}
-		}
-		for(int j=0; j<probObsGivenWind[0].length; j++){
-			double sum = 0;
-			for(int i=0; i<probObsGivenWind.length; i++){
-				sum+=probObsGivenWind[i][j];
-			}
-			sum *= 100;
-			sum = Math.round(sum);
-			sum /= 100;
-			for(int i=0; i<probObsGivenWind.length; i++){
-				probObsGivenWind[i][j] /= sum;
-			}
-		}
-		
-		for(int i=0; i<probObsGivenWind.length; i++){
-			for(int j=0; j<probObsGivenWind[i].length; j++){
-				probObsGivenDryness[i][j] = probObsGivenWind[i][j];
-				System.out.print(probObsGivenDryness[i][j]+" ");
-			}
-			System.out.println();
-		}
-	}
-	
-	public void calculateSimulationWindDryness(MyWorld world){
-		int randNumWind = Tools.rand.nextInt(100);
-		int randNumDryness = Tools.rand.nextInt(100);
-		double sum = 0;
-		int count = 0;
-		System.out.println("testWorld wind "+world.testWind+" dryness "+world.testDryness);
-		while(count < probObsGivenWind.length){
-			sum += probObsGivenWind[count][world.testWind]*100;
-			if(randNumWind <= sum)
-				break;
-			count++;
-		}
-		world.simulationWind = count;
-		System.out.println("obsWind "+world.simulationWind);
-		
-		sum = 0;
-		count = 0;
-		while(count < probObsGivenDryness.length){
-			sum += probObsGivenDryness[count][world.testDryness]*100;
-			if(randNumDryness <= sum)
-				break;
-			count++;
-		}
-		world.simulationDryness = count;
-		System.out.println("obsDryness "+world.simulationDryness);
 	}
 }

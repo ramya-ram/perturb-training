@@ -12,7 +12,7 @@ import PR2_robot.GameView;
 import PR2_robot.MyServer;
 
 public class Main {
-	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2;
+	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2, CREATE_PREDEFINED = 3, LEARN_OFFLINE_VALUES = 4;
 	public static int CURRENT_EXECUTION = SIMULATION;
 	
 	public static boolean currWithSimulatedHuman = false;
@@ -56,7 +56,15 @@ public class Main {
 			saveToFile = true;
 			
 			if(CURRENT_EXECUTION == SIMULATION){
-				for(int i=0; i<Constants.NUM_AVERAGING; i++){				
+				for(int i=0; i<Constants.NUM_AVERAGING; i++){	
+					System.out.println("NEW simulation");
+					for(MyWorld trainWorld : trainingWorldsProce)
+						trainWorld.calculateSimulationWindDryness();
+					for(MyWorld trainWorld : trainingWorldsPerturb)
+						trainWorld.calculateSimulationWindDryness();
+					for(MyWorld testWorld : testingWorlds)
+						testWorld.calculateSimulationWindDryness();
+					
 					//PROCEDURAL - Q-learning
 					TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
 					proceQ.executeTask();

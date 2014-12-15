@@ -8,6 +8,10 @@ public class MyWorld {
 	public static Set<State> states = new HashSet<State>();
 	public static State[] initStates;
 	
+	//prior probabilities for environment variables = wind, dryness
+	public static double[][] probObsGivenWind;
+	public static double[][] probObsGivenDryness;
+	
 	public int testWind = 0; 
 	public int testDryness = 0;
 	public int simulationWind = 0; //noisy version of test wind and dryness
@@ -27,8 +31,14 @@ public class MyWorld {
 		//initialize the mdp only once
 		if(mdp == null)
 			mdp = initializeMDP();
+		if(probObsGivenWind == null || probObsGivenDryness == null)
+			initPriorProbabilities();
 		
-		System.out.println("testWind "+testWind+" testDryness "+testDryness);
+		//to make human experiments consistent and less noisy, the robot trains and tests on the same environmental conditions
+		simulationWind = testWind;
+		simulationDryness = testDryness;
+		
+		System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
 	public static State getStateFromFile(String str){
@@ -363,6 +373,72 @@ public class MyWorld {
 			e.printStackTrace();
 		}
 		return newState;
+	}
+	
+	/**
+	 * Initialize the prior probabilities of wind and dryness occurring 
+	 * and the conditional probabilities of the observation being correct given the real values.
+	 */
+	public void initPriorProbabilities(){
+		probObsGivenWind = new double[10][10];
+		probObsGivenDryness = new double[10][10];
+		
+		for(int i=0; i<probObsGivenWind.length; i++){
+			for(int j=0; j<probObsGivenWind[i].length; j++){
+				if(i==j)
+					probObsGivenWind[i][j] = 0.6;
+				else if(Math.abs(i-j) == 1)
+					probObsGivenWind[i][j] = 0.2;
+			}
+		}
+		for(int j=0; j<probObsGivenWind[0].length; j++){
+			double sum = 0;
+			for(int i=0; i<probObsGivenWind.length; i++){
+				sum+=probObsGivenWind[i][j];
+			}
+			sum *= 100;
+			sum = Math.round(sum);
+			sum /= 100;
+			for(int i=0; i<probObsGivenWind.length; i++){
+				probObsGivenWind[i][j] /= sum;
+			}
+		}
+		
+		for(int i=0; i<probObsGivenWind.length; i++){
+			for(int j=0; j<probObsGivenWind[i].length; j++){
+				probObsGivenDryness[i][j] = probObsGivenWind[i][j];
+				System.out.print(probObsGivenDryness[i][j]+" ");
+			}
+			System.out.println();
+		}
+	}
+	
+	public void calculateSimulationWindDryness(){
+		int randNumWind = Tools.rand.nextInt(100);
+		int randNumDryness = Tools.rand.nextInt(100);
+		double sum = 0;
+		int count = 0;
+		//System.out.println("testWorld wind "+testWind+" dryness "+testDryness);
+		while(count < probObsGivenWind.length){
+			sum += probObsGivenWind[count][testWind]*100;
+			if(randNumWind <= sum)
+				break;
+			count++;
+		}
+		simulationWind = count;
+		//System.out.println("obsWind "+simulationWind);
+		
+		sum = 0;
+		count = 0;
+		while(count < probObsGivenDryness.length){
+			sum += probObsGivenDryness[count][testDryness]*100;
+			if(randNumDryness <= sum)
+				break;
+			count++;
+		}
+		simulationDryness = count;
+		//System.out.println("obsDryness "+simulationDryness);
+		System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
 	public State getNextStateAfterBurnout(State state, int fire){

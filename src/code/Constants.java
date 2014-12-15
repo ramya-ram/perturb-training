@@ -22,7 +22,7 @@ public class Constants {
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
 	public static final int NUM_TRAINING_SESSIONS = 3;
-	public static final int NUM_TESTING_SESSIONS = 3;
+	public static final int NUM_TESTING_SESSIONS = 2;
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = true;
@@ -41,8 +41,8 @@ public class Constants {
 	public static int[] testWindTraining =    {0, 6, 0};
 	public static int[] testDrynessTraining = {0, 0, 6};
 	
-	public static int[] testWindTesting =    {2, 9, 3};
-	public static int[] testDrynessTesting = {9, 2, 9};
+	public static int[] testWindTesting =    {2, 9};
+	public static int[] testDrynessTesting = {9, 2};
 	
 	//file names where results are stored
 	public static String dataDir = "C:\\ExperimentData_Dec2014\\";
@@ -56,9 +56,9 @@ public class Constants {
 	public static String participantDir = dataDir;
 	
 	public static String simulationDir = "C:\\RSS_2015_SimulationResults\\";
-	public static String rewardProceQName = simulationDir+"proceQReward_09_90_49_Train60_06_"+NUM_EPISODES_TEST+"iter.csv";
-	public static String rewardPerturbQName = simulationDir+"perturbQReward_09_90_49_Train60_06_"+NUM_EPISODES_TEST+"iter.csv";
-	public static String rewardHRPRName = simulationDir+"HRPRReward_09_90_49_Train60_06_"+NUM_EPISODES_TEST+"iter.csv";
+	public static String rewardProceQName = simulationDir+"testNoiseproceQReward_29_92_Train60_06_"+NUM_EPISODES_TEST+"iter.csv";
+	public static String rewardPerturbQName = simulationDir+"testNoiseperturbQReward_29_92_Train60_06_"+NUM_EPISODES_TEST+"iter.csv";
+	public static String rewardHRPRName = simulationDir+"testNoiseHRPRReward_29_92_Train60_06_"+NUM_EPISODES_TEST+"iter.csv";
 
-	public static String qvaluesDir = "C:\\RSS_SimulationResults_QValues\\";
+	public static String qvaluesDir = "C:\\RSS_2015_SimulationResults\\QValues\\";
 }
