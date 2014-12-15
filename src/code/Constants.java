@@ -17,7 +17,7 @@ public class Constants {
 	public static double THRESHOLD_REJECT = 2;
 	
 	//num of times to run
-	public static final int NUM_EPISODES = 200000;
+	public static final int NUM_EPISODES = 100000;
 	public static final int NUM_EPISODES_TEST = 1000;
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
