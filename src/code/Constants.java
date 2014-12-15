@@ -22,7 +22,7 @@ public class Constants {
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
 	public static final int NUM_EPISODES_PRUNING = 100;
-	public static final int PRUNING_THRESHOLD = 30;
+	public static final int PRUNING_THRESHOLD = 10;
 	
 	public static final int NUM_TRAINING_SESSIONS = 3;
 	public static final int NUM_TESTING_SESSIONS = 3;

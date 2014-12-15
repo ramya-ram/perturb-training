@@ -75,7 +75,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
 				double[] probForPolicies = getProbForPolicies(library, currTemp);
 				
-				if(k%Constants.NUM_EPISODES_PRUNING == 0 && k != 0){
+				/*if(k%Constants.NUM_EPISODES_PRUNING == 0 && k != 0){
 					Tools.printArray(probForPolicies);
 					List<Policy> libraryNew = new ArrayList<Policy>();
 					libraryNew.add(library.get(0)); //always add current policy
@@ -90,7 +90,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 					}
 					mainWriter.write("\n");
 					library = new PolicyLibrary(libraryNew);
-				}
+				}*/
 				
 				probForPolicies = getProbForPolicies(library, currTemp);
 				probForPolicies = getAccumulatedArray(probForPolicies);
@@ -105,6 +105,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 							maxWeight = library.get(i).weight;
 							policyNum = i;
 						}
+						mainWriter.write(library.get(i).originalPolicyNum+" "+library.get(i).weight+"\n");
 					}
 					mainWriter.write("finally using "+library.get(policyNum).originalPolicyNum+"\n");
 					System.out.println("working with human, best policy = "+policyNum);
