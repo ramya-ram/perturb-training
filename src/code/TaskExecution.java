@@ -36,9 +36,11 @@ public class TaskExecution {
 	 * Run training and testing phases
 	 */
 	public void executeTask(){
-		//initPriorProbabilities();
-		//for(MyWorld testWorld : testingWorlds)
-		//	calculateTestSimulationWindDryness(testWorld);
+		initPriorProbabilities();
+		for(MyWorld trainWorld : trainingWorlds)
+			calculateSimulationWindDryness(trainWorld);
+		for(MyWorld testWorld : testingWorlds)
+			calculateSimulationWindDryness(testWorld);
 		System.out.println("EXECUTE TASK");
 		
 		if(Main.CURRENT_EXECUTION != Main.SIMULATION)
@@ -151,52 +153,10 @@ public class TaskExecution {
 			str+= "Training Session ";
 		else
 			str+= "Testing Session ";
-		//str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
+		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
 		if(gameView != null)
 			gameView.setTitleLabel(str);
 	}
-	
-	/**
-	 * Given the training scenarios and sensor observations of the new scenario, 
-	 * the robot tries to determine what's the probability of each training scenario being relevant to the new one.
-	 */
-	/*public double[] calculatePrior(List<MyWorld> trainingWorlds, MyWorld testWorld) {
-		int[][] trainingRealValues = new int[trainingWorlds.size()][Constants.NUM_VARIABLES];
-		for(int i=0; i<trainingWorlds.size(); i++){
-			trainingRealValues[i][0] = trainingWorlds.get(i).simulationWind;
-			trainingRealValues[i][1] = trainingWorlds.get(i).simulationDryness;
-			System.out.println(i+ " wind = "+trainingRealValues[i][0]);
-			System.out.println(i+ " dryness = "+trainingRealValues[i][1]);
-		}
-		
-		double[] probs = new double[trainingWorlds.size()];
-		for(int i=0; i<trainingWorlds.size(); i++){
-			//P(Ow|w)P(w)
-			double numWind = probObsGivenWind[testWorld.simulationWind][trainingRealValues[i][0]] * probWind[trainingRealValues[i][0]];
-			double denomWind = 0;
-			for(int index=0; index<probObsGivenWind.length; index++)
-				denomWind += probObsGivenWind[testWorld.simulationWind][index] * probWind[index];
-			
-			double numDryness = probObsGivenDryness[testWorld.simulationDryness][trainingRealValues[i][1]] * probDryness[trainingRealValues[i][1]];
-			double denomDryness = 0;
-			for(int index=0; index<probObsGivenDryness.length; index++)
-				denomDryness += probObsGivenDryness[testWorld.simulationDryness][index] * probDryness[index];
-			
-			double probOfWind = denomWind>0?(numWind/denomWind):numWind;
-			double probOfDryness = denomDryness>0?(numDryness/denomDryness):numDryness;
-			probs[i] = probOfWind * probOfDryness;
-		}
-		double sum=0;
-		for(int i=0; i<probs.length; i++)
-			sum+=probs[i];
-		for(int i=0; i<probs.length; i++){
-			if(sum>0)
-				probs[i]/=sum;
-			probs[i]*=100;
-		}
-		
-		return probs;
-	}*/
 	
 	/**
 	 * Initialize the prior probabilities of wind and dryness occurring 
@@ -255,7 +215,7 @@ public class TaskExecution {
 		}
 	}
 	
-	/*public void calculateTestSimulationWindDryness(MyWorld world){
+	public void calculateSimulationWindDryness(MyWorld world){
 		int randNumWind = Tools.rand.nextInt(100);
 		int randNumDryness = Tools.rand.nextInt(100);
 		double sum = 0;
@@ -280,5 +240,5 @@ public class TaskExecution {
 		}
 		world.simulationDryness = count;
 		System.out.println("obsDryness "+world.simulationDryness);
-	}*/
+	}
 }

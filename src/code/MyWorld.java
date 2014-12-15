@@ -8,61 +8,27 @@ public class MyWorld {
 	public static Set<State> states = new HashSet<State>();
 	public static State[] initStates;
 	
-	public int testWind = 0;
+	public int testWind = 0; 
 	public int testDryness = 0;
-	//public int simulationWind = 0;
-	//public int simulationDryness = 0;
+	public int simulationWind = 0; //noisy version of test wind and dryness
+	public int simulationDryness = 0;
+	
 	public int sessionNum; //specifies which training or testing round it is
 	public boolean perturb; //specifies if this world is for perturbation or procedural training
 	public int typeOfWorld; //specifies if this world is for training or testing
 	
-	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum){
+	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum, int testWind, int testDryness){
 		this.typeOfWorld = typeOfWorld;
 		this.perturb = perturb;
 		this.sessionNum = sessionNum;
+		this.testWind = testWind;
+		this.testDryness = testDryness;
 		
 		//initialize the mdp only once
 		if(mdp == null)
 			mdp = initializeMDP();
-		System.out.println("Initializing MDP "+sessionNum);
 		
-		//set appropriate levels of wind and dryness
-		setWindAndDryness();
-	}
-	
-	public void setWindAndDryness(){
-		//setting testWind and testDryness for the testing scenarios
-		if(typeOfWorld == Constants.TESTING){
-			if(sessionNum == 1){
-				testWind = 0;
-				testDryness = 9;
-			} else if(sessionNum == 2){
-				testWind = 9;
-				testDryness = 0;
-			} else if(sessionNum == 3){
-				testWind = 4;
-				testDryness = 9;
-			} 
-		} else if(typeOfWorld == Constants.TRAINING){
-			if(sessionNum == 2){
-				if(perturb){
-					testWind = 6;
-					testDryness = 0;
-					
-					//simulationWind = 9;
-					//simulationDryness = 0;
-				}
-			} else if(sessionNum == 3){
-				if(perturb){
-					testWind = 0;
-					testDryness = 6;
-					
-					//simulationWind = 0;
-					//simulationDryness = 9;
-				}
-			}
-		}
-		System.out.println("Wind "+testWind+" Dryness "+testDryness);
+		System.out.println("testWind "+testWind+" testDryness "+testDryness);
 	}
 	
 	public static State getStateFromFile(String str){
@@ -255,14 +221,14 @@ public class MyWorld {
 					newState = getPredefinedNextState(newState, agentActions);
 					return newState;
 				}
-				//wind = testWind;
-				//dryness = testDryness;
+				wind = testWind;
+				dryness = testDryness;
 			} else {
-				//wind = simulationWind;
-				//dryness = simulationDryness;
+				wind = simulationWind;
+				dryness = simulationDryness;
 			}
-			wind = testWind;
-			dryness = testDryness;
+			//wind = testWind;
+			//dryness = testDryness;
 			
 			String textToDisplay = "";
 			Action humanAction = agentActions.getHumanAction();

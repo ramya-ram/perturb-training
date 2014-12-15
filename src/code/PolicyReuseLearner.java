@@ -39,7 +39,6 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		Main.currWithSimulatedHuman = withHuman;
 		
 		long start = System.currentTimeMillis();
-		myWorld.setWindAndDryness();
 		
 		int numEpisodes = Constants.NUM_EPISODES;
 		if(myWorld.typeOfWorld == Constants.TESTING){

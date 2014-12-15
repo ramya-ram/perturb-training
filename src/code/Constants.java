@@ -38,6 +38,12 @@ public class Constants {
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1;
 	
+	public static int[] testWindTraining =    {0, 6, 0};
+	public static int[] testDrynessTraining = {0, 0, 6};
+	
+	public static int[] testWindTesting =    {2, 9, 3};
+	public static int[] testDrynessTesting = {9, 2, 9};
+	
 	//file names where results are stored
 	public static String dataDir = "C:\\ExperimentData_Dec2014\\";
 	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2.csv";
@@ -49,7 +55,7 @@ public class Constants {
 	
 	public static String participantDir = dataDir;
 	
-	public static String simulationDir = "C:\\RSS_SimulationResults_Pruning2\\";
+	public static String simulationDir = "C:\\RSS_2015_SimulationResults\\";
 	public static String rewardProceQName = simulationDir+"proceQReward_09_90_49_Train60_06_"+NUM_EPISODES_TEST+"iter.csv";
 	public static String rewardPerturbQName = simulationDir+"perturbQReward_09_90_49_Train60_06_"+NUM_EPISODES_TEST+"iter.csv";
 	public static String rewardHRPRName = simulationDir+"HRPRReward_09_90_49_Train60_06_"+NUM_EPISODES_TEST+"iter.csv";
