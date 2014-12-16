@@ -36,7 +36,7 @@ public class Constants {
 	public static int NUM_VARIABLES = 2; //wind + dryness = 2
 	
 	public static int HUMAN = 0, ROBOT = 1;
-	public static int TRAINING = 0, TESTING = 1;
+	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
 	
 	public static int[] testWindTraining =    {0, 6, 0};
 	public static int[] testDrynessTraining = {0, 0, 6};

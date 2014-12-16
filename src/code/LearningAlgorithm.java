@@ -42,12 +42,16 @@ public class LearningAlgorithm {
 	/**
 	 * Runs one episode of the task
 	 */
-	public Tuple<Double, Integer, Long> run(Policy pastPolicy, int maxSteps){
+	public Tuple<Double, Integer, Long> run(Policy pastPolicy, int maxSteps, State initialStateHuman){
         double episodeReward = 0;
         int iterations = 0;
         long startTime = System.currentTimeMillis();
         
-		State state = myWorld.initialState().clone();
+		State state = null;
+		if(initialStateHuman != null)
+			state = initialStateHuman.clone();
+		else
+			state = myWorld.initialState().clone();
         try{
 	        while (!MyWorld.isGoalState(state) && iterations < maxSteps) {
 	        	HumanRobotActionPair agentActions = null;

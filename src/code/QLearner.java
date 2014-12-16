@@ -40,10 +40,14 @@ public class QLearner extends LearningAlgorithm {
 		}
 	}
 	
+	public Policy run(MyWorld myWorld, boolean withHuman, boolean computePolicy){
+		return run(myWorld, withHuman, computePolicy, null);
+	}
+	
 	/**
 	 * Run QLearning for the number of episodes specified and see how accumulated reward changes over these episodes
 	 */
-	public Policy run(MyWorld myWorld, boolean withHuman, boolean computePolicy) {
+	public Policy run(MyWorld myWorld, boolean withHuman, boolean computePolicy, State initialStateHuman) {
 		this.myWorld = myWorld;
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
@@ -73,7 +77,7 @@ public class QLearner extends LearningAlgorithm {
 		
 		try{
 	        for(int i = 0; i < numEpisodes; i++) {
-				Tuple<Double, Integer, Long> tuple = run(null/*, false egreedy*/, Constants.NUM_STEPS_PER_EPISODE);
+				Tuple<Double, Integer, Long> tuple = run(null, Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 				//System.out.print(i+" ");
 	            
 	            if(withHuman && Main.saveToFile){

@@ -30,10 +30,14 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		jointQValues = qValuesSet.getJointQValues();
 	}
 	
+	public Policy policyReuse(boolean withHuman, boolean computePolicy) {
+		return policyReuse(withHuman, computePolicy, null);
+	}
+	
 	/**
 	 * Runs the policy reuse algorithm for the number of episodes specified
 	 */
-	public Policy policyReuse(boolean withHuman, boolean computePolicy) {
+	public Policy policyReuse(boolean withHuman, boolean computePolicy, State initialStateHuman) {
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
 		Main.currWithSimulatedHuman = withHuman;
@@ -102,13 +106,13 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				if(isPastPolicy(library, policyNum)){
 					//System.out.println("using policy num "+policyNum);
 					Policy currPolicy = library.get(policyNum);
-					Tuple<Double, Integer, Long> tuple = run(currPolicy, /*true, */Constants.NUM_STEPS_PER_EPISODE);
+					Tuple<Double, Integer, Long> tuple = run(currPolicy, /*true, */Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
 				} else {
 					//System.out.println("using curr policy");
-					Tuple<Double, Integer, Long> tuple = run(null, /*true,*/ Constants.NUM_STEPS_PER_EPISODE);
+					Tuple<Double, Integer, Long> tuple = run(null, /*true,*/ Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
