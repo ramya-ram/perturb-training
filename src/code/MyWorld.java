@@ -7,6 +7,7 @@ public class MyWorld {
 	public static MDP mdp;
 	public static Set<State> states = new HashSet<State>();
 	public static State[] initStates;
+	public static String predefinedText;
 	
 	//prior probabilities for environment variables = wind, dryness
 	public static double[][] probObsGivenWind;

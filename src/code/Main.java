@@ -13,7 +13,7 @@ import PR2_robot.MyServer;
 
 public class Main {
 	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2, CREATE_PREDEFINED = 3, LEARN_OFFLINE_VALUES = 4;
-	public static int CURRENT_EXECUTION = SIMULATION;
+	public static int CURRENT_EXECUTION = SIMULATION_HUMAN;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -45,6 +45,12 @@ public class Main {
 		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
 			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, Constants.testWindTesting[i-1], Constants.testDrynessTesting[i-1]);
 			testingWorlds.add(testWorld);
+		}
+		
+		if(CURRENT_EXECUTION == CREATE_PREDEFINED){
+			for(MyWorld testWorld : testingWorlds){
+				populatePredefinedTestCase(testWorld);
+			}
 		}
 		
 		try {
@@ -172,6 +178,54 @@ public class Main {
 					}
 				}
 			}     
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public static void populatePredefinedTestCase(MyWorld myWorld){
+		try {
+			int num = 0;
+			System.out.println("in populate");
+			BufferedWriter stateWriter = new BufferedWriter(new FileWriter(new File(Constants.predefinedPerturb0FileName), true));
+			int statesPerFire = Constants.STATES_PER_FIRE;
+
+			for(int i=0; i<statesPerFire; i++){
+				for(int j=0; j<statesPerFire; j++){
+					for(int k=0; k<statesPerFire; k++){
+						for(int l=0; l<statesPerFire; l++){
+							for(int m=0; m<statesPerFire; m++){
+								int[] stateOfFires = {i,j,k,l,m};
+								State state = new State(stateOfFires);
+								if(MyWorld.isGoalState(state))
+									continue;
+								for(Action humanAction : Action.values()){
+									for(Action robotAction : Action.values()){
+										if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
+												&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
+											State nextState;
+											HumanRobotActionPair agentActions;
+											do{
+												agentActions = new HumanRobotActionPair(humanAction, robotAction);
+												nextState = myWorld.getNextState(state, agentActions);
+												if(humanAction==Action.WAIT && robotAction==Action.WAIT)
+													break;
+											} while(state.equals(nextState));
+											if(MyWorld.predefinedText.length() > 0)
+												stateWriter.write(MyWorld.predefinedText+",");
+											else
+												stateWriter.write("-,");
+											num++;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			System.out.println("size "+num);
+			stateWriter.close();
 		} catch(Exception e){
 			e.printStackTrace();
 		}
