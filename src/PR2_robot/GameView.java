@@ -16,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
@@ -31,7 +32,7 @@ public class GameView extends JFrame {
 	private JPanel centerPanel;
 	private JLabel timeLabel;
 	private JLabel titleLabel;
-	private JTextPane textPane;
+	private JTextPane announcements;
 	private JTextField textField;
 	private static final int NUM_FIRES = 5;
 	private String fileBase = "C:\\Users\\julie\\Pictures\\";
@@ -55,6 +56,7 @@ public class GameView extends JFrame {
         nextButton = new JButton("Next");
         startRound = new JButton("Start Round!");
         initTitleGUI("start");
+        setResizable(false);
         
     	if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
     		nextButton.addActionListener(new NextButtonListener());
@@ -189,14 +191,19 @@ public class GameView extends JFrame {
         teammate.setContentType("text/plain");
         teammate.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 25));
         teammate.setEditable(false);
-        //teammate.setPreferredSize(new Dimension(1800,200));
+        //teammate.setPreferredSize(new Dimension(1800,500));
         
         StyledDocument doc = teammate.getStyledDocument();
         SimpleAttributeSet center = new SimpleAttributeSet();
         StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
         doc.setParagraphAttributes(0, doc.getLength(), center, false);
         teammate.setAlignmentX(CENTER_ALIGNMENT);
-        centerPanel.add(teammate);
+        //teammate.setBackground(new Color(238,233,233));
+        JScrollPane scrollPaneTeammate = new JScrollPane(teammate);
+        scrollPaneTeammate.setPreferredSize(new Dimension(1800,400));
+        scrollPaneTeammate.setBorder(null);
+        centerPanel.add(scrollPaneTeammate);
+        //centerPanel.add(teammate);
         
         //burnedDownMessage = new JLabel("", SwingConstants.CENTER);
         //burnedDownMessage.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 25));
@@ -207,18 +214,23 @@ public class GameView extends JFrame {
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         //textLabel = new JLabel("", SwingConstants.CENTER);
-        textPane = new JTextPane();
-        textPane.setContentType("text/plain");
-        textPane.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
-        textPane.setEditable(false);
+        announcements = new JTextPane();
+        announcements.setContentType("text/plain");
+        announcements.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
+        announcements.setEditable(false);
         
-        doc = textPane.getStyledDocument();
+        doc = announcements.getStyledDocument();
         center = new SimpleAttributeSet();
         StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
         doc.setParagraphAttributes(0, doc.getLength(), center, false);
         
         //textPane.setAlignmentX(Component.CENTER_ALIGNMENT);
-        bottomPanel.add(textPane, BorderLayout.NORTH);//, BorderLayout.SOUTH);
+        //announcements.setBackground(new Color(220,220,220));
+        JScrollPane scrollPaneAnnouncements = new JScrollPane(announcements);
+        scrollPaneAnnouncements.setPreferredSize(new Dimension(1800,150));
+        scrollPaneAnnouncements.setBorder(null);
+        bottomPanel.add(scrollPaneAnnouncements, BorderLayout.NORTH);//, BorderLayout.SOUTH);
+        //bottomPanel.add(announcements, BorderLayout.NORTH);
         
         JPanel leftGlue = new JPanel();
         leftGlue.setPreferredSize(new Dimension(50,100));
@@ -279,6 +291,10 @@ public class GameView extends JFrame {
     	teammate.setText(teammate.getText()+"\n"+text);
     }
     
+    public void setTextFieldEnable(boolean enable){
+    	textField.setEnabled(enable);
+    }
+    
     public void setNextEnable(boolean enable){
     	nextButton.setEnabled(enable);
     }
@@ -332,7 +348,7 @@ public class GameView extends JFrame {
     }
     
     public void setAnnouncements(String text){
-    	textPane.setText(""+text);
+    	announcements.setText(""+text);
     }
     
     public void focusTextField(){

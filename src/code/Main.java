@@ -119,7 +119,7 @@ public class Main {
 					//PERTURBATION - Q-learning
 					TaskExecution perturbQ = new TaskExecution(gameView, trainingWorldsProce, testingWorlds, ExperimentCondition.PERTURB_Q);
 					perturbQ.executeTask();
-				} else if(trainingType.equals("BH")){
+				} else if(trainingType.equalsIgnoreCase("BH")){
 					//PERTURBATION
 					TaskExecution HRPR = new TaskExecution(gameView, trainingWorldsPerturb, testingWorlds, ExperimentCondition.HRPR);
 					HRPR.executeTask();

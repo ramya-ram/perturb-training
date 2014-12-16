@@ -207,7 +207,7 @@ public class LearningAlgorithm {
 			int fireIndex = Integer.parseInt(action.name().substring(7, 8));
 			return "extinguish "+MyWorld.convertToFireName(fireIndex);
 		}
-		return "wait";
+		return "have to wait this turn";
 	}
 	
 	/**
@@ -257,11 +257,11 @@ public class LearningAlgorithm {
 			
 			if((maxJointValue - averageValue) > Constants.THRESHOLD_SUGG && bestHumanActionSuggestion != null){ //robot suggests human an action too
 				numRobotSuggestions++;
-				updateGUIMessage("Your teammate will choose to "+getPrintableFromAction(bestRobotActionSuggestion)+" and suggests you to "+getPrintableFromAction(bestHumanActionSuggestion));
+				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionSuggestion)+" and suggests you to "+getPrintableFromAction(bestHumanActionSuggestion));
 				addToGUIMessage("Would you like to accept the suggestion? (Y or N _)");
 				CommResponse response = getHumanMessage(bestHumanActionSuggestion);
-				if(response.commType == CommType.NONE)
-					outOfTimeMessage();
+				//if(response.commType == CommType.NONE)
+				//	outOfTimeMessage();
 				actions = new HumanRobotActionPair(response.humanAction, bestRobotActionSuggestion);
 				
 			} else { //robot just updates
@@ -269,11 +269,11 @@ public class LearningAlgorithm {
 				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionUpdate));
 				addToGUIMessage("Which fire you would like to extinguish (_)?");
 				CommResponse response = getHumanMessage(null);
-				if(response.commType == CommType.NONE)
-					outOfTimeMessage();
+				//if(response.commType == CommType.NONE)
+				//	outOfTimeMessage();
 				actions = new HumanRobotActionPair(response.humanAction, bestRobotActionUpdate);			
 			}
-			updateGUIMessage("Summary:\nYou chose to "+getPrintableFromAction(actions.getHumanAction())+"\nYour teammate chose to "+getPrintableFromAction(actions.getRobotAction())+"\n");
+			updateGUIMessage("Summary:\nYou will "+getPrintableFromAction(actions.getHumanAction())+"\nYour teammate will "+getPrintableFromAction(actions.getRobotAction())+"\n");
 			return actions;
 		} catch(Exception e){
 			e.printStackTrace();
@@ -294,9 +294,9 @@ public class LearningAlgorithm {
 			Action humanAction = response.humanAction;
 			Action robotAction = response.robotAction;
 			if(response.commType == CommType.UPDATE)
-				updateGUIMessage("You would like to "+getPrintableFromAction(humanAction));
+				updateGUIMessage("You chose to "+getPrintableFromAction(humanAction));
 			else if(response.commType == CommType.SUGGEST)
-				updateGUIMessage("You would like to "+getPrintableFromAction(humanAction)+" and suggest your teammate to "+getPrintableFromAction(robotAction));
+				updateGUIMessage("You chose to "+getPrintableFromAction(humanAction)+" and suggest your teammate to "+getPrintableFromAction(robotAction));
 			if(response.commType != CommType.NONE){
 				if(response.commType == CommType.SUGGEST){
 					double humanSuggestedQValue = getJointQValue(state, new HumanRobotActionPair(humanAction, robotAction));
@@ -312,7 +312,7 @@ public class LearningAlgorithm {
 					if((robotSuggestedQValue - humanSuggestedQValue) > Constants.THRESHOLD_REJECT){ 
 						numRobotRejects++;
 						robotAction = optimalRobotAction;
-						updateGUIMessage("Your teammate has a different preference and chooses to "+getPrintableFromAction(robotAction)+"\n");
+						updateGUIMessage("Your teammate has a different preference and will "+getPrintableFromAction(robotAction)+"\n");
 					} else {
 						numRobotAccepts++;
 						updateGUIMessage("Your teammate accepts to "+getPrintableFromAction(robotAction)+"\n");
@@ -322,13 +322,13 @@ public class LearningAlgorithm {
 					addToGUIMessage("Waiting for teammate...");
 					simulateWaitTime(state);
 					robotAction = getGreedyRobotAction(state, humanAction);
-					updateGUIMessage("Your teammate chose to "+getPrintableFromAction(robotAction)+"\n");
+					updateGUIMessage("Your teammate will "+getPrintableFromAction(robotAction)+"\n");
 				}
-			} else {
-				outOfTimeMessage();
-			}
+			} //else {
+			//	outOfTimeMessage();
+			//}
 			//Thread.sleep(3000);
-			addToGUIMessage("Summary:\nYou chose to "+getPrintableFromAction(humanAction)+"\nYour teammate chose to "+getPrintableFromAction(robotAction)+"\n");
+			addToGUIMessage("Summary:\nYou will "+getPrintableFromAction(humanAction)+"\nYour teammate will "+getPrintableFromAction(robotAction)+"\n");
 			return new HumanRobotActionPair(humanAction, robotAction);
 		} catch(Exception e){
 			e.printStackTrace();
@@ -343,16 +343,11 @@ public class LearningAlgorithm {
 			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN)
 				response = myServer.getHumanMessage(suggestedHumanAction);
 			else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
-				Main.gameView.setTextFieldEnable(true);
-				Main.gameView.focusTextField();
-				while(Main.gameView.humanMessage == null){
-					System.out.print("");
+				response = waitForHumanMessage(suggestedHumanAction);
+				while(response.humanAction == Action.WAIT && LearningAlgorithm.timeLeft > 0){
+					addToGUIMessage("Invalid input, please specify again what you would like to do!");
+					response = waitForHumanMessage(suggestedHumanAction);
 				}
-				String text = Main.gameView.humanMessage;
-				Main.gameView.humanMessage = null;
-				System.out.println("text received "+text);
-				response = parseHumanInput(text.trim(), suggestedHumanAction);
-				Main.gameView.setTextFieldEnable(false);
 			}
 		} catch(Exception e){
 			e.printStackTrace();
@@ -361,16 +356,38 @@ public class LearningAlgorithm {
 		return response;
 	}
 	
+	public CommResponse waitForHumanMessage(Action suggestedHumanAction) {
+		CommResponse response = null;
+		Main.gameView.setTextFieldEnable(true);
+		Main.gameView.focusTextField();
+		while(Main.gameView.humanMessage == null){
+			System.out.print("");
+			if(LearningAlgorithm.timeLeft == 0){
+				System.out.println("time over");
+				outOfTimeMessage();
+				Main.gameView.setTextFieldEnable(false);
+				return new CommResponse(CommType.NONE, Action.WAIT, Action.WAIT);	
+			}
+		}
+		String text = Main.gameView.humanMessage;
+		Main.gameView.humanMessage = null;
+		System.out.println("text received "+text);
+		response = parseHumanInput(text.trim(), suggestedHumanAction);
+		Main.gameView.setTextFieldEnable(false);
+		return response;
+	}
+	
 	public CommResponse parseHumanInput(String text, Action suggestedHumanAction){
 		CommType commType = CommType.NONE;
 		Action humanAction = Action.WAIT;
 		Action robotAction = Action.WAIT;
 		String [] strs = text.split(" ");
-		for(String str : strs)
-			System.out.println("split "+str);
+		//for(String str : strs)
+		//	System.out.println("split "+str);
 		if(strs[0].equalsIgnoreCase("Y")){
 			commType = CommType.ACCEPT;
-			humanAction = suggestedHumanAction;
+			if(suggestedHumanAction != null)
+				humanAction = suggestedHumanAction;
 		} else if(strs[0].equalsIgnoreCase("N")){
 			commType = CommType.REJECT;
 			humanAction = convertToAction(strs[1].toUpperCase().charAt(0));
