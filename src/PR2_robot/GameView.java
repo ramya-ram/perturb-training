@@ -143,7 +143,7 @@ public class GameView extends JFrame {
         topPanel.add(titleLabel);
 
         timeLabel = new JLabel("Time Left: ", SwingConstants.CENTER);
-        timeLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
+        timeLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 40));
         timeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         //centerPanel.add(timeLabel);//, BorderLayout.NORTH);
         topPanel.add(timeLabel);
@@ -189,7 +189,7 @@ public class GameView extends JFrame {
         teammate.setContentType("text/plain");
         teammate.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 25));
         teammate.setEditable(false);
-        teammate.setPreferredSize(new Dimension(1800,130));
+        //teammate.setPreferredSize(new Dimension(1800,200));
         
         StyledDocument doc = teammate.getStyledDocument();
         SimpleAttributeSet center = new SimpleAttributeSet();
@@ -222,11 +222,11 @@ public class GameView extends JFrame {
         
         JPanel leftGlue = new JPanel();
         leftGlue.setPreferredSize(new Dimension(50,100));
-        bottomPanel.add(leftGlue, BorderLayout.WEST);
+        //bottomPanel.add(leftGlue, BorderLayout.WEST);
         
         JPanel rightGlue = new JPanel();
         rightGlue.setPreferredSize(new Dimension(50,100));
-        bottomPanel.add(rightGlue, BorderLayout.EAST);
+        //bottomPanel.add(rightGlue, BorderLayout.EAST);
         
         textField = new JTextField();
         textField.setEnabled(true);

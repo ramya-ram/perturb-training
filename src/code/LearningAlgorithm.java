@@ -254,7 +254,7 @@ public class LearningAlgorithm {
 			if((maxJointValue - averageValue) > Constants.THRESHOLD_SUGG && bestHumanActionSuggestion != null){ //robot suggests human an action too
 				numRobotSuggestions++;
 				updateGUIMessage("Your teammate will choose to "+getPrintableFromAction(bestRobotActionSuggestion)+" and suggests you to "+getPrintableFromAction(bestHumanActionSuggestion));
-				addToGUIMessage("Would you like to accept the suggestion? (Y or N [A, B, C, D, E])");
+				addToGUIMessage("Would you like to accept the suggestion? (Y or N _)");
 				CommResponse response = getHumanMessage(bestHumanActionSuggestion);
 				if(response.commType == CommType.NONE)
 					outOfTimeMessage();
@@ -263,7 +263,7 @@ public class LearningAlgorithm {
 			} else { //robot just updates
 				numRobotUpdates++;
 				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionUpdate));
-				addToGUIMessage("Which fire you would like to extinguish (A, B, C, D, or E)?");
+				addToGUIMessage("Which fire you would like to extinguish (_)?");
 				CommResponse response = getHumanMessage(null);
 				if(response.commType == CommType.NONE)
 					outOfTimeMessage();
@@ -285,7 +285,7 @@ public class LearningAlgorithm {
 	 */
 	public HumanRobotActionPair humanComm(State state, Action pastRobotAction) {
 		try{
-			updateGUIMessage("Which fire you would like to extinguish (A, B, C, D, E)? If you want to make a suggestion, add a space and one more letter the action you suggest for the robot: ");
+			updateGUIMessage("Which fire you would like to extinguish (_)? If you want to make a suggestion, (_ _): ");
 			CommResponse response = getHumanMessage(null);			
 			Action humanAction = response.humanAction;
 			Action robotAction = response.robotAction;
@@ -308,23 +308,23 @@ public class LearningAlgorithm {
 					if((robotSuggestedQValue - humanSuggestedQValue) > Constants.THRESHOLD_REJECT){ 
 						numRobotRejects++;
 						robotAction = optimalRobotAction;
-						updateGUIMessage("Your teammate has a different preference and chooses to "+getPrintableFromAction(robotAction));
+						updateGUIMessage("Your teammate has a different preference and chooses to "+getPrintableFromAction(robotAction)+"\n");
 					} else {
 						numRobotAccepts++;
-						updateGUIMessage("Your teammate accepts to "+getPrintableFromAction(robotAction));
+						updateGUIMessage("Your teammate accepts to "+getPrintableFromAction(robotAction)+"\n");
 					}
 				} else if(response.commType == CommType.UPDATE){
 					numHumanUpdates++;				
 					addToGUIMessage("Waiting for teammate...");
 					simulateWaitTime(state);
 					robotAction = getGreedyRobotAction(state, humanAction);
-					updateGUIMessage("Your teammate chose to "+getPrintableFromAction(robotAction));
+					updateGUIMessage("Your teammate chose to "+getPrintableFromAction(robotAction)+"\n");
 				}
 			} else {
 				outOfTimeMessage();
 			}
-			Thread.sleep(3000);
-			updateGUIMessage("Summary:\nYou chose to "+getPrintableFromAction(humanAction)+"\nYour teammate chose to "+getPrintableFromAction(robotAction)+"\n");
+			//Thread.sleep(3000);
+			addToGUIMessage("Summary:\nYou chose to "+getPrintableFromAction(humanAction)+"\nYour teammate chose to "+getPrintableFromAction(robotAction)+"\n");
 			return new HumanRobotActionPair(humanAction, robotAction);
 		} catch(Exception e){
 			e.printStackTrace();
