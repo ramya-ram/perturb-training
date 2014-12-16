@@ -343,6 +343,7 @@ public class LearningAlgorithm {
 			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN)
 				response = myServer.getHumanMessage(suggestedHumanAction);
 			else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
+				Main.gameView.setTextFieldEnable(true);
 				Main.gameView.focusTextField();
 				while(Main.gameView.humanMessage == null){
 					System.out.print("");
@@ -351,6 +352,7 @@ public class LearningAlgorithm {
 				Main.gameView.humanMessage = null;
 				System.out.println("text received "+text);
 				response = parseHumanInput(text.trim(), suggestedHumanAction);
+				Main.gameView.setTextFieldEnable(false);
 			}
 		} catch(Exception e){
 			e.printStackTrace();
