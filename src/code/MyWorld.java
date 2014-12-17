@@ -35,10 +35,6 @@ public class MyWorld {
 		if(probObsGivenWind == null || probObsGivenDryness == null)
 			initPriorProbabilities();
 		
-		//to make human experiments consistent and less noisy, the robot trains and tests on the same environmental conditions
-		simulationWind = testWind;
-		simulationDryness = testDryness;
-		
 		System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
@@ -238,8 +234,6 @@ public class MyWorld {
 				wind = simulationWind;
 				dryness = simulationDryness;
 			}
-			//wind = testWind;
-			//dryness = testDryness;
 			
 			String textToDisplay = "";
 			Action humanAction = agentActions.getHumanAction();
@@ -412,6 +406,13 @@ public class MyWorld {
 			}
 			System.out.println();
 		}
+	}
+	
+	public void setSimulationWindDryness(int simulationWind, int simulationDryness){
+		this.simulationWind = simulationWind;
+		this.simulationDryness = simulationDryness;
+		
+		System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
 	public void calculateSimulationWindDryness(){

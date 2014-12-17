@@ -35,15 +35,15 @@ public class Main {
 		List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
 		List<MyWorld> trainingWorldsPerturb = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TRAINING_SESSIONS; i++){
-			MyWorld proceWorld = new MyWorld(Constants.TRAINING, false, i, Constants.testWindTraining[0], Constants.testDrynessTraining[0]);
+			MyWorld proceWorld = new MyWorld(Constants.TRAINING, false, i, Constants.testWind_train[0], Constants.testDryness_train[0]);
 			trainingWorldsProce.add(proceWorld);
-			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i, Constants.testWindTraining[i-1], Constants.testDrynessTraining[i-1]);
+			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i, Constants.testWind_train[i-1], Constants.testDryness_train[i-1]);
 			trainingWorldsPerturb.add(perturbWorld);
 		}
 		//construct testing worlds for both training
 		List<MyWorld> testingWorlds = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
-			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, Constants.testWindTesting[i-1], Constants.testDrynessTesting[i-1]);
+			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, Constants.testWind_test[i-1], Constants.testDryness_test[i-1]);
 			testingWorlds.add(testWorld);
 		}
 		
@@ -61,8 +61,17 @@ public class Main {
 			
 			saveToFile = true;
 			
+			//sets simulation wind and dryness
+			for(MyWorld trainWorld : trainingWorldsProce)
+				trainWorld.setSimulationWindDryness(Constants.simulationWind_train[0], Constants.simulationDryness_train[0]);
+			for(MyWorld trainWorld : trainingWorldsPerturb)
+				trainWorld.setSimulationWindDryness(Constants.simulationWind_train[trainWorld.sessionNum-1], Constants.simulationDryness_train[trainWorld.sessionNum-1]);
+			for(MyWorld testWorld : testingWorlds)
+				testWorld.setSimulationWindDryness(Constants.simulationWind_test[testWorld.sessionNum-1], Constants.simulationDryness_test[testWorld.sessionNum-1]);
+			
 			if(CURRENT_EXECUTION == SIMULATION){
-				for(int i=0; i<Constants.NUM_AVERAGING; i++){	
+				for(int i=0; i<Constants.NUM_AVERAGING; i++){
+					//makes simulation wind and dryness a noisy version of the real one
 					/*System.out.println("NEW simulation");
 					for(MyWorld trainWorld : trainingWorldsProce)
 						trainWorld.calculateSimulationWindDryness();
@@ -96,7 +105,7 @@ public class Main {
 					rewardPerturbQWriter.close();
 					rewardProceQWriter.close();
 				}
-			} else {
+			} else {				
 				gameView = new GameView(CURRENT_EXECUTION);
 				if(CURRENT_EXECUTION == ROBOT_HUMAN){
 					myServer = new MyServer();

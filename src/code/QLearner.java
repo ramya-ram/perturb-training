@@ -48,10 +48,8 @@ public class QLearner extends LearningAlgorithm {
 			numEpisodes = 1;
 		
 		resetCommunicationCounts();
-		
-		//System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
-		
-		System.out.println("wind="+myWorld.testWind+" dryness="+myWorld.testDryness);
+			
+		System.out.println("testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness);
 		
 		if(withHuman && Main.gameView != null){
 			System.out.println("with human");

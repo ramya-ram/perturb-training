@@ -18,7 +18,7 @@ public class Constants {
 	
 	//num of times to run
 	public static final int NUM_EPISODES = 200000;
-	public static final int NUM_EPISODES_TEST = 200000;
+	public static final int NUM_EPISODES_TEST = 2000;
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
 	public static final int NUM_TRAINING_SESSIONS = 3;
@@ -26,8 +26,8 @@ public class Constants {
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = true;
-	public static boolean print = true;
-	public static int NUM_AVERAGING = 1;
+	public static boolean print = false;
+	public static int NUM_AVERAGING = 30;
 	
 	public static int STATES_PER_FIRE = 5;
 	public static int NUM_FIRES = 5;
@@ -38,17 +38,18 @@ public class Constants {
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
 	
-	public static int[] testWindTraining =    {0, 5, 0};
-	public static int[] testDrynessTraining = {0, 0, 5};
+	public static int[] simulationWind_train =    {0, 5, 0};
+	public static int[] simulationDryness_train = {0, 0, 5};
 	
-	//public static int[] testHumanWindTraining =    {0, 6, 0};
-	//public static int[] testHumanDrynessTraining = {0, 0, 6};
+	public static int[] testWind_train =    {0, 6, 0};
+	public static int[] testDryness_train = {0, 0, 6};
 	
-	public static int[] testWindTesting =    {2, 9};
-	public static int[] testDrynessTesting = {9, 2};
+	public static int[] simulationWind_test =    {1, 8};
+	public static int[] simulationDryness_test = {8, 1};
 	
-	//public static int[] testHumanWindTesting =    {1, 8};
-	//public static int[] testHumanDrynessTesting = {8, 1};
+	public static int[] testWind_test =    {2, 9};
+	public static int[] testDryness_test = {9, 2};	
+
 	
 	//file names where results are stored
 	public static String dataDir = "C:\\ExperimentData_Dec2014\\";
@@ -66,5 +67,5 @@ public class Constants {
 	public static String rewardPerturbQName = simulationDir+"qValuesperturbQReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"_01deltaT_iter_"+NUM_AVERAGING+"avg.csv";
 	public static String rewardHRPRName = simulationDir+"qValuesHRPRReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"_01deltaT_iter_"+NUM_AVERAGING+"avg.csv";
 
-	public static String qvaluesDir = simulationDir+"QValues_200000TestSim_01DeltaT\\";
+	public static String qvaluesDir = simulationDir+"QValues_1500TestSim_01DeltaT\\";
 }
