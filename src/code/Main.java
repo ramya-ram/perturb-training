@@ -63,13 +63,13 @@ public class Main {
 			
 			if(CURRENT_EXECUTION == SIMULATION){
 				for(int i=0; i<Constants.NUM_AVERAGING; i++){	
-					System.out.println("NEW simulation");
+					/*System.out.println("NEW simulation");
 					for(MyWorld trainWorld : trainingWorldsProce)
 						trainWorld.calculateSimulationWindDryness();
 					for(MyWorld trainWorld : trainingWorldsPerturb)
 						trainWorld.calculateSimulationWindDryness();
 					for(MyWorld testWorld : testingWorlds)
-						testWorld.calculateSimulationWindDryness();
+						testWorld.calculateSimulationWindDryness();*/
 					
 					//PROCEDURAL - Q-learning
 					TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);

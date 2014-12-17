@@ -17,7 +17,7 @@ public class Constants {
 	public static double THRESHOLD_REJECT = 2;
 	
 	//num of times to run
-	public static final int NUM_EPISODES = 100000;
+	public static final int NUM_EPISODES = 200000;
 	public static final int NUM_EPISODES_TEST = 1000;
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
@@ -56,9 +56,9 @@ public class Constants {
 	public static String participantDir = dataDir;
 	
 	public static String simulationDir = "C:\\RSS_2015_SimulationResults\\";
-	public static String rewardProceQName = simulationDir+"testNoiseproceQReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"iter_"+NUM_AVERAGING+"avg.csv";
-	public static String rewardPerturbQName = simulationDir+"testNoiseperturbQReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"iter_"+NUM_AVERAGING+"avg.csv";
-	public static String rewardHRPRName = simulationDir+"testNoiseHRPRReward_29_92_Train50_05"+NUM_EPISODES_TEST+"iter_"+NUM_AVERAGING+"avg.csv";
+	public static String rewardProceQName = simulationDir+"qValuesproceQReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"iter_"+NUM_AVERAGING+"avg.csv";
+	public static String rewardPerturbQName = simulationDir+"qValuesperturbQReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"iter_"+NUM_AVERAGING+"avg.csv";
+	public static String rewardHRPRName = simulationDir+"qValuesHRPRReward_29_92_Train50_05"+NUM_EPISODES_TEST+"iter_"+NUM_AVERAGING+"avg.csv";
 
-	public static String qvaluesDir = "C:\\RSS_2015_SimulationResults\\QValues\\";
+	public static String qvaluesDir = simulationDir+"QValues_200000TestSim\\";
 }

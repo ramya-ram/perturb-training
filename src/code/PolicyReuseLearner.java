@@ -3,6 +3,8 @@ package code;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Timer;
 
@@ -12,22 +14,17 @@ import javax.swing.Timer;
  * Used in the testing session of the perturbation training condition
  */
 public class PolicyReuseLearner extends LearningAlgorithm {
-	public PolicyLibrary library;
-	
-	public PolicyReuseLearner(MyWorld myWorld, PolicyLibrary library, QValuesSet qValuesSet, double[] policyWeights){
+
+	public PolicyReuseLearner(MyWorld myWorld, List<QLearner> learners){
 		this.myWorld = myWorld;
-		this.library = new PolicyLibrary();
-		this.library.add(new Policy()); //current policy being learned
-		this.library.addAll(library.policyLibrary);
-				
-		for(Policy policy : this.library.policyLibrary){
-			policy.weight = 0;
-			policy.numEpisodesChosen = 0;
+		
+		qValuesList = new ArrayList<QValuesSet>();
+		for(QLearner qlearner : learners){
+			QValuesSet newSet = qlearner.currQValues.clone();
+			qValuesList.add(newSet);
 		}
 		
-		timer = new Timer(1000, timerListener());		
-		robotQValues = qValuesSet.getRobotQValues();
-		jointQValues = qValuesSet.getJointQValues();
+		timer = new Timer(1000, timerListener());
 	}
 	
 	public Policy policyReuse(boolean withHuman, boolean computePolicy) {
@@ -73,7 +70,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 			double currTemp = Constants.TEMP;
 			for(int k=0; k<numEpisodes; k++){
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
-				double[] probForPolicies = getProbForPolicies(library, currTemp);
+				double[] probForPolicies = getProbForPolicies(qValuesList, currTemp);
 				probForPolicies = getAccumulatedArray(probForPolicies);
 				
 				int policyNum = 0;
@@ -81,12 +78,12 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 					//if working with the human, choose the policy with the highest weight
 					double maxWeight = Integer.MIN_VALUE;
 					policyNum = -1;
-					for(int i=0; i<library.size(); i++){
-						if(library.get(i).weight > maxWeight){
-							maxWeight = library.get(i).weight;
+					for(int i=0; i<qValuesList.size(); i++){
+						if(qValuesList.get(i).weight > maxWeight){
+							maxWeight = qValuesList.get(i).weight;
 							policyNum = i;
 						}
-						mainWriter.write(i+" "+library.get(i).weight+"\n");
+						mainWriter.write(i+" "+qValuesList.get(i).weight+"\n");
 					}
 					mainWriter.write("finally using "+policyNum+"\n");
 					System.out.println("working with human, best policy = "+policyNum);
@@ -103,20 +100,25 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				double reward = 0;
 				int iterations = 0;
 				long duration = 0;
-				if(isPastPolicy(library, policyNum)){
+				/*if(isPastPolicy(policyNum)){
 					//System.out.println("using policy num "+policyNum);
-					Policy currPolicy = library.get(policyNum);
-					Tuple<Double, Integer, Long> tuple = run(currPolicy, /*true, */Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
+					Policy currPolicy = qValues.get(policyNum);
+					Tuple<Double, Integer, Long> tuple = run(learners, true, Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
 				} else {
 					//System.out.println("using curr policy");
-					Tuple<Double, Integer, Long> tuple = run(null, /*true,*/ Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
+					Tuple<Double, Integer, Long> tuple = run(null, true, Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
-				}
+				}*/
+				currQValues = qValuesList.get(policyNum);
+				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
+				reward = tuple.getFirst();
+				iterations = tuple.getSecond();
+				duration = tuple.getThird();
 
 				if(withHuman && Main.saveToFile){
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
@@ -127,15 +129,15 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 					}
 				}
 	           
-				Policy currPolicy = library.get(policyNum);
-				currPolicy.weight = (currPolicy.weight*currPolicy.numEpisodesChosen + reward)/(currPolicy.numEpisodesChosen + 1);
-				currPolicy.numEpisodesChosen = currPolicy.numEpisodesChosen + 1;
+				QValuesSet currQValues = qValuesList.get(policyNum);
+				currQValues.weight = (currQValues.weight*currQValues.numEpisodesChosen + reward)/(currQValues.numEpisodesChosen + 1);
+				currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;
 				currTemp = currTemp + Constants.DELTA_TEMP;
 				
 				System.out.println("weights: ");
-				library.printWeights();
+				printWeights();
 				System.out.println("num of episodes chosen: ");
-				library.printNumEpisodesChosen();
+				printNumEpisodesChosen();
 			}
 			rewardWriter.close();
 			
@@ -155,14 +157,26 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		return policy;
 	}
 	
+	public void printWeights(){
+		for(QValuesSet set : qValuesList)
+			System.out.print(set.weight+" ");
+		System.out.println();
+	}
+	
+	public void printNumEpisodesChosen(){
+		for(QValuesSet set : qValuesList)
+			System.out.print(set.numEpisodesChosen+" ");
+		System.out.println();
+	}
+	
 	/**
 	 * An array of probabilities is calculated for the policies so that one can be chosen based on the weights associated with each
 	 */
-	public double[] getProbForPolicies(PolicyLibrary library, double temp) {
-		double[] probForPolicies = new double[library.size()];
+	public double[] getProbForPolicies(List<QValuesSet> learners, double temp) {
+		double[] probForPolicies = new double[learners.size()];
 		double sum = 0;
 		for(int i=0; i<probForPolicies.length; i++){
-			probForPolicies[i] = Math.pow(Math.E, temp*library.get(i).weight);
+			probForPolicies[i] = Math.pow(Math.E, temp*learners.get(i).weight);
 			sum += probForPolicies[i];
 		}
 		for(int i=0; i<probForPolicies.length; i++){
@@ -181,7 +195,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		return probForPolicies;
 	}
 	
-	public boolean isPastPolicy(PolicyLibrary library, int index) {
+	public boolean isPastPolicy(int index) {
 		return index > 0; //the first (index 0) policy is the current policy
 	}
 }

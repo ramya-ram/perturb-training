@@ -67,23 +67,23 @@ public class TaskExecution {
 		PolicyLibrary library = new PolicyLibrary();
 		
 		//first training session -- same for procedural and perturbation
-		QLearner baseQLearner = new QLearner(null, true, ExperimentCondition.PROCE_Q);
+		QLearner baseQLearner = new QLearner(null, ExperimentCondition.PROCE_Q);
 		MyWorld trainWorld0 = trainingWorlds.get(0);
 		setTitleLabel(trainWorld0, colorsTraining[0]);
 		baseQLearner.run(trainWorld0, false /*withHuman*/, false /*computePolicy*/);
 		baseQLearner.run(trainWorld0, true, false, initialState(trainWorld0, 1));
 		baseQLearner.run(trainWorld0, false, false);
-		Policy basePolicy = baseQLearner.run(trainWorld0, true, true, initialState(trainWorld0, 2));
+		/*Policy basePolicy = */baseQLearner.run(trainWorld0, true, true, initialState(trainWorld0, 2));
 		//TODO: possibly get policy from training session 1 for the library
 		learners.add(baseQLearner);
-		library.add(basePolicy);
+		//library.add(basePolicy);
 		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+0, Constants.print);
 		
 		if(condition == ExperimentCondition.HRPR){
 			//perturbation training sessions
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
-				QLearner perturbLearner = new QLearner(new QValuesSet(baseQLearner.robotQValues, baseQLearner.jointQValues), false, ExperimentCondition.HRPR);
+				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.HRPR);
 				setTitleLabel(trainWorld, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false, false);
 				perturbLearner.run(trainWorld, true, false, initialState(trainWorld, i*2+1));
@@ -118,8 +118,7 @@ public class TaskExecution {
 	public void runTestingPhase(List<QLearner> trainedLearners, PolicyLibrary library){
 		if(condition == ExperimentCondition.HRPR){
 			for(MyWorld testWorld : testingWorlds){
-				PolicyReuseLearner PRLearner = new PolicyReuseLearner(testWorld, library,
-						new QValuesSet(trainedLearners.get(0).robotQValues, trainedLearners.get(0).jointQValues), null);
+				PolicyReuseLearner PRLearner = new PolicyReuseLearner(testWorld, trainedLearners);
 				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum-1]);
 				PRLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				PRLearner.policyReuse(false, false);
@@ -129,8 +128,7 @@ public class TaskExecution {
 		} else {
 			//Q-learning proce and perturb testing sessions
 			for(MyWorld testWorld : testingWorlds){
-				QLearner testQLearner = new QLearner(new QValuesSet(
-						trainedLearners.get(0).robotQValues, trainedLearners.get(0).jointQValues), false, condition);
+				QLearner testQLearner = new QLearner(trainedLearners.get(0).currQValues, condition);
 				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum-1]);
 				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				testQLearner.run(testWorld, false, false);

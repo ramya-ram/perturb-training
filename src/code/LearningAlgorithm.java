@@ -21,8 +21,10 @@ public class LearningAlgorithm {
 	
 	public MyServer myServer;
 
-	public double[][] robotQValues; 
-	public double[][][] jointQValues;
+	//public double[][] robotQValues; 
+	//public double[][][] jointQValues;
+	public QValuesSet currQValues;
+	public List<QValuesSet> qValuesList;
 
 	protected boolean withHuman;
 	public static int currCommunicator = Constants.ROBOT;
@@ -42,7 +44,7 @@ public class LearningAlgorithm {
 	/**
 	 * Runs one episode of the task
 	 */
-	public Tuple<Double, Integer, Long> run(Policy pastPolicy, int maxSteps, State initialStateHuman){
+	public Tuple<Double, Integer, Long> run(int maxSteps, State initialStateHuman){
         double episodeReward = 0;
         int iterations = 0;
         long startTime = System.currentTimeMillis();
@@ -57,9 +59,10 @@ public class LearningAlgorithm {
 	        	HumanRobotActionPair agentActions = null;
 				if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION) {
 					agentActions = getAgentActionsCommWithHuman(state, null); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
-				} else if(pastPolicy != null) {
-					agentActions = pastPolicy.action(state.getId());
-				} else {
+				} //else if(pastPolicy != null) {
+				//	agentActions = pastPolicy.action(state.getId());
+				//} 
+				else {
 					agentActions = getAgentActionsSimulation(state); //uses e-greedy approach (with probability epsilon, choose a random action) 
 				}
 				
@@ -96,6 +99,20 @@ public class LearningAlgorithm {
 	 * Updates the joint QValues and the robot's QValues based on an interaction
 	 */
 	public void updateQValues(State state, HumanRobotActionPair agentActions, State nextState, double reward){
+		//if there's a library of q-value functions, update all of them
+		if(qValuesList != null){
+			QValuesSet temp = currQValues;
+			for(QValuesSet set : qValuesList){
+				currQValues = set;
+				updateOneQValuesSet(state, agentActions, nextState, reward);
+			}
+			currQValues = temp;
+		} else { //otherwise, just update the current one
+			updateOneQValuesSet(state, agentActions, nextState, reward);
+		}
+	}
+	
+	public void updateOneQValuesSet(State state, HumanRobotActionPair agentActions, State nextState, double reward){
 		int humanAction = agentActions.getHumanAction().ordinal();
 		int robotAction = agentActions.getRobotAction().ordinal();
 		int stateId = state.getId();
@@ -103,13 +120,13 @@ public class LearningAlgorithm {
 		double robotQ = getRobotQValue(state, agentActions.getRobotAction());
 		double robotMaxQ = maxRobotQ(nextState);	 
         double robotValue = (1 - Constants.ALPHA) * robotQ + Constants.ALPHA * (reward + Constants.GAMMA * robotMaxQ);
-        robotQValues[stateId][robotAction] = robotValue;
+        currQValues.robotQValues[stateId][robotAction] = robotValue;
         
         double jointQ = getJointQValue(state, agentActions);
 		double jointMaxQ = maxJointQ(nextState);
 		double jointValue = (1 - Constants.ALPHA) * jointQ + Constants.ALPHA * (reward + Constants.GAMMA * jointMaxQ);
 		//System.out.println("jointQValues["+stateId+"]["+humanAction+"]["+robotAction+"] = "+jointQValues[stateId][humanAction][robotAction]);
-		jointQValues[stateId][humanAction][robotAction] = jointValue;
+		currQValues.jointQValues[stateId][humanAction][robotAction] = jointValue;
 		//System.out.println("jointQValues["+stateId+"]["+humanAction+"]["+robotAction+"] = "+jointQValues[stateId][humanAction][robotAction]);
 	}
 	
@@ -141,22 +158,34 @@ public class LearningAlgorithm {
 		if(writeToFile){
 			try{
 				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.qvaluesDir+fileName+".txt")));
-				int count = 0;
-				int stateId = state.getId();
-				for(int j=0; j<jointQValues[stateId].length; j++){
-					for(int k=0; k<jointQValues[stateId][j].length; k++){
-						if(jointQValues[stateId][j][k] < 0 || jointQValues[stateId][j][k] > 0){
-							count++;
-							//System.out.println("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+jointQValues[stateId][j][k]);
-							writer.write("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+jointQValues[stateId][j][k]+"\n");
-						}
+				if(qValuesList != null){
+					for(QValuesSet set : qValuesList){
+						writeQValuesToFile(writer, state, set);
+						writer.write("\n\n");
 					}
+				} else {
+					writeQValuesToFile(writer, state, currQValues);
 				}
-				System.out.println("count of nonzero "+count);
 				writer.close();
 			} catch(Exception e){
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	public void writeQValuesToFile(BufferedWriter writer, State state, QValuesSet qValuesSet){
+		try{
+			int stateId = state.getId();
+			for(int j=0; j<qValuesSet.jointQValues[stateId].length; j++){
+				for(int k=0; k<qValuesSet.jointQValues[stateId][j].length; k++){
+					if(qValuesSet.jointQValues[stateId][j][k] < 0 || qValuesSet.jointQValues[stateId][j][k] > 0){
+						//System.out.println("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+jointQValues[stateId][j][k]);
+						writer.write("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+qValuesSet.jointQValues[stateId][j][k]+"\n");
+					}
+				}
+			}
+		} catch(Exception e){
+			e.printStackTrace();
 		}
 	}
 	
@@ -550,11 +579,11 @@ public class LearningAlgorithm {
     }
 	
 	public double getRobotQValue(State state, Action robotAction){
-		return robotQValues[state.getId()][robotAction.ordinal()];
+		return currQValues.robotQValues[state.getId()][robotAction.ordinal()];
 	}
 	
 	public double getJointQValue(State state, HumanRobotActionPair agentActions){
-		return jointQValues[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
+		return currQValues.jointQValues[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
 	}
 	
 	public void saveDataToFile(double reward, int iterations, long time){

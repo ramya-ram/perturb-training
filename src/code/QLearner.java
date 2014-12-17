@@ -12,31 +12,16 @@ import javax.swing.Timer;
  */
 public class QLearner extends LearningAlgorithm {
 	public ExperimentCondition condition;
-	public QLearner(QValuesSet qValuesSet, boolean useFileName, ExperimentCondition condition) {
+
+	public QLearner(QValuesSet qValuesSet, ExperimentCondition condition) {
 		this.condition = condition;
 		timer = new Timer(1000, timerListener());
 		
-		//if there are no qvalues to transfer from previous tasks, initialize the q-value table
+		//if there are no qvalues to transfer from previous tasks, use the ones from offline learning
 		if(qValuesSet == null){
-			robotQValues = new double[MyWorld.mdp.states.size()][Action.values().length];
-			jointQValues = new double[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
+			currQValues = new QValuesSet(Main.robotQValuesOffline, Main.jointQValuesOffline);
 		} else { //otherwise, transfer the previously learned q-values
-			robotQValues = qValuesSet.getRobotQValues();
-			jointQValues = qValuesSet.getJointQValues();
-		}
-		//q-values learned offline are transferred
-		if(useFileName){		
-			robotQValues = new double[MyWorld.mdp.states.size()][Action.values().length];
-			jointQValues = new double[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
-			for(int i=0; i<jointQValues.length; i++){
-				for(int j=0; j<jointQValues[i].length; j++){
-					robotQValues[i][j] = Main.robotQValuesOffline[i][j];
-					for(int k=0; k<jointQValues[i][j].length; k++){
-						jointQValues[i][j][k] = Main.jointQValuesOffline[i][j][k];
-					}
-				}
-			}
-			System.out.println("using offline values");
+			currQValues = qValuesSet.clone();
 		}
 	}
 	
@@ -77,7 +62,7 @@ public class QLearner extends LearningAlgorithm {
 		
 		try{
 	        for(int i = 0; i < numEpisodes; i++) {
-				Tuple<Double, Integer, Long> tuple = run(null, Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
+				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 				//System.out.print(i+" ");
 	            
 	            if(withHuman && Main.saveToFile){
