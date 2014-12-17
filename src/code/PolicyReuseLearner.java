@@ -100,20 +100,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				double reward = 0;
 				int iterations = 0;
 				long duration = 0;
-				/*if(isPastPolicy(policyNum)){
-					//System.out.println("using policy num "+policyNum);
-					Policy currPolicy = qValues.get(policyNum);
-					Tuple<Double, Integer, Long> tuple = run(learners, true, Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
-					reward = tuple.getFirst();
-					iterations = tuple.getSecond();
-					duration = tuple.getThird();
-				} else {
-					//System.out.println("using curr policy");
-					Tuple<Double, Integer, Long> tuple = run(null, true, Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
-					reward = tuple.getFirst();
-					iterations = tuple.getSecond();
-					duration = tuple.getThird();
-				}*/
+				
 				currQValues = qValuesList.get(policyNum);
 				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 				reward = tuple.getFirst();
@@ -129,7 +116,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 					}
 				}
 	           
-				QValuesSet currQValues = qValuesList.get(policyNum);
+				currQValues = qValuesList.get(policyNum);
 				currQValues.weight = (currQValues.weight*currQValues.numEpisodesChosen + reward)/(currQValues.numEpisodesChosen + 1);
 				currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;
 				currTemp = currTemp + Constants.DELTA_TEMP;

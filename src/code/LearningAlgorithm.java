@@ -50,7 +50,7 @@ public class LearningAlgorithm {
         long startTime = System.currentTimeMillis();
         
 		State state = null;
-		if(initialStateHuman != null)
+		if(initialStateHuman != null && Main.CURRENT_EXECUTION != Main.SIMULATION)
 			state = initialStateHuman.clone();
 		else
 			state = myWorld.initialState().clone();
@@ -59,10 +59,7 @@ public class LearningAlgorithm {
 	        	HumanRobotActionPair agentActions = null;
 				if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION) {
 					agentActions = getAgentActionsCommWithHuman(state, null); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
-				} //else if(pastPolicy != null) {
-				//	agentActions = pastPolicy.action(state.getId());
-				//} 
-				else {
+				} else {
 					agentActions = getAgentActionsSimulation(state); //uses e-greedy approach (with probability epsilon, choose a random action) 
 				}
 				
