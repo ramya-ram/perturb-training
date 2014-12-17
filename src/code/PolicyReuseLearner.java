@@ -121,10 +121,10 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;
 				currTemp = currTemp + Constants.DELTA_TEMP;
 				
-				System.out.println("weights: ");
-				printWeights();
-				System.out.println("num of episodes chosen: ");
-				printNumEpisodesChosen();
+				//System.out.println("weights: ");
+				//printWeights();
+				//System.out.println("num of episodes chosen: ");
+				//printNumEpisodesChosen();
 			}
 			rewardWriter.close();
 			

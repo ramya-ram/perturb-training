@@ -35,6 +35,7 @@ public class TaskExecution {
 		if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 			runPracticeSession();
 
+		Constants.MAX_TIME = 10;
 		Pair<List<QLearner>, PolicyLibrary> trainedResult = runTrainingPhase();
 		runTestingPhase(trainedResult.getFirst(), trainedResult.getSecond());
 	}
