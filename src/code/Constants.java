@@ -18,13 +18,10 @@ public class Constants {
 	
 	//num of times to run
 	public static final int NUM_EPISODES = 200000;
-	public static final int NUM_EPISODES_TEST = 2000;
+	public static final int NUM_EPISODES_TEST = 1500;
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
-	public static final int NUM_TRAINING_SESSIONS = 3;
-	public static final int NUM_TESTING_SESSIONS = 2;
-	
-	public static boolean usePredefinedTestCases = false;
+	public static boolean usePredefinedTestCases = true;
 	public static boolean useOfflineValues = true;
 	public static boolean print = false;
 	public static int NUM_AVERAGING = 30;
@@ -44,19 +41,21 @@ public class Constants {
 	public static int[] testWind_train =    {0, 6, 0};
 	public static int[] testDryness_train = {0, 0, 6};
 	
-	public static int[] simulationWind_test =    {1, 8};
-	public static int[] simulationDryness_test = {8, 1};
+	public static int[] simulationWind_test =    {0, 1, 8};
+	public static int[] simulationDryness_test = {0, 8, 1};
 	
-	public static int[] testWind_test =    {2, 9};
-	public static int[] testDryness_test = {9, 2};	
+	public static int[] testWind_test =    {0, 2, 9};
+	public static int[] testDryness_test = {0, 9, 2};	
+	
+	public static final int NUM_TRAINING_SESSIONS = testWind_train.length;
+	public static final int NUM_TESTING_SESSIONS = testWind_test.length;
 
 	
 	//file names where results are stored
 	public static String dataDir = "C:\\ExperimentData_Dec2014\\";
-	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2.csv";
-	public static String predefinedPerturb1FileName = dataDir+"predefinedPerturb1.csv";
-	public static String predefinedPerturb0FileName = dataDir+"predefinedPerturb0.csv";
-	public static String predefinedProceFileName = dataDir+"predefinedProce.csv";
+	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2New.csv";
+	public static String predefinedPerturb1FileName = dataDir+"predefinedPerturb1New.csv";
+	public static String predefinedProceFileName = dataDir+"predefinedProceNew.csv";
 	public static String jointQValuesFile = dataDir+"jointQValuesOffline.csv";
 	public static String robotQValuesFile = dataDir+"robotQValuesOffline.csv";
 	

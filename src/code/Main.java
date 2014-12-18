@@ -12,7 +12,7 @@ import PR2_robot.GameView;
 import PR2_robot.MyServer;
 
 public class Main {
-	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2, CREATE_PREDEFINED = 3, LEARN_OFFLINE_VALUES = 4;
+	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2, CREATE_PREDEFINED = 3;
 	public static int CURRENT_EXECUTION = SIMULATION;
 	
 	public static boolean currWithSimulatedHuman = false;
@@ -26,7 +26,6 @@ public class Main {
 	public static double[][] robotQValuesOffline;
 	public static String[][][] perturb2TestCase;
 	public static String[][][] perturb1TestCase;
-	public static String[][][] perturb0TestCase;
 	public static String[][][] proceTestCase;
 	
 	public static void main(String[] args){	
@@ -48,16 +47,20 @@ public class Main {
 		}
 		
 		if(CURRENT_EXECUTION == CREATE_PREDEFINED){
-			for(MyWorld testWorld : testingWorlds){
-				populatePredefinedTestCase(testWorld);
-			}
+			writePredefinedTestCase(testingWorlds.get(0), Constants.predefinedProceFileName);
+			proceTestCase = readPredefinedTestCase(Constants.predefinedProceFileName);
+			writePredefinedTestCase(testingWorlds.get(1), Constants.predefinedPerturb1FileName);
+			writePredefinedTestCase(testingWorlds.get(2), Constants.predefinedPerturb2FileName);
 		}
 		
 		try {
 			if(Constants.useOfflineValues)
 				populateOfflineQValues();
-			if(Constants.usePredefinedTestCases)
-				readInPredefinedTestCases();
+			if(Constants.usePredefinedTestCases){
+				proceTestCase = readPredefinedTestCase(Constants.predefinedProceFileName);
+				perturb1TestCase = readPredefinedTestCase(Constants.predefinedPerturb1FileName);
+				perturb2TestCase = readPredefinedTestCase(Constants.predefinedPerturb2FileName);
+			}
 			
 			saveToFile = true;
 			
@@ -192,11 +195,11 @@ public class Main {
 		}
 	}
 	
-	public static void populatePredefinedTestCase(MyWorld myWorld){
+	public static void writePredefinedTestCase(MyWorld myWorld, String fileName){
 		try {
 			int num = 0;
 			System.out.println("in populate");
-			BufferedWriter stateWriter = new BufferedWriter(new FileWriter(new File(Constants.predefinedPerturb0FileName), true));
+			BufferedWriter stateWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
 			int statesPerFire = Constants.STATES_PER_FIRE;
 
 			for(int i=0; i<statesPerFire; i++){
@@ -216,12 +219,12 @@ public class Main {
 											HumanRobotActionPair agentActions;
 											do{
 												agentActions = new HumanRobotActionPair(humanAction, robotAction);
-												nextState = myWorld.getNextState(state, agentActions);
+												nextState = myWorld.computePredefinedNextState(state, agentActions);
 												if(humanAction==Action.WAIT && robotAction==Action.WAIT)
 													break;
 											} while(state.equals(nextState));
-											if(MyWorld.predefinedText.length() > 0)
-												stateWriter.write(MyWorld.predefinedText+",");
+											if(myWorld.predefinedText.length() > 0)
+												stateWriter.write(myWorld.predefinedText+",");
 											else
 												stateWriter.write("-,");
 											num++;
@@ -243,32 +246,12 @@ public class Main {
 	/**
 	 * Read in from a file predefined test cases so that participants can be compared fairly on their performance in the testing sessions
 	 */
-	public static void readInPredefinedTestCases(){
+	public static String[][][] readPredefinedTestCase(String fileName){
+		String[][][] testCase = new String[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
 		try{
-			proceTestCase = new String[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
-			perturb0TestCase = new String[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
-			perturb1TestCase = new String[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
-			perturb2TestCase = new String[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
-			
-			BufferedReader readerProce = new BufferedReader(new FileReader(new File(Constants.predefinedProceFileName)));
-			String[] nextStatesProce = readerProce.readLine().split(",");
-			readerProce.close();
-			
-			BufferedReader readerPerturb0 = new BufferedReader(new FileReader(new File(Constants.predefinedPerturb0FileName)));
-			String[] nextStatesPerturb0 = readerPerturb0.readLine().split(",");
-			readerPerturb0.close();
-			
-			BufferedReader readerPerturb1 = new BufferedReader(new FileReader(new File(Constants.predefinedPerturb1FileName)));
-			String[] nextStatesPerturb1 = readerPerturb1.readLine().split(",");
-			readerPerturb1.close();
-			
-			BufferedReader readerPerturb2 = new BufferedReader(new FileReader(new File(Constants.predefinedPerturb2FileName)));
-			String[] nextStatesPerturb2 = readerPerturb2.readLine().split(",");
-			readerPerturb2.close();
-			
-			System.out.println("next states perturb2 size "+nextStatesPerturb2.length); 
-			System.out.println("next states perturb1 size "+nextStatesPerturb1.length); 
-			System.out.println("next states proce size "+nextStatesProce.length);
+			BufferedReader reader = new BufferedReader(new FileReader(new File(fileName)));
+			String[] nextStates = reader.readLine().split(",");
+			reader.close();
 			
 			int num=0;
 			int statesPerFire = Constants.STATES_PER_FIRE;
@@ -285,23 +268,11 @@ public class Main {
 									for(Action robotAction : Action.values()){
 										if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
 												&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
-											//StateJointActionPair pair = new StateJointActionPair(state, new HumanRobotActionPair(humanAction, robotAction));
-											
-											String str1 = nextStatesProce[num];
-											if(str1.length() > 0)
-												proceTestCase[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = str1;
-											
-											String str0 = nextStatesPerturb0[num];
-											if(str0.length() > 1)
-												perturb0TestCase[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = str0;
-											
-											String str2 = nextStatesPerturb1[num];
-											if(str2.length() > 1)
-												perturb1TestCase[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = str2;
-											
-											String str3 = nextStatesPerturb2[num];
-											if(str3.length() > 1)
-												perturb2TestCase[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = str3;
+										
+											String str = nextStates[num];
+											if(str.length() > 0)
+												testCase[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = str;
+								
 											num++;
 										}
 									}
@@ -314,5 +285,6 @@ public class Main {
 		} catch(Exception e){
 			e.printStackTrace();
 		}
+		return testCase;
 	}
 }
