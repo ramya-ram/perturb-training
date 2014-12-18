@@ -418,13 +418,18 @@ public class LearningAlgorithm {
 				humanAction = suggestedHumanAction;
 		} else if(strs[0].equalsIgnoreCase("N")){
 			commType = CommType.REJECT;
-			humanAction = convertToAction(strs[1].toUpperCase().charAt(0));
+			if(strs.length>=2)
+				if(strs[1].length() > 0)
+					humanAction = convertToAction(strs[1].toUpperCase().charAt(0));
 		} else {
 			commType = CommType.UPDATE;
-			humanAction = convertToAction(strs[0].toUpperCase().charAt(0));
+			if(strs.length>=1)
+				if(strs[0].length() > 0)
+					humanAction = convertToAction(strs[0].toUpperCase().charAt(0));
 			if(strs.length > 1){
 				commType = CommType.SUGGEST;
-				robotAction = convertToAction(strs[1].toUpperCase().charAt(0));
+				if(strs[1].length() > 0)
+					robotAction = convertToAction(strs[1].toUpperCase().charAt(0));
 			}
 		}
 		return new CommResponse(commType, humanAction, robotAction);

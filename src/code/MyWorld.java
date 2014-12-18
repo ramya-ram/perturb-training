@@ -188,6 +188,7 @@ public class MyWorld {
 				}
 				for(int i=0; i<text.length(); i+=3){
 					//System.out.println("i "+i+" i+3 "+(i+3));
+					System.out.println("str causing error "+text);
 					String str = text.substring(i, i+3);
 					//System.out.println("str "+str);
 					if(str.charAt(0) == 'B'){
