@@ -16,8 +16,8 @@ public class TaskExecution {
 	public List<MyWorld> testingWorlds;
 	public ExperimentCondition condition;
 	
-	public Color[] colorsTraining = {Color.BLUE, new Color(0, 100, 0), Color.MAGENTA};
-	public Color[] colorsTesting = {Color.ORANGE, Color.RED, Color.GREEN};
+	public Color[] colorsTraining = {Color.BLUE, new Color(107, 142, 35), new Color(176,48,96)};
+	public Color[] colorsTesting = {new Color(178,34,34), new Color(148,0,211), new Color(107, 142, 35)};
 	
 	public TaskExecution(GameView gameView, List<MyWorld> trainingWorlds, List<MyWorld> testingWorlds, ExperimentCondition condition){
 		this.gameView = gameView;
@@ -34,26 +34,29 @@ public class TaskExecution {
 		
 		if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 			runPracticeSession();
-
-		Constants.MAX_TIME = 10;
+		
 		Pair<List<QLearner>, PolicyLibrary> trainedResult = runTrainingPhase();
 		runTestingPhase(trainedResult.getFirst());
 	}
 	
 	public void runPracticeSession(){
-		/*Main.saveToFile = false;
-		MyWorld practiceWorld1 = new MyWorld(Constants.TRAINING, false, 0);
-		MyWorld practiceWorld2 = new MyWorld(Constants.TRAINING, false, 0);
+		Main.saveToFile = false;
+		MyWorld practiceWorld1 = new MyWorld(Constants.PRACTICE, false, 1, 0, 0);
+		MyWorld practiceWorld2 = new MyWorld(Constants.PRACTICE, false, 2, 0, 0);
 		
 		//practice session	
-		QLearner practice1 = new QLearner(null, true, ExperimentCondition.PROCE_Q);
-		QLearner practice2 = new QLearner(null, true, ExperimentCondition.PROCE_Q);
+		QLearner practice1 = new QLearner(null, ExperimentCondition.PROCE_Q);
+		QLearner practice2 = new QLearner(null, ExperimentCondition.PROCE_Q);
 		
 		try{
-			
+			setTitleLabel(practiceWorld1, 1, Color.BLACK);
+			practice1.run(practiceWorld1, true, false, initialState(practiceWorld1, 1));
+			Constants.MAX_TIME = 10;
+			setTitleLabel(practiceWorld2, 2, Color.BLACK);
+			practice2.run(practiceWorld2, true, false, initialState(practiceWorld2, 2));
 		} catch(Exception e){
 			e.printStackTrace();
-		}*/
+		}
 	}
 
 	
@@ -146,8 +149,10 @@ public class TaskExecution {
 		String str = "";
 		if(world.typeOfWorld == Constants.TRAINING)
 			str+= "Training Session ";
-		else
+		else if(world.typeOfWorld == Constants.TESTING)
 			str+= "Testing Session ";
+		else
+			str+= "Practice Session ";
 		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
 		if(gameView != null)
 			gameView.setTitleAndRoundLabel(str, roundNum, color);

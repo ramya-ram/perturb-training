@@ -345,7 +345,10 @@ public class GameView extends JFrame {
     }
 
     public void setTitleAndRoundLabel(String title, int roundNum, Color color){
-    	titleLabel.setText(""+title+" (Round "+roundNum+")");
+    	if(title.length() > 0)
+    		titleLabel.setText(""+title+" (Round "+roundNum+")");
+    	else
+    		titleLabel.setText("");
     	titleLabel.setForeground(color);
     	//roundLabel.setText("(Round "+roundNum+")");
     	//roundLabel.setForeground(Color.BLACK);

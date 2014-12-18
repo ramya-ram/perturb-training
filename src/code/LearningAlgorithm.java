@@ -58,7 +58,7 @@ public class LearningAlgorithm {
 	        while (!MyWorld.isGoalState(state) && iterations < maxSteps) {
 	        	HumanRobotActionPair agentActions = null;
 				if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION) {
-					agentActions = getAgentActionsCommWithHuman(state, null); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
+					agentActions = getAgentActionsCommWithHuman(state); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
 				} else {
 					agentActions = getAgentActionsSimulation(state); //uses e-greedy approach (with probability epsilon, choose a random action) 
 				}
@@ -200,7 +200,7 @@ public class LearningAlgorithm {
 	 * Prints to SocketTest to get human input
 	 * The human and robot communicate to choose a joint action for this state
 	 */
-	public HumanRobotActionPair getAgentActionsCommWithHuman(State state, Action pastRobotAction){
+	public HumanRobotActionPair getAgentActionsCommWithHuman(State state){
 		try{
 			if(Main.gameView != null){
 				Main.gameView.setAnnouncements("");
@@ -209,10 +209,10 @@ public class LearningAlgorithm {
 			}
 			HumanRobotActionPair actions = null;
 			if(currCommunicator == Constants.HUMAN){
-				actions = humanComm(state, pastRobotAction);
+				actions = humanComm(state);
 				currCommunicator = Constants.ROBOT;
 			} else if(currCommunicator == Constants.ROBOT){
-				actions = robotComm(state, pastRobotAction);
+				actions = robotComm(state);
 				currCommunicator = Constants.HUMAN;
 			}
 			timer.stop();
@@ -243,7 +243,7 @@ public class LearningAlgorithm {
 	 * If the computed joint action is better than the average value, the robot will suggest a joint action, which the human can accept or reject
 	 * Otherwise, the robot will just update the human on its action and the human can choose accordingly
 	 */
-	public HumanRobotActionPair robotComm(State state, Action pastRobotAction) {
+	public HumanRobotActionPair robotComm(State state) {
 		try{
 			HumanRobotActionPair actions;
 			double maxJointValue = Integer.MIN_VALUE;
@@ -252,32 +252,19 @@ public class LearningAlgorithm {
 			Action bestRobotActionUpdate = null;
 			double cumulativeValue = 0;
 			Action[] humanActions = mdp.humanAgent.actions(state);
-			if(pastRobotAction != null){
-				System.out.println("pastRobotAction "+pastRobotAction);
-				bestRobotActionSuggestion = pastRobotAction;
-				bestRobotActionUpdate = pastRobotAction;
-				for(Action humanAction : humanActions){
-					double value = getJointQValue(state, new HumanRobotActionPair(humanAction, pastRobotAction));
-					cumulativeValue += value;
-					if(value > maxJointValue){
-						maxJointValue = value;
-						bestHumanActionSuggestion = humanAction;
-					}
-				}
-			} else {
-				System.out.println("not past robotAction "+pastRobotAction);
-				Pair<HumanRobotActionPair, Double> pair = getGreedyJointAction(state);
-				HumanRobotActionPair agentActions = pair.getFirst();
-				maxJointValue = pair.getSecond();
-				bestHumanActionSuggestion = agentActions.getHumanAction();
-				bestRobotActionSuggestion = agentActions.getRobotAction();
-				
-				bestRobotActionUpdate = getGreedyRobotAction(state, null);
-				for(Action humanAction : humanActions){
-					double value = getJointQValue(state, new HumanRobotActionPair(humanAction, bestRobotActionUpdate));
-					cumulativeValue += value;
-				}
+			
+			Pair<HumanRobotActionPair, Double> pair = getGreedyJointAction(state);
+			HumanRobotActionPair agentActions = pair.getFirst();
+			maxJointValue = pair.getSecond();
+			bestHumanActionSuggestion = agentActions.getHumanAction();
+			bestRobotActionSuggestion = agentActions.getRobotAction();
+			
+			bestRobotActionUpdate = getGreedyRobotAction(state, null);
+			for(Action humanAction : humanActions){
+				double value = getJointQValue(state, new HumanRobotActionPair(humanAction, bestRobotActionUpdate));
+				cumulativeValue += value;
 			}
+				
 			double averageValue = cumulativeValue/humanActions.length;
 			
 			updateGUIMessage("Waiting for teammate...\n");
@@ -319,7 +306,7 @@ public class LearningAlgorithm {
 	 * If the human's suggestion is not much worse than the optimal, the robot will accept, otherwise it will reject
 	 * If the human just updates, the robot will calculate the best action given the human's action
 	 */
-	public HumanRobotActionPair humanComm(State state, Action pastRobotAction) {
+	public HumanRobotActionPair humanComm(State state) {
 		try{
 			updateGUIMessage("Which fire you would like to extinguish (_)? If you want to make a suggestion, (_ _): ");
 			CommResponse response = getHumanMessage(null);			
@@ -333,11 +320,7 @@ public class LearningAlgorithm {
 				if(response.commType == CommType.SUGGEST){
 					numHumanSuggestions++;
 					double humanSuggestedQValue = getJointQValue(state, new HumanRobotActionPair(humanAction, robotAction));
-					Action optimalRobotAction = null;
-					if(pastRobotAction != null)
-						optimalRobotAction = pastRobotAction;
-					else
-						optimalRobotAction = getGreedyRobotAction(state, humanAction);
+					Action optimalRobotAction = getGreedyRobotAction(state, humanAction);
 					double robotSuggestedQValue = getJointQValue(state, new HumanRobotActionPair(humanAction, optimalRobotAction));
 					addToGUIMessage("Waiting for teammate...");
 					simulateWaitTime(state);
