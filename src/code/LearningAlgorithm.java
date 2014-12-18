@@ -621,16 +621,16 @@ public class LearningAlgorithm {
 	}
 	
 	public void saveEpisodeToFile(State state, Action humanAction, Action robotAction, State nextState, double reward){
-		/*try{
+		try{
 			if(withHuman && Main.saveToFile){
-				BufferedWriter episodeWriter = new BufferedWriter(new FileWriter(new File(episodeName), true));
+				BufferedWriter episodeWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"episode.txt"), true));
 				episodeWriter.write(state.toStringFile()+", "+humanAction+", "+robotAction+", "
 						+nextState.toStringFile()+", "+reward+"\n");
 				episodeWriter.close();
 	        }
 		} catch(Exception e){
 			e.printStackTrace();
-		}*/
+		}
 	}
 	
 	public void resetCommunicationCounts(){

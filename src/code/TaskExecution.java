@@ -16,7 +16,7 @@ public class TaskExecution {
 	public List<MyWorld> testingWorlds;
 	public ExperimentCondition condition;
 	
-	public Color[] colorsTraining = {Color.BLUE, new Color(107, 142, 35), new Color(176,48,96)};
+	public Color[] colorsTraining = {Color.BLUE, new Color(107, 142, 35), new Color(107, 142, 35)};
 	public Color[] colorsTesting = {new Color(178,34,34), new Color(148,0,211), new Color(107, 142, 35)};
 	
 	public TaskExecution(GameView gameView, List<MyWorld> trainingWorlds, List<MyWorld> testingWorlds, ExperimentCondition condition){
