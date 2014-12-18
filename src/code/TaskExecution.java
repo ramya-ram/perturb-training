@@ -37,7 +37,7 @@ public class TaskExecution {
 
 		Constants.MAX_TIME = 10;
 		Pair<List<QLearner>, PolicyLibrary> trainedResult = runTrainingPhase();
-		runTestingPhase(trainedResult.getFirst(), trainedResult.getSecond());
+		runTestingPhase(trainedResult.getFirst());
 	}
 	
 	public void runPracticeSession(){
@@ -119,7 +119,7 @@ public class TaskExecution {
 	 * Procedural uses Q-learning and is initialized with Q-values learned from training
 	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
 	 */
-	public void runTestingPhase(List<QLearner> trainedLearners, PolicyLibrary library){
+	public void runTestingPhase(List<QLearner> trainedLearners){
 		if(condition == ExperimentCondition.HRPR){
 			for(MyWorld testWorld : testingWorlds){
 				PolicyReuseLearner PRLearner = new PolicyReuseLearner(testWorld, trainedLearners);
