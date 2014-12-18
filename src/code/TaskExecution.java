@@ -70,11 +70,12 @@ public class TaskExecution {
 		//first training session -- same for procedural and perturbation
 		QLearner baseQLearner = new QLearner(null, ExperimentCondition.PROCE_Q);
 		MyWorld trainWorld0 = trainingWorlds.get(0);
-		setTitleLabel(trainWorld0, colorsTraining[0]);
+		setTitleLabel(trainWorld0, 1, colorsTraining[0]);
 		baseQLearner.run(trainWorld0, false /*withHuman*/, false /*computePolicy*/);
 		baseQLearner.run(trainWorld0, true, false, initialState(trainWorld0, 1));
+		setTitleLabel(trainWorld0, 2, colorsTraining[0]);
 		baseQLearner.run(trainWorld0, false, false);
-		/*Policy basePolicy = */baseQLearner.run(trainWorld0, true, true, initialState(trainWorld0, 2));
+		baseQLearner.run(trainWorld0, true, true, initialState(trainWorld0, 2));
 		//TODO: possibly get policy from training session 1 for the library
 		learners.add(baseQLearner);
 		//library.add(basePolicy);
@@ -85,9 +86,10 @@ public class TaskExecution {
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
 				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.HRPR);
-				setTitleLabel(trainWorld, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
+				setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false, false);
 				perturbLearner.run(trainWorld, true, false, initialState(trainWorld, i*2+1));
+				setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false, false);
 				Policy policy = perturbLearner.run(trainWorld, true, true, initialState(trainWorld, i*2+2));
 				library.add(policy);
@@ -99,9 +101,10 @@ public class TaskExecution {
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
 				System.out.println("trainworld "+trainingWorlds.get(i).sessionNum);
-				setTitleLabel(trainWorld, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
+				setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				baseQLearner.run(trainWorld, false, false);
 				baseQLearner.run(trainWorld, true, false, initialState(trainWorld, i*2+1));
+				setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				baseQLearner.run(trainWorld, false, false);
 				baseQLearner.run(trainWorld, true, false, initialState(trainWorld, i*2+2));
 				baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
@@ -120,7 +123,7 @@ public class TaskExecution {
 		if(condition == ExperimentCondition.HRPR){
 			for(MyWorld testWorld : testingWorlds){
 				PolicyReuseLearner PRLearner = new PolicyReuseLearner(testWorld, trainedLearners);
-				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum-1]);
+				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
 				PRLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				PRLearner.policyReuse(false, false);
 				PRLearner.policyReuse(true, false, initialState(testWorld, testWorld.sessionNum));
@@ -130,7 +133,7 @@ public class TaskExecution {
 			//Q-learning proce and perturb testing sessions
 			for(MyWorld testWorld : testingWorlds){
 				QLearner testQLearner = new QLearner(trainedLearners.get(0).currQValues, condition);
-				setTitleLabel(testWorld, colorsTesting[testWorld.sessionNum-1]);
+				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
 				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				testQLearner.run(testWorld, false, false);
 				testQLearner.run(testWorld, true, false, initialState(testWorld, testWorld.sessionNum));
@@ -139,7 +142,7 @@ public class TaskExecution {
 		}
 	}
 	
-	public void setTitleLabel(MyWorld world, Color color){
+	public void setTitleLabel(MyWorld world, int roundNum, Color color){
 		String str = "";
 		if(world.typeOfWorld == Constants.TRAINING)
 			str+= "Training Session ";
@@ -147,7 +150,7 @@ public class TaskExecution {
 			str+= "Testing Session ";
 		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
 		if(gameView != null)
-			gameView.setTitleLabel(str, color);
+			gameView.setTitleAndRoundLabel(str, roundNum, color);
 	}
 	
 	public State initialState(MyWorld myWorld, int roundNum){

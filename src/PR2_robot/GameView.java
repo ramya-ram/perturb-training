@@ -32,6 +32,7 @@ public class GameView extends JFrame {
 	private JPanel centerPanel;
 	private JLabel timeLabel;
 	private JLabel titleLabel;
+	//private JLabel roundLabel;
 	private JTextPane announcements;
 	private JTextField textField;
 	private static final int NUM_FIRES = 5;
@@ -53,6 +54,7 @@ public class GameView extends JFrame {
     public GameView(int typeOfExecution) {
     	this.typeOfExecution = typeOfExecution;
     	titleLabel = new JLabel();
+    	//roundLabel = new JLabel();
         nextButton = new JButton("Next");
         startRound = new JButton("Start Round!");
         initTitleGUI("start");
@@ -95,6 +97,10 @@ public class GameView extends JFrame {
         //titleLabel.setForeground(Color.BLUE);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
+        
+//        roundLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
+//        roundLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+//        topPanel.add(roundLabel);
     	
     	JPanel panel = new JPanel();
     	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -150,7 +156,11 @@ public class GameView extends JFrame {
         //titleLabel.setForeground(Color.BLUE);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
-
+        
+        /*roundLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
+        roundLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        topPanel.add(roundLabel);
+*/
         timeLabel = new JLabel("Time Left: ", SwingConstants.CENTER);
         timeLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 40));
         timeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -169,6 +179,7 @@ public class GameView extends JFrame {
         for(int i=0; i < NUM_FIRES; i++){
         	//System.out.println(fireIntensityFile+i+".png");
         	intensityImages[i] = new ImageIcon(fireIntensityFile+i+".png");
+        	
         }
   
         JLabel firesLabel = new JLabel("Fire Intensities:", SwingConstants.CENTER);
@@ -333,9 +344,11 @@ public class GameView extends JFrame {
 		initGUI();
     }
 
-    public void setTitleLabel(String title, Color color){
-    	titleLabel.setText(""+title);
+    public void setTitleAndRoundLabel(String title, int roundNum, Color color){
+    	titleLabel.setText(""+title+" (Round "+roundNum+")");
     	titleLabel.setForeground(color);
+    	//roundLabel.setText("(Round "+roundNum+")");
+    	//roundLabel.setForeground(Color.BLACK);
     	//titleLabel.setBackground(Color.BLACK);
     }
     
@@ -350,7 +363,7 @@ public class GameView extends JFrame {
     	stateView.removeAll();
         for(int i=0; i < state.stateOfFires.length; i++){
         	JLabel label = new JLabel();
-        	label.setIcon(intensityImages[state.stateOfFires[i]]);
+        	label.setIcon(intensityImages[state.stateOfFires[i]]);    
         	stateView.add(label);
         }
         stateView.setBackground(Color.WHITE);
