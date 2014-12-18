@@ -1,5 +1,6 @@
 package code;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -139,6 +140,7 @@ public class Main {
 					HRPR.executeTask();
 				}
 				Main.gameView.initTitleGUI("end");
+				Main.gameView.setTitleAndRoundLabel("", 0, Color.BLACK);
 			}
 		} catch(Exception e){
 			e.printStackTrace();

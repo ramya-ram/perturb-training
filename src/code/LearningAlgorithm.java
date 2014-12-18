@@ -290,6 +290,10 @@ public class LearningAlgorithm {
 				CommResponse response = getHumanMessage(bestHumanActionSuggestion);
 				//if(response.commType == CommType.NONE)
 				//	outOfTimeMessage();
+				if(response.commType == CommType.ACCEPT)
+					numHumanAccepts++;
+				else if(response.commType == CommType.REJECT)
+					numHumanRejects++;
 				actions = new HumanRobotActionPair(response.humanAction, bestRobotActionSuggestion);
 				
 			} else { //robot just updates
@@ -327,6 +331,7 @@ public class LearningAlgorithm {
 				updateGUIMessage("You chose to "+getPrintableFromAction(humanAction)+" and suggest your teammate to "+getPrintableFromAction(robotAction));
 			if(response.commType != CommType.NONE){
 				if(response.commType == CommType.SUGGEST){
+					numHumanSuggestions++;
 					double humanSuggestedQValue = getJointQValue(state, new HumanRobotActionPair(humanAction, robotAction));
 					Action optimalRobotAction = null;
 					if(pastRobotAction != null)
