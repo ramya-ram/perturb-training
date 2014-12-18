@@ -61,10 +61,10 @@ public class Constants {
 	
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
-	public static String simulationDir = "C:\\RSS_2015_SimulationResults\\";
+	public static String simulationDir = "C:\\Extra\\";
 	public static String rewardProceQName = simulationDir+"qValuesproceQReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"_01deltaT_iter_"+NUM_AVERAGING+"avg.csv";
 	public static String rewardPerturbQName = simulationDir+"qValuesperturbQReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"_01deltaT_iter_"+NUM_AVERAGING+"avg.csv";
 	public static String rewardHRPRName = simulationDir+"qValuesHRPRReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"_01deltaT_iter_"+NUM_AVERAGING+"avg.csv";
 
-	public static String qvaluesDir = simulationDir+"QValues_1500TestSim_01DeltaT\\";
+	public static String qvaluesDir = simulationDir;
 }
