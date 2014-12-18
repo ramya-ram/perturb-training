@@ -21,8 +21,6 @@ public class LearningAlgorithm {
 	
 	public MyServer myServer;
 
-	//public double[][] robotQValues; 
-	//public double[][][] jointQValues;
 	public QValuesSet currQValues;
 	public List<QValuesSet> qValuesList;
 
@@ -203,9 +201,9 @@ public class LearningAlgorithm {
 	public HumanRobotActionPair getAgentActionsCommWithHuman(State state){
 		try{
 			if(Main.gameView != null){
+				Main.gameView.updateState(state);
 				Main.gameView.setAnnouncements("");
 				Main.gameView.setTeammateText("");
-				Main.gameView.updateState(state);
 			}
 			HumanRobotActionPair actions = null;
 			if(currCommunicator == Constants.HUMAN){
@@ -457,29 +455,29 @@ public class LearningAlgorithm {
 	 * Adds wait time to simulate a human playing
 	 */
 	public void simulateWaitTime(State state) {
-//		int stateScore = 0;
-//		for(int i=0; i<state.stateOfFires.length; i++){
-//			int num = state.stateOfFires[i];
-//			if(num == Constants.BURNOUT)
-//				stateScore += 0;
-//			else
-//				stateScore += num;
-//		}
-//		System.out.println("score "+stateScore);
-//		try{
-//			if(stateScore < 10){
-//				int shortRandomTime = 6; //Main.rand.nextInt(3)+5;
-//				System.out.println(shortRandomTime*1000);
-//				Thread.sleep(shortRandomTime*1000);
-//			} else {
-//				int longRandomTime = 8; //Main.rand.nextInt(5)+8;
-//				System.out.println(longRandomTime*1000);
-//				Thread.sleep(longRandomTime*1000);
-//			}
-//			
-//		} catch(Exception e){
-//			e.printStackTrace();
-//		}
+		int stateScore = 0;
+		for(int i=0; i<state.stateOfFires.length; i++){
+			int num = state.stateOfFires[i];
+			if(num == Constants.BURNOUT)
+				stateScore += 0;
+			else
+				stateScore += num;
+		}
+		System.out.println("score "+stateScore);
+		try{
+			if(stateScore < 10){
+				int shortRandomTime = 6; //Main.rand.nextInt(3)+5;
+				System.out.println(shortRandomTime*1000);
+				Thread.sleep(shortRandomTime*1000);
+			} else {
+				int longRandomTime = 8; //Main.rand.nextInt(5)+8;
+				System.out.println(longRandomTime*1000);
+				Thread.sleep(longRandomTime*1000);
+			}
+			
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	/**

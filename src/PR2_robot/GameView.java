@@ -66,17 +66,17 @@ public class GameView extends JFrame {
     	} else if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){  	
     		addMouseListener(new MouseAdapter(){
 			    public void mousePressed(MouseEvent e){
-			    	System.out.println("event "+e);
+			    	//System.out.println("event "+e);
 			    	int buttonToPress = 3;
 			    	if(e.getButton() == buttonToPress){
 			    		System.out.println("button "+buttonToPress+" clicked");
 			    		if(nextClicked == false && nextButton.isEnabled() && !titleView){
 			    			nextClicked = true;
-			    			System.out.println("setting nextClicked to true");
+			    			//System.out.println("setting nextClicked to true");
 			    		}
 			    		if(startRoundClicked == false && startRound.isEnabled() && titleView){
 			    			startRoundClicked = true;
-			    			System.out.println("setting startRoundClicked to true");
+			    			//System.out.println("setting startRoundClicked to true");
 			    		}
 			    	}
 			    }
@@ -369,6 +369,7 @@ public class GameView extends JFrame {
         	label.setIcon(intensityImages[state.stateOfFires[i]]);    
         	stateView.add(label);
         }
+        stateView.revalidate();
         stateView.setBackground(Color.WHITE);
     }
     
