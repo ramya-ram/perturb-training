@@ -16,7 +16,7 @@ public class TaskExecution {
 	public List<MyWorld> testingWorlds;
 	public ExperimentCondition condition;
 	
-	public Color[] colorsTraining = {Color.GREEN, Color.CYAN, Color.MAGENTA};
+	public Color[] colorsTraining = {Color.BLUE, new Color(0, 100, 0), Color.MAGENTA};
 	public Color[] colorsTesting = {Color.ORANGE, Color.RED, Color.GREEN};
 	
 	public TaskExecution(GameView gameView, List<MyWorld> trainingWorlds, List<MyWorld> testingWorlds, ExperimentCondition condition){
@@ -147,7 +147,7 @@ public class TaskExecution {
 			str+= "Testing Session ";
 		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
 		if(gameView != null)
-			gameView.setTitleLabel(str);
+			gameView.setTitleLabel(str, color);
 	}
 	
 	public State initialState(MyWorld myWorld, int roundNum){

@@ -81,6 +81,8 @@ public class LearningAlgorithm {
 					if(MyWorld.isGoalState(state)){
 						Main.gameView.initTitleGUI("congrats");
 					}
+					else if(iterations >= maxSteps)
+						Main.gameView.initTitleGUI("roundUp");
 				}
 	        }
         } catch(Exception e){

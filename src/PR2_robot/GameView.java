@@ -35,7 +35,7 @@ public class GameView extends JFrame {
 	private JTextPane announcements;
 	private JTextField textField;
 	private static final int NUM_FIRES = 5;
-	private String fileBase = "C:\\Users\\julie\\Pictures\\";
+	private String fileBase = "data\\";
 	private String fireIntensityFile = fileBase+"fireIntensity";
 	private String fireNameFile = fileBase+"fireName";
 	private ImageIcon[] intensityImages;
@@ -91,6 +91,11 @@ public class GameView extends JFrame {
     	JPanel topPanel = new JPanel();
     	topPanel.setPreferredSize(new Dimension(120,150));
     	
+    	titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 40));
+        //titleLabel.setForeground(Color.BLUE);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        topPanel.add(titleLabel);
+    	
     	JPanel panel = new JPanel();
     	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
     	panel.setAlignmentY(Component.CENTER_ALIGNMENT);
@@ -103,6 +108,8 @@ public class GameView extends JFrame {
     		pic = new ImageIcon(fileBase+"congrats.jpg");
     	else if(title.equals("end"))
     		pic = new ImageIcon(fileBase+"end.jpg");
+    	else if(title.equals("roundUp"))
+    		pic = new ImageIcon(fileBase+"roundUp.jpg");
     	icon.setIcon(pic);  	
     	icon.setAlignmentX(JLabel.CENTER_ALIGNMENT);
     	icon.setAlignmentY(JLabel.CENTER_ALIGNMENT);
@@ -140,7 +147,7 @@ public class GameView extends JFrame {
     	topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
     	//titleLabel.setText(Main.title);
         titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 40));
-        titleLabel.setForeground(Color.BLUE);
+        //titleLabel.setForeground(Color.BLUE);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
 
@@ -326,8 +333,10 @@ public class GameView extends JFrame {
 		initGUI();
     }
 
-    public void setTitleLabel(String title){
+    public void setTitleLabel(String title, Color color){
     	titleLabel.setText(""+title);
+    	titleLabel.setForeground(color);
+    	//titleLabel.setBackground(Color.BLACK);
     }
     
     public void setTime(int timeLeft){
