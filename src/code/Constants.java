@@ -52,14 +52,14 @@ public class Constants {
 
 	
 	//file names where results are stored
-	public static String dataDir = "C:\\ExperimentData_Dec2014\\";
+	public static String dataDir = "inputFiles\\";
 	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2New.csv";
 	public static String predefinedPerturb1FileName = dataDir+"predefinedPerturb1New.csv";
 	public static String predefinedProceFileName = dataDir+"predefinedProceNew.csv";
 	public static String jointQValuesFile = dataDir+"jointQValuesOffline.csv";
 	public static String robotQValuesFile = dataDir+"robotQValuesOffline.csv";
 	
-	public static String participantDir = dataDir;
+	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
 	public static String simulationDir = "C:\\RSS_2015_SimulationResults\\";
 	public static String rewardProceQName = simulationDir+"qValuesproceQReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"_01deltaT_iter_"+NUM_AVERAGING+"avg.csv";
