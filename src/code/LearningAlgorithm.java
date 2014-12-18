@@ -272,7 +272,7 @@ public class LearningAlgorithm {
 				numRobotSuggestions++;
 				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionSuggestion)+" and suggests you to "+getPrintableFromAction(bestHumanActionSuggestion));
 				addToGUIMessage("Would you like to accept the suggestion? (Y or N _)");
-				CommResponse response = getHumanMessage(bestHumanActionSuggestion);
+				CommResponse response = getHumanMessage(bestHumanActionSuggestion, state);
 				//if(response.commType == CommType.NONE)
 				//	outOfTimeMessage();
 				if(response.commType == CommType.ACCEPT)
@@ -285,7 +285,7 @@ public class LearningAlgorithm {
 				numRobotUpdates++;
 				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionUpdate));
 				addToGUIMessage("Which fire you would like to extinguish (_)?");
-				CommResponse response = getHumanMessage(null);
+				CommResponse response = getHumanMessage(null, state);
 				//if(response.commType == CommType.NONE)
 				//	outOfTimeMessage();
 				actions = new HumanRobotActionPair(response.humanAction, bestRobotActionUpdate);			
@@ -307,7 +307,7 @@ public class LearningAlgorithm {
 	public HumanRobotActionPair humanComm(State state) {
 		try{
 			updateGUIMessage("Which fire you would like to extinguish (_)? If you want to make a suggestion, (_ _): ");
-			CommResponse response = getHumanMessage(null);			
+			CommResponse response = getHumanMessage(null, state);			
 			Action humanAction = response.humanAction;
 			Action robotAction = response.robotAction;
 			if(response.commType == CommType.UPDATE)
@@ -350,17 +350,17 @@ public class LearningAlgorithm {
 		return null;
 	}
 	
-	public CommResponse getHumanMessage(Action suggestedHumanAction){
+	public CommResponse getHumanMessage(Action suggestedHumanAction, State currState){
 		startTimer();
 		CommResponse response = null;
 		try {
 			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN)
 				response = myServer.getHumanMessage(suggestedHumanAction);
 			else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
-				response = waitForHumanMessage(suggestedHumanAction);
-				while(response.humanAction == Action.WAIT && LearningAlgorithm.timeLeft > 0){
+				response = waitForHumanMessage(suggestedHumanAction, currState);
+				while(LearningAlgorithm.timeLeft > 0 && ((response.humanAction == Action.WAIT))){// || (response.commType == CommType.NONE) || (response.commType == CommType.SUGGEST && response.robotAction == Action.WAIT))){
 					addToGUIMessage("Invalid input, please specify again what you would like to do!");
-					response = waitForHumanMessage(suggestedHumanAction);
+					response = waitForHumanMessage(suggestedHumanAction, currState);
 				}
 			}
 		} catch(Exception e){
@@ -370,7 +370,7 @@ public class LearningAlgorithm {
 		return response;
 	}
 	
-	public CommResponse waitForHumanMessage(Action suggestedHumanAction) {
+	public CommResponse waitForHumanMessage(Action suggestedHumanAction, State currState) {
 		CommResponse response = null;
 		Main.gameView.setTextFieldEnable(true);
 		Main.gameView.focusTextField();
@@ -386,18 +386,19 @@ public class LearningAlgorithm {
 		String text = Main.gameView.humanMessage;
 		Main.gameView.humanMessage = null;
 		System.out.println("text received "+text);
-		response = parseHumanInput(text.trim(), suggestedHumanAction);
+		response = parseHumanInput(text.trim(), suggestedHumanAction, currState);
 		Main.gameView.setTextFieldEnable(false);
 		return response;
 	}
 	
-	public CommResponse parseHumanInput(String text, Action suggestedHumanAction){
+	public CommResponse parseHumanInput(String text, Action suggestedHumanAction, State currState){
 		CommType commType = CommType.NONE;
 		Action humanAction = Action.WAIT;
 		Action robotAction = Action.WAIT;
+		text = text.trim();
 		String [] strs = text.split(" ");
-		//for(String str : strs)
-		//	System.out.println("split "+str);
+		for(String str : strs)
+			System.out.println("split "+str);
 		if(strs[0].equalsIgnoreCase("Y")){
 			commType = CommType.ACCEPT;
 			if(suggestedHumanAction != null)
@@ -406,27 +407,71 @@ public class LearningAlgorithm {
 			commType = CommType.REJECT;
 			if(strs.length>=2)
 				if(strs[1].length() > 0)
-					humanAction = convertToAction(strs[1].toUpperCase().charAt(0));
+					humanAction = convertToAction(strs[1].toUpperCase(), mdp.humanAgent.actionsAsList(currState));
 		} else {
 			commType = CommType.UPDATE;
 			if(strs.length>=1)
 				if(strs[0].length() > 0)
-					humanAction = convertToAction(strs[0].toUpperCase().charAt(0));
+					humanAction = convertToAction(strs[0].toUpperCase(), mdp.humanAgent.actionsAsList(currState));
 			if(strs.length > 1){
 				commType = CommType.SUGGEST;
 				if(strs[1].length() > 0)
-					robotAction = convertToAction(strs[1].toUpperCase().charAt(0));
+					robotAction = convertToAction(strs[1].toUpperCase(), mdp.robotAgent.actionsAsList(currState));
 			}
 		}
+		/*if(currCommunicator == Constants.HUMAN){
+			if(strs.length == 1){
+				commType = CommType.UPDATE;
+				humanAction = convertToAction(strs[0].trim(), mdp.humanAgent.actionsAsList(currState));
+			} else if(strs.length == 2){
+				commType = CommType.SUGGEST;
+				humanAction = convertToAction(strs[0].trim(), mdp.humanAgent.actionsAsList(currState));
+				robotAction = convertToAction(strs[1].trim(), mdp.robotAgent.actionsAsList(currState));
+			}
+		} else if(currCommunicator == Constants.ROBOT){
+			if(strs.length > 0){
+				if(strs[0].trim().equalsIgnoreCase("Y")){
+					commType = CommType.ACCEPT;
+					if(suggestedHumanAction != null)
+						humanAction = suggestedHumanAction;
+				} else if(strs[0].trim().equalsIgnoreCase("N")){
+					commType = CommType.REJECT;
+					if(strs.length > 1)
+						humanAction = convertToAction(strs[1].trim(), mdp.humanAgent.actionsAsList(currState));
+				}
+			}
+		}*/
 		return new CommResponse(commType, humanAction, robotAction);
 	}
 	
-	public Action convertToAction(char c){
-		if(c >= 'A' && c <= 'E'){
-			String actionStr = "PUT_OUT"+(c - 'A');
-			return Action.valueOf(actionStr);
+	public Action convertToAction(String str, List<Action> possibleActions){
+		str = str.trim();
+		System.out.println("converting "+str);
+		if(str.equalsIgnoreCase("A") || str.equalsIgnoreCase("B") || str.equalsIgnoreCase("C") || str.equalsIgnoreCase("D") || str.equalsIgnoreCase("E")){
+			int index = getInt(str);
+			String actionStr = "PUT_OUT"+index;
+			Action action = Action.WAIT;
+			if(index >= 0)
+				action = Action.valueOf(actionStr);
+			if(possibleActions.contains(action))
+				return action;
+			return Action.WAIT;
 		}
 		return Action.WAIT;
+	}
+	
+	public int getInt(String str){
+		if(str.equalsIgnoreCase("A"))
+			return 0;
+		else if(str.equalsIgnoreCase("B"))
+			return 1;
+		else if(str.equalsIgnoreCase("C"))
+			return 2;
+		else if(str.equalsIgnoreCase("D"))
+			return 3;
+		else if(str.equalsIgnoreCase("E"))
+			return 4;
+		return -1;
 	}
 	
 	public void outOfTimeMessage(){
@@ -465,7 +510,7 @@ public class LearningAlgorithm {
 		}
 		System.out.println("score "+stateScore);
 		try{
-			if(stateScore < 10){
+			/*if(stateScore < 10){
 				int shortRandomTime = 6; //Main.rand.nextInt(3)+5;
 				System.out.println(shortRandomTime*1000);
 				Thread.sleep(shortRandomTime*1000);
@@ -473,7 +518,7 @@ public class LearningAlgorithm {
 				int longRandomTime = 8; //Main.rand.nextInt(5)+8;
 				System.out.println(longRandomTime*1000);
 				Thread.sleep(longRandomTime*1000);
-			}
+			}*/
 			
 		} catch(Exception e){
 			e.printStackTrace();
