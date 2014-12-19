@@ -510,7 +510,7 @@ public class LearningAlgorithm {
 		}
 		System.out.println("score "+stateScore);
 		try{
-			/*if(stateScore < 10){
+			if(stateScore < 10){
 				int shortRandomTime = 6; //Main.rand.nextInt(3)+5;
 				System.out.println(shortRandomTime*1000);
 				Thread.sleep(shortRandomTime*1000);
@@ -518,7 +518,7 @@ public class LearningAlgorithm {
 				int longRandomTime = 8; //Main.rand.nextInt(5)+8;
 				System.out.println(longRandomTime*1000);
 				Thread.sleep(longRandomTime*1000);
-			}*/
+			}
 			
 		} catch(Exception e){
 			e.printStackTrace();
