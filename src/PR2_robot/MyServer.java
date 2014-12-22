@@ -156,6 +156,7 @@ public class MyServer {
     }
     
     public CommResponse getHumanMessage(Action suggestedHumanAction) {
+    	//addKeyListener();
     	try{
 			resendTimeLeft = NUM_SECS_RESEND;
 			timer.start();
