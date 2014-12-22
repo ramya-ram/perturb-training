@@ -9,12 +9,13 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import PR2_robot.Arduino;
 import PR2_robot.GameView;
 import PR2_robot.MyServer;
 
 public class Main {
 	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2, CREATE_PREDEFINED = 3;
-	public static int CURRENT_EXECUTION = SIMULATION_HUMAN;
+	public static int CURRENT_EXECUTION = ROBOT_HUMAN;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -22,6 +23,7 @@ public class Main {
 	//for robot experiments with humans
 	public static GameView gameView;
 	public static MyServer myServer;
+	public static Arduino arduino;
 	
 	public static double[][][] jointQValuesOffline;
 	public static double[][] robotQValuesOffline;
@@ -116,6 +118,8 @@ public class Main {
 				if(CURRENT_EXECUTION == ROBOT_HUMAN){
 					myServer = new MyServer();
 					myServer.initConnections();
+					arduino = new Arduino();
+					arduino.initialize();
 				}
 				
 				System.out.print("ParticipantID: ");

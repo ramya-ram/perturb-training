@@ -36,5 +36,10 @@
 	<classpathentry kind="lib" path="C:/jetty/lib/jetty-webapp-9.2.1.v20140609.jar"/>
 	<classpathentry kind="lib" path="C:/jetty/lib/jetty-xml-9.2.1.v20140609.jar"/>
 	<classpathentry kind="lib" path="C:/jetty/lib/servlet-api-3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/jre7/lib/RXTXcomm.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Users/julie/gitWorkspace/perturb-training"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

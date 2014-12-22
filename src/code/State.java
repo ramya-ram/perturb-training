@@ -17,6 +17,17 @@ public class State {
 		return id;
 	}
 	
+	public String getArduinoString(){
+		String str = "";;
+		for(int i=0; i<stateOfFires.length; i++){
+			if(stateOfFires[i] > Constants.NONE && stateOfFires[i] < Constants.BURNOUT)
+				str += "1";
+			else
+				str += "0";
+		}
+		return str;
+	}
+	
 	public int hashCode() {
 		return 5;
 	}

@@ -19,8 +19,6 @@ public class LearningAlgorithm {
 	protected MyWorld myWorld = null;
 	protected MDP mdp;
 	
-	public MyServer myServer;
-
 	public QValuesSet currQValues;
 	public List<QValuesSet> qValuesList;
 
@@ -52,6 +50,8 @@ public class LearningAlgorithm {
 			state = initialStateHuman.clone();
 		else
 			state = myWorld.initialState().clone();
+		if(Main.arduino != null)
+			Main.arduino.sendString(state.getArduinoString());
         try{
 	        while (!MyWorld.isGoalState(state) && iterations < maxSteps) {
 	        	HumanRobotActionPair agentActions = null;
@@ -71,6 +71,8 @@ public class LearningAlgorithm {
 	            	System.out.println(state.toStringFile()+" "+agentActions+" "+nextState.toStringFile()+" = "+reward);
 	            
 	            state = nextState.clone();
+	            if(Main.arduino != null)
+	            	Main.arduino.sendString(state.getArduinoString());
 	            iterations++;
 	            
 				if(withHuman && Main.gameView != null){
@@ -354,9 +356,10 @@ public class LearningAlgorithm {
 		startTimer();
 		CommResponse response = null;
 		try {
-			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN)
-				response = myServer.getHumanMessage(suggestedHumanAction);
-			else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
+			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){
+				//System.out.println("server "+Main.myServer);
+				response = Main.myServer.getHumanMessage(suggestedHumanAction);
+			} else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
 				response = waitForHumanMessage(suggestedHumanAction, currState);
 				while(LearningAlgorithm.timeLeft > 0 && ((response.humanAction == Action.WAIT))){// || (response.commType == CommType.NONE) || (response.commType == CommType.SUGGEST && response.robotAction == Action.WAIT))){
 					addToGUIMessage("Invalid input, please specify again what you would like to do!");
@@ -489,7 +492,7 @@ public class LearningAlgorithm {
 	public void sendMessageToRobot(String str, int client){
 		try{
 			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){
-				myServer.sendMessage(str, client);
+				Main.myServer.sendMessage(str, client);
 			}
 		} catch(Exception e){
 			e.printStackTrace();
