@@ -29,12 +29,12 @@ public class Arduino implements SerialPortEventListener {
 	public void initialize() {
         // the next line is for Raspberry Pi and 
         // gets us into the while loop and was suggested here was suggested http://www.raspberrypi.org/phpBB3/viewtopic.php?f=81&t=32186
-        System.setProperty("gnu.io.rxtx.SerialPorts", "COM4");
+        System.setProperty("gnu.io.rxtx.SerialPorts", "COM5");
 
 		CommPortIdentifier portId = null;
  
 		try {
-			portId = CommPortIdentifier.getPortIdentifier("COM4");
+			portId = CommPortIdentifier.getPortIdentifier("COM5");
 			if(portId == null){
 				System.out.println("Could not find COM port");
 				return;
