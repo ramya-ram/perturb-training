@@ -21,7 +21,6 @@ public class MyServer {
     private ServerSocket regularSocket;
     private Server webServer;
     private RobotClientHandler robotHandler;
-    //private Client currClient;
     PrintWriter out = null;
     InputStreamReader inStream = null;
     BufferedReader in;
@@ -29,7 +28,6 @@ public class MyServer {
     static Timer timer;
     static int NUM_SECS_RESEND = 15;
     static int resendTimeLeft = NUM_SECS_RESEND; 
-    //static boolean robotActionComplete = false;
 
     public MyServer() {
         try {
@@ -193,7 +191,6 @@ public class MyServer {
 	        Socket robotSocket = regularSocket.accept();
 	       	robotHandler = new RobotClientHandler(robotSocket);
 	       	System.out.println("Connected to "+robotSocket);
-	        //currClient = Client.ROBOT;
         } catch(Exception e){
         	e.printStackTrace();
         }

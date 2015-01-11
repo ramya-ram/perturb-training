@@ -14,7 +14,6 @@ import javax.swing.Timer;
  * Used in the testing session of the perturbation training condition
  */
 public class PolicyReuseLearner extends LearningAlgorithm {
-
 	public PolicyReuseLearner(MyWorld myWorld, List<QLearner> learners){
 		this.myWorld = myWorld;
 		
@@ -22,8 +21,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		for(QLearner qlearner : learners){
 			QValuesSet newSet = qlearner.currQValues.clone();
 			qValuesList.add(newSet);
-		}
-		
+		}	
 		timer = new Timer(1000, timerListener());
 	}
 	
@@ -39,8 +37,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		this.withHuman = withHuman;
 		Main.currWithSimulatedHuman = withHuman;
 		
-		long start = System.currentTimeMillis();
-		
+		long start = System.currentTimeMillis();		
 		int numEpisodes = Constants.NUM_EPISODES;
 		if(myWorld.typeOfWorld == Constants.TESTING){
 			currCommunicator = Constants.ROBOT; //robot initiates
@@ -49,8 +46,7 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 		if(withHuman)
 			numEpisodes = 1;
 		
-		resetCommunicationCounts();
-			
+		resetCommunicationCounts();		
 		System.out.println("testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness);
 		
 		if(withHuman && Main.gameView != null){
@@ -118,11 +114,6 @@ public class PolicyReuseLearner extends LearningAlgorithm {
 				currQValues.weight = (currQValues.weight*currQValues.numEpisodesChosen + reward)/(currQValues.numEpisodesChosen + 1);
 				currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;
 				currTemp = currTemp + Constants.DELTA_TEMP;
-				
-				//System.out.println("weights: ");
-				//printWeights();
-				//System.out.println("num of episodes chosen: ");
-				//printNumEpisodesChosen();
 			}
 			rewardWriter.close();
 			

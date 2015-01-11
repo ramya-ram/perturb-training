@@ -79,9 +79,7 @@ public class TaskExecution {
 		setTitleLabel(trainWorld0, 2, colorsTraining[0]);
 		baseQLearner.run(trainWorld0, false, false);
 		baseQLearner.run(trainWorld0, true, true, initialState(trainWorld0, 2));
-		//TODO: possibly get policy from training session 1 for the library
 		learners.add(baseQLearner);
-		//library.add(basePolicy);
 		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+0, Constants.print);
 		
 		if(condition == ExperimentCondition.HRPR){

@@ -10,8 +10,6 @@ import java.util.List;
 
 import javax.swing.Timer;
 
-import PR2_robot.MyServer;
-
 /**
  * Parent class for QLearner and PolicyReuseLearner
  */
@@ -124,9 +122,7 @@ public class LearningAlgorithm {
         double jointQ = getJointQValue(state, agentActions);
 		double jointMaxQ = maxJointQ(nextState);
 		double jointValue = (1 - Constants.ALPHA) * jointQ + Constants.ALPHA * (reward + Constants.GAMMA * jointMaxQ);
-		//System.out.println("jointQValues["+stateId+"]["+humanAction+"]["+robotAction+"] = "+jointQValues[stateId][humanAction][robotAction]);
 		currQValues.jointQValues[stateId][humanAction][robotAction] = jointValue;
-		//System.out.println("jointQValues["+stateId+"]["+humanAction+"]["+robotAction+"] = "+jointQValues[stateId][humanAction][robotAction]);
 	}
 	
 	/**
@@ -136,14 +132,12 @@ public class LearningAlgorithm {
 	public HumanRobotActionPair getAgentActionsSimulation(State state){
 		HumanRobotActionPair proposedJointAction = null;
 		if(Tools.rand.nextDouble() < Constants.EPSILON){
-			//System.out.println("random");
 			Action[] possibleRobotActions = mdp.robotAgent.actions(state);
 			Action[] possibleHumanActions = mdp.humanAgent.actions(state); //from robot state because that's what robot sees
 	        Action robotAction = possibleRobotActions[Tools.rand.nextInt(possibleRobotActions.length)];
 	        Action humanAction = possibleHumanActions[Tools.rand.nextInt(possibleHumanActions.length)];
 	        proposedJointAction = new HumanRobotActionPair(humanAction, robotAction);
 		} else { // otherwise, choose the best action/the one with the highest q value
-			//System.out.println("exploit");
 			Pair<HumanRobotActionPair, Double> proposed = getGreedyJointAction(state);
 			proposedJointAction = proposed.getFirst();
 		}
@@ -178,7 +172,6 @@ public class LearningAlgorithm {
 			for(int j=0; j<qValuesSet.jointQValues[stateId].length; j++){
 				for(int k=0; k<qValuesSet.jointQValues[stateId][j].length; k++){
 					if(qValuesSet.jointQValues[stateId][j][k] < 0 || qValuesSet.jointQValues[stateId][j][k] > 0){
-						//System.out.println("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+jointQValues[stateId][j][k]);
 						writer.write("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+qValuesSet.jointQValues[stateId][j][k]+"\n");
 					}
 				}
@@ -275,8 +268,6 @@ public class LearningAlgorithm {
 				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionSuggestion)+" and suggests you to "+getPrintableFromAction(bestHumanActionSuggestion));
 				addToGUIMessage("Would you like to accept the suggestion? (Y or N _)");
 				CommResponse response = getHumanMessage(bestHumanActionSuggestion, state);
-				//if(response.commType == CommType.NONE)
-				//	outOfTimeMessage();
 				if(response.commType == CommType.ACCEPT)
 					numHumanAccepts++;
 				else if(response.commType == CommType.REJECT)
@@ -288,8 +279,6 @@ public class LearningAlgorithm {
 				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionUpdate));
 				addToGUIMessage("Which fire you would like to extinguish (_)?");
 				CommResponse response = getHumanMessage(null, state);
-				//if(response.commType == CommType.NONE)
-				//	outOfTimeMessage();
 				actions = new HumanRobotActionPair(response.humanAction, bestRobotActionUpdate);			
 			}
 			updateGUIMessage("Summary:\nYou will "+getPrintableFromAction(actions.getHumanAction())+"\nYour teammate will "+getPrintableFromAction(actions.getRobotAction())+"\n");
@@ -340,10 +329,7 @@ public class LearningAlgorithm {
 					robotAction = getGreedyRobotAction(state, humanAction);
 					updateGUIMessage("Your teammate will "+getPrintableFromAction(robotAction)+"\n");
 				}
-			} //else {
-			//	outOfTimeMessage();
-			//}
-			//Thread.sleep(3000);
+			}
 			addToGUIMessage("Summary:\nYou will "+getPrintableFromAction(humanAction)+"\nYour teammate will "+getPrintableFromAction(robotAction)+"\n");
 			return new HumanRobotActionPair(humanAction, robotAction);
 		} catch(Exception e){
@@ -357,11 +343,10 @@ public class LearningAlgorithm {
 		CommResponse response = null;
 		try {
 			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){
-				//System.out.println("server "+Main.myServer);
 				response = Main.myServer.getHumanMessage(suggestedHumanAction);
 			} else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
 				response = waitForHumanMessage(suggestedHumanAction, currState);
-				while(LearningAlgorithm.timeLeft > 0 && ((response.humanAction == Action.WAIT))){// || (response.commType == CommType.NONE) || (response.commType == CommType.SUGGEST && response.robotAction == Action.WAIT))){
+				while(LearningAlgorithm.timeLeft > 0 && ((response.humanAction == Action.WAIT))){
 					addToGUIMessage("Invalid input, please specify again what you would like to do!");
 					response = waitForHumanMessage(suggestedHumanAction, currState);
 				}
@@ -422,28 +407,6 @@ public class LearningAlgorithm {
 					robotAction = convertToAction(strs[1].toUpperCase(), mdp.robotAgent.actionsAsList(currState));
 			}
 		}
-		/*if(currCommunicator == Constants.HUMAN){
-			if(strs.length == 1){
-				commType = CommType.UPDATE;
-				humanAction = convertToAction(strs[0].trim(), mdp.humanAgent.actionsAsList(currState));
-			} else if(strs.length == 2){
-				commType = CommType.SUGGEST;
-				humanAction = convertToAction(strs[0].trim(), mdp.humanAgent.actionsAsList(currState));
-				robotAction = convertToAction(strs[1].trim(), mdp.robotAgent.actionsAsList(currState));
-			}
-		} else if(currCommunicator == Constants.ROBOT){
-			if(strs.length > 0){
-				if(strs[0].trim().equalsIgnoreCase("Y")){
-					commType = CommType.ACCEPT;
-					if(suggestedHumanAction != null)
-						humanAction = suggestedHumanAction;
-				} else if(strs[0].trim().equalsIgnoreCase("N")){
-					commType = CommType.REJECT;
-					if(strs.length > 1)
-						humanAction = convertToAction(strs[1].trim(), mdp.humanAgent.actionsAsList(currState));
-				}
-			}
-		}*/
 		return new CommResponse(commType, humanAction, robotAction);
 	}
 	

@@ -246,9 +246,6 @@ public class MyWorld {
 			if(robotAction != Action.WAIT)
 				robotFireIndex = Integer.parseInt(robotAction.name().substring(7, 8));
 			
-			//(sessionNum == PROCE_TEST_NUM || sessionNum == PERTURB1_TEST_NUM || sessionNum == PERTURB2_TEST_NUM)
-			//	System.out.println("test simulation wind "+wind+" dryness "+dryness);
-			
 			if(Main.currWithSimulatedHuman){
 				//System.out.println("wind "+wind+" dryness "+dryness);
 				if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){

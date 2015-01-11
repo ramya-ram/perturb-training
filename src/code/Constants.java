@@ -50,7 +50,6 @@ public class Constants {
 	public static final int NUM_TRAINING_SESSIONS = testWind_train.length;
 	public static final int NUM_TESTING_SESSIONS = testWind_test.length;
 
-	
 	//file names where results are stored
 	public static String dataDir = "inputFiles\\";
 	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2.csv";

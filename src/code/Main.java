@@ -255,51 +255,6 @@ public class Main {
 	/**
 	 * Read in from a file predefined test cases so that participants can be compared fairly on their performance in the testing sessions
 	 */
-	/*public static String[][][] readPredefinedTestCase(String fileName){
-		String[][][] testCase = new String[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
-		try{
-			BufferedReader reader = new BufferedReader(new FileReader(new File(fileName)));
-			String[] nextStates = reader.readLine().split(",");
-			reader.close();
-			
-			int num=0;
-			int statesPerFire = Constants.STATES_PER_FIRE;
-	        for(int i=0; i<statesPerFire; i++){
-				for(int j=0; j<statesPerFire; j++){
-					for(int k=0; k<statesPerFire; k++){
-						for(int l=0; l<statesPerFire; l++){
-							for(int m=0; m<statesPerFire; m++){
-								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);
-								if(MyWorld.isGoalState(state))
-									continue;
-								for(Action humanAction : Action.values()){
-									for(Action robotAction : Action.values()){
-										if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
-												&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
-										
-											String str = nextStates[num];
-											if(str.length() > 0)
-												testCase[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = str;
-								
-											num++;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		} catch(Exception e){
-			e.printStackTrace();
-		}
-		return testCase;
-	}*/
-	
-	/**
-	 * Read in from a file predefined test cases so that participants can be compared fairly on their performance in the testing sessions
-	 */
 	public static void readInPredefinedTestCases(){
 		try{
 			proceTestCase = new String[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
@@ -337,7 +292,6 @@ public class Main {
 									for(Action robotAction : Action.values()){
 										if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
 												&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
-											//StateJointActionPair pair = new StateJointActionPair(state, new HumanRobotActionPair(humanAction, robotAction));
 											
 											String str1 = nextStatesProce[num];
 											if(str1.length() > 0)

@@ -32,7 +32,6 @@ public class GameView extends JFrame {
 	private JPanel centerPanel;
 	private JLabel timeLabel;
 	private JLabel titleLabel;
-	//private JLabel roundLabel;
 	private JTextPane announcements;
 	private JTextField textField;
 	private static final int NUM_FIRES = 5;
@@ -54,7 +53,6 @@ public class GameView extends JFrame {
     public GameView(int typeOfExecution) {
     	this.typeOfExecution = typeOfExecution;
     	titleLabel = new JLabel();
-    	//roundLabel = new JLabel();
         nextButton = new JButton("Next");
         startRound = new JButton("Start Round!");
         initTitleGUI("start");
@@ -97,10 +95,6 @@ public class GameView extends JFrame {
         //titleLabel.setForeground(Color.BLUE);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
-        
-//        roundLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
-//        roundLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-//        topPanel.add(roundLabel);
     	
     	JPanel panel = new JPanel();
     	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -140,8 +134,7 @@ public class GameView extends JFrame {
         setSize(1600, 850);
         add(bottomPanel, BorderLayout.SOUTH);
         setTitle("Coordinated Fire Extinguishing");
-        setVisible(true);
-        
+        setVisible(true);     
     }
 
     public void initGUI() {
@@ -151,20 +144,12 @@ public class GameView extends JFrame {
     	setLayout(new BorderLayout());
     	JPanel topPanel = new JPanel();
     	topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-    	//titleLabel.setText(Main.title);
         titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 40));
-        //titleLabel.setForeground(Color.BLUE);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
-        
-        /*roundLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 30));
-        roundLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        topPanel.add(roundLabel);
-*/
         timeLabel = new JLabel("Time Left: ", SwingConstants.CENTER);
         timeLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 40));
         timeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        //centerPanel.add(timeLabel);//, BorderLayout.NORTH);
         topPanel.add(timeLabel);
         
     	add(topPanel, BorderLayout.NORTH);
@@ -177,27 +162,20 @@ public class GameView extends JFrame {
         
         intensityImages = new ImageIcon[NUM_FIRES];
         for(int i=0; i < NUM_FIRES; i++){
-        	//System.out.println(fireIntensityFile+i+".png");
         	intensityImages[i] = new ImageIcon(fireIntensityFile+i+".png");
-        	
         }
   
         JLabel firesLabel = new JLabel("Fire Intensities:", SwingConstants.CENTER);
         firesLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 25));
-        //firesLabel.setForeground(Color.RED);
         firesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         centerPanel.add(firesLabel);
         
         stateView = new JPanel();
-        //stateView.setSize(50, 50);
         updateState(new State(new int[]{0,0,0,0,0}));    
         centerPanel.add(stateView);//, BorderLayout.CENTER);
         
         JPanel fireNamesPanel = new JPanel();
         fireNamesPanel.setBackground(Color.WHITE);
-        //fireNames.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 50));
-        //fireNames.setForeground(Color.RED);
-        //fireNames.setAlignmentX(Component.CENTER_ALIGNMENT);
         for(int i=0; i < NUM_FIRES; i++){
         	JLabel label = new JLabel();
         	label.setIcon(new ImageIcon(fireNameFile+i+".png"));
@@ -209,29 +187,19 @@ public class GameView extends JFrame {
         teammate.setContentType("text/plain");
         teammate.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 25));
         teammate.setEditable(false);
-        //teammate.setPreferredSize(new Dimension(1800,500));
         
         StyledDocument doc = teammate.getStyledDocument();
         SimpleAttributeSet center = new SimpleAttributeSet();
         StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
         doc.setParagraphAttributes(0, doc.getLength(), center, false);
         teammate.setAlignmentX(CENTER_ALIGNMENT);
-        //teammate.setBackground(new Color(238,233,233));
         JScrollPane scrollPaneTeammate = new JScrollPane(teammate);
         scrollPaneTeammate.setPreferredSize(new Dimension(1800,400));
         scrollPaneTeammate.setBorder(null);
         centerPanel.add(scrollPaneTeammate);
-        //centerPanel.add(teammate);
-        
-        //burnedDownMessage = new JLabel("", SwingConstants.CENTER);
-        //burnedDownMessage.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 25));
-        //burnedDownMessage.setForeground(Color.RED);
-        //burnedDownMessage.setAlignmentX(Component.CENTER_ALIGNMENT);
-        //centerPanel.add(burnedDownMessage); 
-        
+      
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
-        //textLabel = new JLabel("", SwingConstants.CENTER);
         announcements = new JTextPane();
         announcements.setContentType("text/plain");
         announcements.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
@@ -242,21 +210,16 @@ public class GameView extends JFrame {
         StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
         doc.setParagraphAttributes(0, doc.getLength(), center, false);
         
-        //textPane.setAlignmentX(Component.CENTER_ALIGNMENT);
-        //announcements.setBackground(new Color(220,220,220));
         JScrollPane scrollPaneAnnouncements = new JScrollPane(announcements);
         scrollPaneAnnouncements.setPreferredSize(new Dimension(1800,150));
         scrollPaneAnnouncements.setBorder(null);
         bottomPanel.add(scrollPaneAnnouncements, BorderLayout.NORTH);//, BorderLayout.SOUTH);
-        //bottomPanel.add(announcements, BorderLayout.NORTH);
         
         JPanel leftGlue = new JPanel();
         leftGlue.setPreferredSize(new Dimension(50,100));
-        //bottomPanel.add(leftGlue, BorderLayout.WEST);
         
         JPanel rightGlue = new JPanel();
         rightGlue.setPreferredSize(new Dimension(50,100));
-        //bottomPanel.add(rightGlue, BorderLayout.EAST);
         
         textField = new JTextField();
         textField.setEnabled(true);
@@ -284,9 +247,6 @@ public class GameView extends JFrame {
         
         setSize(1600, 850);
         setTitle("Coordinated Fire Extinguishing");
-        //setResizable(false);
-        //setLocationRelativeTo(null);
-        //setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
     }
     
@@ -350,9 +310,6 @@ public class GameView extends JFrame {
     	else
     		titleLabel.setText("");
     	titleLabel.setForeground(color);
-    	//roundLabel.setText("(Round "+roundNum+")");
-    	//roundLabel.setForeground(Color.BLACK);
-    	//titleLabel.setBackground(Color.BLACK);
     }
     
     public void setTime(int timeLeft){
@@ -388,10 +345,6 @@ public class GameView extends JFrame {
     private void focusStartRound(){
     	startRound.requestFocus();
     }
-    
-    /*public void setBurnedDownMessage(String text){
-    	burnedDownMessage.setText(text);
-    }*/
     
     public class StartRoundListener implements ActionListener { 	
 	    public void actionPerformed(ActionEvent e) {

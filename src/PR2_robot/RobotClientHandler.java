@@ -42,17 +42,10 @@ public class RobotClientHandler implements Runnable {
     	boolean messageReceived = false;
     	try {
     		while(messageReceived == false){
-    			//System.out.println("in while");
-    			//if(LearningAlgorithm.timeLeft == 0){
-    			//	message = "NONE";
-    			//	messageReceived = true;
-    			//}
     			if(inStream != null){
-    				//System.out.println("instream != null");
     				if(in.ready()){
     					System.out.print("w");
     					message = in.readLine();
-    					//if(message.length() > 0)
     					messageReceived = true;
     					System.out.println("Message from robot: " + message);
     					System.out.println("message");
