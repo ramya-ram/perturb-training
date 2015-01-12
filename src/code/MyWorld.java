@@ -136,7 +136,7 @@ public class MyWorld {
 	}
 	
 	public State initialState(){
-		if(Main.currWithSimulatedHuman){
+		if(Main.currWithSimulatedHuman && typeOfWorld == Constants.TESTING){
 			int[] stateOfFires = {1,1,0,3,3};
 			return new State(stateOfFires);
 		}

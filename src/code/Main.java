@@ -15,7 +15,7 @@ import PR2_robot.MyServer;
 
 public class Main {
 	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2, CREATE_PREDEFINED = 3;
-	public static int CURRENT_EXECUTION = ROBOT_HUMAN;
+	public static int CURRENT_EXECUTION = SIMULATION;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -65,28 +65,19 @@ public class Main {
 				perturb1TestCase = readPredefinedTestCase(Constants.predefinedPerturb1FileName);
 				perturb2TestCase = readPredefinedTestCase(Constants.predefinedPerturb2FileName);*/
 				
-			}
-			
+			}		
 			saveToFile = true;
-			
-			//sets simulation wind and dryness
-			for(MyWorld trainWorld : trainingWorldsProce)
-				trainWorld.setSimulationWindDryness(Constants.simulationWind_train[0], Constants.simulationDryness_train[0]);
-			for(MyWorld trainWorld : trainingWorldsPerturb)
-				trainWorld.setSimulationWindDryness(Constants.simulationWind_train[trainWorld.sessionNum-1], Constants.simulationDryness_train[trainWorld.sessionNum-1]);
-			for(MyWorld testWorld : testingWorlds)
-				testWorld.setSimulationWindDryness(Constants.simulationWind_test[testWorld.sessionNum-1], Constants.simulationDryness_test[testWorld.sessionNum-1]);
-			
+						
 			if(CURRENT_EXECUTION == SIMULATION){
 				for(int i=0; i<Constants.NUM_AVERAGING; i++){
 					//makes simulation wind and dryness a noisy version of the real one
-					/*System.out.println("NEW simulation");
+					System.out.println("NEW simulation");
 					for(MyWorld trainWorld : trainingWorldsProce)
 						trainWorld.calculateSimulationWindDryness();
 					for(MyWorld trainWorld : trainingWorldsPerturb)
 						trainWorld.calculateSimulationWindDryness();
 					for(MyWorld testWorld : testingWorlds)
-						testWorld.calculateSimulationWindDryness();*/
+						testWorld.calculateSimulationWindDryness();
 					
 					//PROCEDURAL - Q-learning
 					TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
@@ -113,7 +104,15 @@ public class Main {
 					rewardPerturbQWriter.close();
 					rewardProceQWriter.close();
 				}
-			} else {				
+			} else {	
+				//sets simulation wind and dryness
+				for(MyWorld trainWorld : trainingWorldsProce)
+					trainWorld.setSimulationWindDryness(Constants.simulationWind_train[0], Constants.simulationDryness_train[0]);
+				for(MyWorld trainWorld : trainingWorldsPerturb)
+					trainWorld.setSimulationWindDryness(Constants.simulationWind_train[trainWorld.sessionNum-1], Constants.simulationDryness_train[trainWorld.sessionNum-1]);
+				for(MyWorld testWorld : testingWorlds)
+					testWorld.setSimulationWindDryness(Constants.simulationWind_test[testWorld.sessionNum-1], Constants.simulationDryness_test[testWorld.sessionNum-1]);
+				
 				gameView = new GameView(CURRENT_EXECUTION);
 				if(CURRENT_EXECUTION == ROBOT_HUMAN){
 					myServer = new MyServer();

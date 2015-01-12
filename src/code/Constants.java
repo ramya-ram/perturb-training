@@ -21,10 +21,10 @@ public class Constants {
 	public static final int NUM_EPISODES_TEST = 1500;
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
-	public static boolean usePredefinedTestCases = true;
+	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = true;
 	public static boolean print = false;
-	public static int NUM_AVERAGING = 30;
+	public static int NUM_AVERAGING = 25;
 	
 	public static int STATES_PER_FIRE = 5;
 	public static int NUM_FIRES = 5;
@@ -44,8 +44,8 @@ public class Constants {
 	public static int[] simulationWind_test =    {0, 1, 8};
 	public static int[] simulationDryness_test = {0, 8, 1};
 	
-	public static int[] testWind_test =    {0, 2, 9};
-	public static int[] testDryness_test = {0, 9, 2};	
+	public static int[] testWind_test =    {1, 2, 3};
+	public static int[] testDryness_test = {9, 8, 7};	
 	
 	public static final int NUM_TRAINING_SESSIONS = testWind_train.length;
 	public static final int NUM_TESTING_SESSIONS = testWind_test.length;
@@ -60,10 +60,10 @@ public class Constants {
 	
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
-	public static String simulationDir = "C:\\Extra\\";
-	public static String rewardProceQName = simulationDir+"qValuesproceQReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"_01deltaT_iter_"+NUM_AVERAGING+"avg.csv";
-	public static String rewardPerturbQName = simulationDir+"qValuesperturbQReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"_01deltaT_iter_"+NUM_AVERAGING+"avg.csv";
-	public static String rewardHRPRName = simulationDir+"qValuesHRPRReward_29_92_Train50_05_"+NUM_EPISODES_TEST+"_01deltaT_iter_"+NUM_AVERAGING+"avg.csv";
+	public static String simulationDir = "C:\\RSS_2015_FinalSimulationResults\\";
+	public static String rewardProceQName = simulationDir+"PQ_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
+	public static String rewardPerturbQName = simulationDir+"BQ_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
+	public static String rewardHRPRName = simulationDir+"BH_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
 
 	public static String qvaluesDir = simulationDir;
 }
