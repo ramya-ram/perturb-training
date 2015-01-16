@@ -189,6 +189,12 @@ public class LearningAlgorithm {
 		return proposed.getFirst();
 	}
 	
+	public int getFireIndex(Action action){
+		if(action != Action.WAIT)
+			return Integer.parseInt(action.name().substring(7, 8));
+		return -1;
+	}
+	
 	/**
 	 * Prints to SocketTest to get human input
 	 * The human and robot communicate to choose a joint action for this state
@@ -265,6 +271,7 @@ public class LearningAlgorithm {
 			
 			if((maxJointValue - averageValue) > Constants.THRESHOLD_SUGG && bestHumanActionSuggestion != null){ //robot suggests human an action too
 				numRobotSuggestions++;
+				sendRobotMessage("{SUGGESTION R"+getFireIndex(bestRobotActionSuggestion)+", H"+getFireIndex(bestHumanActionSuggestion)+"}");
 				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionSuggestion)+" and suggests you to "+getPrintableFromAction(bestHumanActionSuggestion));
 				addToGUIMessage("Would you like to accept the suggestion? (Y or N _)");
 				CommResponse response = getHumanMessage(bestHumanActionSuggestion, state);
@@ -276,17 +283,29 @@ public class LearningAlgorithm {
 				
 			} else { //robot just updates
 				numRobotUpdates++;
+				sendRobotMessage("{UPDATE R"+getFireIndex(bestRobotActionUpdate)+"}");
 				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionUpdate));
 				addToGUIMessage("Which fire you would like to extinguish (_)?");
 				CommResponse response = getHumanMessage(null, state);
 				actions = new HumanRobotActionPair(response.humanAction, bestRobotActionUpdate);			
 			}
+			sendRobotMessage("{** R"+getFireIndex(actions.getRobotAction())+"}");
 			updateGUIMessage("Summary:\nYou will "+getPrintableFromAction(actions.getHumanAction())+"\nYour teammate will "+getPrintableFromAction(actions.getRobotAction())+"\n");
 			return actions;
 		} catch(Exception e){
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public void sendRobotMessage(String str) {
+		if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){
+			try{
+				Main.myServer.sendMessage(str, Constants.ROBOT);
+			} catch(Exception e){
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	/**
@@ -317,9 +336,11 @@ public class LearningAlgorithm {
 					if((robotSuggestedQValue - humanSuggestedQValue) > Constants.THRESHOLD_REJECT){ 
 						numRobotRejects++;
 						robotAction = optimalRobotAction;
+						sendRobotMessage("{REJECT R"+getFireIndex(robotAction)+"}");
 						updateGUIMessage("Your teammate has a different preference and will "+getPrintableFromAction(robotAction)+"\n");
 					} else {
 						numRobotAccepts++;
+						sendRobotMessage("{ACCEPT R"+getFireIndex(robotAction)+"}");
 						updateGUIMessage("Your teammate accepts to "+getPrintableFromAction(robotAction)+"\n");
 					}
 				} else if(response.commType == CommType.UPDATE){
@@ -327,9 +348,11 @@ public class LearningAlgorithm {
 					addToGUIMessage("Waiting for teammate...");
 					simulateWaitTime(state);
 					robotAction = getGreedyRobotAction(state, humanAction);
+					sendRobotMessage("{UPDATE R"+getFireIndex(robotAction)+"}");
 					updateGUIMessage("Your teammate will "+getPrintableFromAction(robotAction)+"\n");
 				}
 			}
+			sendRobotMessage("{* R"+getFireIndex(robotAction)+"}");
 			addToGUIMessage("Summary:\nYou will "+getPrintableFromAction(humanAction)+"\nYour teammate will "+getPrintableFromAction(robotAction)+"\n");
 			return new HumanRobotActionPair(humanAction, robotAction);
 		} catch(Exception e){
