@@ -35,8 +35,8 @@ public class TaskExecution {
 		if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 			runPracticeSession();
 		
-		Pair<List<QLearner>, PolicyLibrary> trainedResult = runTrainingPhase();
-		runTestingPhase(trainedResult.getFirst());
+		List<QLearner> trainedResult = runTrainingPhase();
+		runTestingPhase(trainedResult);
 	}
 	
 	public void runPracticeSession(){
@@ -65,10 +65,9 @@ public class TaskExecution {
 	 * Regardless of the training type, the first session runs through the base task
 	 * The second and third sessions either have perturbations or are repeated rounds of the base task
 	 */
-	public Pair<List<QLearner>, PolicyLibrary> runTrainingPhase(){
+	public List<QLearner> runTrainingPhase(){
 		Main.saveToFile = true;
 		List<QLearner> learners = new ArrayList<QLearner>();
-		PolicyLibrary library = new PolicyLibrary();
 		
 		//first training session -- same for procedural and perturbation
 		QLearner baseQLearner = new QLearner(null, ExperimentCondition.PROCE_Q);
@@ -92,8 +91,7 @@ public class TaskExecution {
 				perturbLearner.run(trainWorld, true, false, initialState(trainWorld, i*2+1));
 				setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false, false);
-				Policy policy = perturbLearner.run(trainWorld, true, true, initialState(trainWorld, i*2+2));
-				library.add(policy);
+				perturbLearner.run(trainWorld, true, true, initialState(trainWorld, i*2+2));
 				learners.add(perturbLearner);
 				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
 			}
@@ -112,7 +110,7 @@ public class TaskExecution {
 			}
 		}
 		
-		return new Pair<List<QLearner>, PolicyLibrary>(learners, library);
+		return learners;
 	}
 	
 	/**
