@@ -44,8 +44,8 @@ public class Constants {
 	public static int[] simulationWind_test =    {0, 1, 8};
 	public static int[] simulationDryness_test = {0, 8, 1};
 	
-	public static int[] testWind_test =    {1, 2, 3};
-	public static int[] testDryness_test = {9, 8, 7};	
+	public static int[] testWind_test =    {0, 2, 9};
+	public static int[] testDryness_test = {0, 9, 2};	
 	
 	public static final int NUM_TRAINING_SESSIONS = testWind_train.length;
 	public static final int NUM_TESTING_SESSIONS = testWind_test.length;
@@ -60,10 +60,10 @@ public class Constants {
 	
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
-	public static String simulationDir = "C:\\RSS_2015_FinalSimulationResults\\";
-	public static String rewardProceQName = simulationDir+"PQ_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
-	public static String rewardPerturbQName = simulationDir+"BQ_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
-	public static String rewardHRPRName = simulationDir+"BH_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
+	public static String simulationDir = "C:\\Extra\\";
+	public static String rewardProceQName = simulationDir+"PQ_train00_06_60_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
+	public static String rewardPerturbQName = simulationDir+"BQ_train00_06_60_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
+	public static String rewardHRPRName = simulationDir+"BH_train00_06_60_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
 
 	public static String qvaluesDir = simulationDir;
 }

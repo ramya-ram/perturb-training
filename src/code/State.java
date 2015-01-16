@@ -18,12 +18,12 @@ public class State {
 	}
 	
 	public String getArduinoString(){
-		String str = "";;
+		String str = "";
 		for(int i=0; i<stateOfFires.length; i++){
-			if(stateOfFires[i] > Constants.NONE && stateOfFires[i] < Constants.BURNOUT)
-				str += "1";
-			else
+			if(stateOfFires[i] == Constants.NONE || stateOfFires[i] == Constants.BURNOUT)
 				str += "0";
+			else
+				str += ""+stateOfFires[i];
 		}
 		return str;
 	}
