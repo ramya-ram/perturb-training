@@ -66,4 +66,6 @@ public class Constants {
 	public static String rewardHRPRName = simulationDir+"BH_train00_06_60_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
 
 	public static String qvaluesDir = simulationDir;
+	
+	public static String trainedQValuesDir = "C:\\Users\\julie\\Dropbox (MIT)\\trainingQValues\\";
 }

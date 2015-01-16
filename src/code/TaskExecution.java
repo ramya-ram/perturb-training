@@ -1,6 +1,11 @@
 package code;
 
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +41,107 @@ public class TaskExecution {
 			runPracticeSession();
 		
 		List<QLearner> trainedResult = runTrainingPhase();
-		runTestingPhase(trainedResult);
+		saveTrainingToFile(trainedResult);
+		runTestingPhase();
+	}
+	
+	public void saveTrainingToFile(List<QLearner> learners){
+		for(int i=0; i<learners.size(); i++){
+			QLearner learner = learners.get(i);
+			saveQValuesToFile(learner, i);
+		}
+	}
+	
+	public void saveQValuesToFile(QLearner learner, int index) {
+		try {
+			BufferedWriter robotWriter = new BufferedWriter(new FileWriter(new File(Constants.trainedQValuesDir+"robot"+index+".txt")));
+			BufferedWriter jointWriter = new BufferedWriter(new FileWriter(new File(Constants.trainedQValuesDir+"joint"+index+".txt")));
+			int statesPerFire = Constants.STATES_PER_FIRE;
+			for(int i=0; i<statesPerFire; i++){
+				for(int j=0; j<statesPerFire; j++){
+					for(int k=0; k<statesPerFire; k++){
+						for(int l=0; l<statesPerFire; l++){
+							for(int m=0; m<statesPerFire; m++){
+								int[] stateOfFires = {i,j,k,l,m};
+								State state = new State(stateOfFires);													
+								for(Action robotAction : Action.values()){
+									robotWriter.write(learner.currQValues.robotQValues[state.getId()][robotAction.ordinal()]+",");
+									for(Action humanAction : Action.values()){
+										jointWriter.write(learner.currQValues.jointQValues[state.getId()][robotAction.ordinal()][humanAction.ordinal()]+",");
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			robotWriter.close();
+			jointWriter.close();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public List<QValuesSet> readTrainingFromFile(){
+		List<QValuesSet> trainedQValues = new ArrayList<QValuesSet>();
+		try {
+			for(int i=0; i<3; i++){
+				trainedQValues.add(readQValuesFromFile(i));
+			}
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		return trainedQValues;
+	}
+	
+	public QValuesSet readQValuesFromFile(int index){
+		QValuesSet set = new QValuesSet();
+		try{
+			BufferedReader jointReader = new BufferedReader(new FileReader(new File(Constants.trainedQValuesDir+"joint"+index+".txt")));
+			String[] jointValues = jointReader.readLine().split(",");
+			
+			BufferedReader robotReader = new BufferedReader(new FileReader(new File(Constants.trainedQValuesDir+"robot"+index+".txt")));
+			String[] robotValues = robotReader.readLine().split(",");
+			
+			System.out.println("joint size "+jointValues.length);
+			System.out.println("robot size "+robotValues.length);
+	
+			jointReader.close();
+			robotReader.close();
+			
+			int jointNum=0;
+			int robotNum=0;
+			int statesPerFire = Constants.STATES_PER_FIRE;
+	        for(int i=0; i<statesPerFire; i++){
+				for(int j=0; j<statesPerFire; j++){
+					for(int k=0; k<statesPerFire; k++){
+						for(int l=0; l<statesPerFire; l++){
+							for(int m=0; m<statesPerFire; m++){
+								int[] stateOfFires = {i,j,k,l,m};
+								State state = new State(stateOfFires);													
+								for(Action robotAction : Action.values()){
+									double robotValue = Double.parseDouble(robotValues[robotNum]);
+									if(robotValue != 0){
+										set.robotQValues[state.getId()][robotAction.ordinal()] = robotValue;	
+									}
+									robotNum++;
+									for(Action humanAction : Action.values()){
+										double jointValue = Double.parseDouble(jointValues[jointNum]);
+										if(jointValue != 0){
+											set.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = jointValue;
+										}
+										jointNum++;
+									}
+								}
+							}
+						}
+					}
+				}
+			} 
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		return set;
 	}
 	
 	public void runPracticeSession(){
@@ -118,7 +223,8 @@ public class TaskExecution {
 	 * Procedural uses Q-learning and is initialized with Q-values learned from training
 	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
 	 */
-	public void runTestingPhase(List<QLearner> trainedLearners){
+	public void runTestingPhase(){
+		List<QValuesSet> trainedLearners = readTrainingFromFile();
 		if(condition == ExperimentCondition.HRPR){
 			for(MyWorld testWorld : testingWorlds){
 				PolicyReuseLearner PRLearner = new PolicyReuseLearner(testWorld, trainedLearners);
@@ -131,7 +237,7 @@ public class TaskExecution {
 		} else {
 			//Q-learning proce and perturb testing sessions
 			for(MyWorld testWorld : testingWorlds){
-				QLearner testQLearner = new QLearner(trainedLearners.get(0).currQValues, condition);
+				QLearner testQLearner = new QLearner(trainedLearners.get(0), condition);
 				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
 				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				testQLearner.run(testWorld, false, false);

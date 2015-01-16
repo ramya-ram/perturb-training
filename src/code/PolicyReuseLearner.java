@@ -14,12 +14,12 @@ import javax.swing.Timer;
  * Used in the testing session of the perturbation training condition
  */
 public class PolicyReuseLearner extends LearningAlgorithm {
-	public PolicyReuseLearner(MyWorld myWorld, List<QLearner> learners){
+	public PolicyReuseLearner(MyWorld myWorld, List<QValuesSet> learners){
 		this.myWorld = myWorld;
 		
 		qValuesList = new ArrayList<QValuesSet>();
-		for(QLearner qlearner : learners){
-			QValuesSet newSet = qlearner.currQValues.clone();
+		for(QValuesSet set : learners){
+			QValuesSet newSet = set.clone();
 			qValuesList.add(newSet);
 		}	
 		timer = new Timer(1000, timerListener());
