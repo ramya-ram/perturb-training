@@ -51,6 +51,7 @@ public class TaskExecution {
 		else if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){
 			List<QValuesSet> trainedLearners = readTrainingFromFile();
 			System.out.println("read from training files");
+			Constants.MAX_TIME = 25;
 			runTestingPhase(trainedLearners);
 		}
 	}
@@ -263,9 +264,12 @@ public class TaskExecution {
 		String str = "";
 		if(world.typeOfWorld == Constants.TRAINING)
 			str+= "Training Session ";
-		else if(world.typeOfWorld == Constants.TESTING)
-			str+= "Testing Session ";
-		else
+		else if(world.typeOfWorld == Constants.TESTING){
+			if(world.sessionNum == 1)
+				str+= "Practice Testing Session ";
+			else
+				str+= "Testing Session ";
+		} else
 			str+= "Practice Session ";
 		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
 		if(gameView != null)
@@ -327,12 +331,15 @@ public class TaskExecution {
 			}
 		} else if(myWorld.typeOfWorld == Constants.TESTING) {
 			if(roundNum == 1){
-				int[] stateOfFires = {3,1,3,1,1};
+				int[] stateOfFires = {0,1,1,1,0};
 				return new State(stateOfFires);
 			} else if(roundNum == 2){
-				int[] stateOfFires = {1,0,3,3,1};
+				int[] stateOfFires = {3,1,3,1,1};
 				return new State(stateOfFires);
 			} else if(roundNum == 3){
+				int[] stateOfFires = {1,0,3,3,1};
+				return new State(stateOfFires);
+			} else if(roundNum == 4){
 				int[] stateOfFires = {0,1,1,1,3};
 				return new State(stateOfFires);
 			} 
