@@ -172,16 +172,16 @@ public class MyWorld {
 			textToDisplay += "State after your actions: "+nextState.toStringSimple()+"\n";
 			Main.gameView.setAnnouncements(textToDisplay);
 			
-			if(sessionNum == 1){ //base task
+			if(sessionNum == 1 && sessionNum == 2){ //base task
 				return nextState;  //TODO: change if 1st test task is not procedural (no wind/dryness)
 			} else {		
 				String text = "";
 				if(typeOfWorld == Constants.TESTING){
-					if(sessionNum == 2){
+					if(sessionNum == 3){
 						String str = Main.perturb1TestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
 						if(str != null)
 							text += str;	
-					} else if(sessionNum == 3){
+					} else if(sessionNum == 4){
 						String str = Main.perturb2TestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()];
 						if(str != null)
 							text += str;	 
