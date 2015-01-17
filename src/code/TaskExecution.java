@@ -37,22 +37,35 @@ public class TaskExecution {
 	public void executeTask(){		
 		System.out.println("EXECUTE TASK");
 		
-		if(Main.CURRENT_EXECUTION != Main.SIMULATION)
-			runPracticeSession();
+		if(Main.CURRENT_EXECUTION == Main.SIMULATION){
+			List<QValuesSet> trainedLearners = runTrainingPhase();
+			runTestingPhase(trainedLearners);
+		}
 		
-		List<QLearner> trainedResult = runTrainingPhase();
-		saveTrainingToFile(trainedResult);
-		runTestingPhase();
-	}
-	
-	public void saveTrainingToFile(List<QLearner> learners){
-		for(int i=0; i<learners.size(); i++){
-			QLearner learner = learners.get(i);
-			saveQValuesToFile(learner, i);
+		else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
+			runPracticeSession();
+			List<QValuesSet> trainedResult = runTrainingPhase();
+			saveTrainingToFile(trainedResult);
+		}
+		
+		else if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){
+			List<QValuesSet> trainedLearners = readTrainingFromFile();
+			System.out.println("read from training files");
+			runTestingPhase(trainedLearners);
 		}
 	}
 	
-	public void saveQValuesToFile(QLearner learner, int index) {
+	public void saveTrainingToFile(List<QValuesSet> learners){
+		File dir = new File(Constants.trainedQValuesDir);
+		for(File file : dir.listFiles())
+			file.delete();
+		for(int i=0; i<learners.size(); i++){
+			QValuesSet set = learners.get(i);
+			saveQValuesToFile(set, i);
+		}
+	}
+	
+	public void saveQValuesToFile(QValuesSet learner, int index) {
 		try {
 			BufferedWriter robotWriter = new BufferedWriter(new FileWriter(new File(Constants.trainedQValuesDir+"robot"+index+".txt")));
 			BufferedWriter jointWriter = new BufferedWriter(new FileWriter(new File(Constants.trainedQValuesDir+"joint"+index+".txt")));
@@ -65,9 +78,9 @@ public class TaskExecution {
 								int[] stateOfFires = {i,j,k,l,m};
 								State state = new State(stateOfFires);													
 								for(Action robotAction : Action.values()){
-									robotWriter.write(learner.currQValues.robotQValues[state.getId()][robotAction.ordinal()]+",");
+									robotWriter.write(learner.robotQValues[state.getId()][robotAction.ordinal()]+",");
 									for(Action humanAction : Action.values()){
-										jointWriter.write(learner.currQValues.jointQValues[state.getId()][robotAction.ordinal()][humanAction.ordinal()]+",");
+										jointWriter.write(learner.jointQValues[state.getId()][robotAction.ordinal()][humanAction.ordinal()]+",");
 									}
 								}
 							}
@@ -170,9 +183,9 @@ public class TaskExecution {
 	 * Regardless of the training type, the first session runs through the base task
 	 * The second and third sessions either have perturbations or are repeated rounds of the base task
 	 */
-	public List<QLearner> runTrainingPhase(){
+	public List<QValuesSet> runTrainingPhase(){
 		Main.saveToFile = true;
-		List<QLearner> learners = new ArrayList<QLearner>();
+		List<QValuesSet> learners = new ArrayList<QValuesSet>();
 		
 		//first training session -- same for procedural and perturbation
 		QLearner baseQLearner = new QLearner(null, ExperimentCondition.PROCE_Q);
@@ -183,7 +196,7 @@ public class TaskExecution {
 		setTitleLabel(trainWorld0, 2, colorsTraining[0]);
 		baseQLearner.run(trainWorld0, false, false);
 		baseQLearner.run(trainWorld0, true, true, initialState(trainWorld0, 2));
-		learners.add(baseQLearner);
+		learners.add(baseQLearner.currQValues);
 		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+0, Constants.print);
 		
 		if(condition == ExperimentCondition.HRPR){
@@ -197,7 +210,7 @@ public class TaskExecution {
 				setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false, false);
 				perturbLearner.run(trainWorld, true, true, initialState(trainWorld, i*2+2));
-				learners.add(perturbLearner);
+				learners.add(perturbLearner.currQValues);
 				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
 			}
 		} else { //both perturb and proce Q-learning use one qlearner to learn all training tasks
@@ -223,8 +236,7 @@ public class TaskExecution {
 	 * Procedural uses Q-learning and is initialized with Q-values learned from training
 	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
 	 */
-	public void runTestingPhase(){
-		List<QValuesSet> trainedLearners = readTrainingFromFile();
+	public void runTestingPhase(List<QValuesSet> trainedLearners){
 		if(condition == ExperimentCondition.HRPR){
 			for(MyWorld testWorld : testingWorlds){
 				PolicyReuseLearner PRLearner = new PolicyReuseLearner(testWorld, trainedLearners);

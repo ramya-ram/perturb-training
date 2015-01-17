@@ -75,7 +75,7 @@ public class MyServer {
     	}
 
     	if(type == CommType.ACCEPT){
-    		humanAction = suggestedHumanAction;
+    		humanAction = suggestedHumanAction;    			
     	}
     	else if(type == CommType.REJECT || type == CommType.UPDATE){
     		humanAction = getActionFromInput(str);
@@ -91,7 +91,7 @@ public class MyServer {
     		System.out.println("What was the type of communication (A = Accept, R = Reject, S = Suggest, U = Update)?");
     		type = getCommType(Tools.scan.next().toUpperCase().trim().charAt(0));
     		if(type == CommType.ACCEPT){
-    				robotAction = suggestedHumanAction;
+    			humanAction = suggestedHumanAction;
     		} else{
 	    		System.out.println("What was the human's action? (A = Alpha, B = Bravo, C = Charlie, D = Delta, E = Echo)");
 	    		humanAction = getAction(Tools.scan.next().toUpperCase().charAt(0)); 	

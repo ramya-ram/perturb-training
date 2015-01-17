@@ -48,7 +48,7 @@ public class LearningAlgorithm {
 			state = initialStateHuman.clone();
 		else
 			state = myWorld.initialState().clone();
-		if(Main.arduino != null)
+		if(Main.arduino != null && Main.currWithSimulatedHuman)
 			Main.arduino.sendString(state.getArduinoString());
         try{
 	        while (!MyWorld.isGoalState(state) && iterations < maxSteps) {
@@ -69,7 +69,7 @@ public class LearningAlgorithm {
 	            	System.out.println(state.toStringFile()+" "+agentActions+" "+nextState.toStringFile()+" = "+reward);
 	            
 	            state = nextState.clone();
-	            if(Main.arduino != null)
+	            if(Main.arduino != null && Main.currWithSimulatedHuman)
 	            	Main.arduino.sendString(state.getArduinoString());
 	            iterations++;
 	            
