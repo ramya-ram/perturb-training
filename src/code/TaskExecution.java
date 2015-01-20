@@ -17,8 +17,8 @@ public class TaskExecution {
 	public ExperimentCondition condition;
 	
 	//prior probabilities for environment variables = wind, dryness
-	public double[] probWind;
-	public double[] probDryness;
+	//public double[] probWind;
+	//public double[] probDryness;
 	public double[][] probObsGivenWind;
 	public double[][] probObsGivenDryness;
 	
@@ -71,6 +71,7 @@ public class TaskExecution {
 		List<QLearner> learners = new ArrayList<QLearner>();
 		PolicyLibrary library = new PolicyLibrary();
 		
+		calculateTestSimulationWindDryness(trainingWorlds.get(0));
 		//first training session -- same for procedural and perturbation
 		QLearner baseQLearner = new QLearner(null, true, ExperimentCondition.PROCE_Q);
 		setTitleLabel(trainingWorlds.get(0), colorsTraining[0]);
@@ -85,6 +86,7 @@ public class TaskExecution {
 		if(condition == ExperimentCondition.HRPR){
 			//perturbation training sessions
 			for(int i=1; i<trainingWorlds.size(); i++){
+				calculateTestSimulationWindDryness(trainingWorlds.get(i));
 				QLearner perturbLearner = new QLearner(new QValuesSet(baseQLearner.robotQValues, baseQLearner.jointQValues), false, ExperimentCondition.HRPR);
 				setTitleLabel(trainingWorlds.get(i), colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainingWorlds.get(i), false, false);
@@ -158,7 +160,7 @@ public class TaskExecution {
 	 * Given the training scenarios and sensor observations of the new scenario, 
 	 * the robot tries to determine what's the probability of each training scenario being relevant to the new one.
 	 */
-	public double[] calculatePrior(List<MyWorld> trainingWorlds, MyWorld testWorld) {
+	/*public double[] calculatePrior(List<MyWorld> trainingWorlds, MyWorld testWorld) {
 		//testWorld.setWindAndDryness();
 		int[][] trainingRealValues = new int[trainingWorlds.size()][Constants.NUM_VARIABLES];
 		for(int i=0; i<trainingWorlds.size(); i++){
@@ -200,14 +202,14 @@ public class TaskExecution {
 		}
 		
 		return probs;
-	}
+	}*/
 	
 	/**
 	 * Initialize the prior probabilities of wind and dryness occurring 
 	 * and the conditional probabilities of the observation being correct given the real values.
 	 */
 	public void initPriorProbabilities(){
-		probWind = new double[10];
+		/*probWind = new double[10];
 		probDryness = new double[10];
 		for(int i=0; i<probWind.length; i++){
 			if(i==0 || i==1 || i==8 || i==9){
@@ -220,7 +222,7 @@ public class TaskExecution {
 				probWind[i] = 0.15;
 				probDryness[i] = 0.15;
 			}
-		}
+		}*/
 		
 		probObsGivenWind = new double[10][10];
 		probObsGivenDryness = new double[10][10];
@@ -228,11 +230,11 @@ public class TaskExecution {
 		for(int i=0; i<probObsGivenWind.length; i++){
 			for(int j=0; j<probObsGivenWind[i].length; j++){
 				if(i==j)
-					probObsGivenWind[i][j] = 0.4;
+					probObsGivenWind[i][j] = 0.6;
 				else if(Math.abs(i-j) == 1)
 					probObsGivenWind[i][j] = 0.2;
-				else if(Math.abs(i-j) == 2)
-					probObsGivenWind[i][j] = 0.1;
+				//else if(Math.abs(i-j) == 2)
+				//	probObsGivenWind[i][j] = 0.1;
 				//else
 					//probObsGivenWind[i][j] = 0.01;
 			}
@@ -286,5 +288,6 @@ public class TaskExecution {
 		}
 		world.simulationDryness = count;
 		System.out.println("obsDryness "+world.simulationDryness);
+		System.out.println("CHECK testWorld wind "+world.testWind+" dryness "+world.testDryness+" simulationwind "+world.simulationWind+" dryness "+world.simulationDryness);
 	}
 }

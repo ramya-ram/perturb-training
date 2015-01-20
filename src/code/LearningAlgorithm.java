@@ -72,7 +72,7 @@ public class LearningAlgorithm {
 	            state = nextState.clone();
 	            count++;
 	            
-            	if(!reachedGoalState){
+            	/*if(!reachedGoalState){
 					if(MyWorld.isGoalState(state)){
 						iterations = count;
 						reachedGoalState = true;
@@ -84,7 +84,7 @@ public class LearningAlgorithm {
 							Main.gameView.initTitleGUI("congrats");
 						}
 					}
-            	}
+            	}*/
 	        }
         } catch(Exception e){
         	e.printStackTrace();

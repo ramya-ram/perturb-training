@@ -7,8 +7,8 @@ public class Constants {
 	
 	public static final double GAMMA = 1; // gamma is penalty on delayed result
 	public static final double ALPHA = 0.05; // learning rate
-	public static final double TEMP = 0.5; //temperature parameter 
-	public static final double DELTA_TEMP = 0.1; //change in temperature parameter 
+	public static final double TEMP = 0; //temperature parameter 
+	public static final double DELTA_TEMP = 0.01; //change in temperature parameter 
 	public static final double PAST_PROB = 1; //probability of choosing a past policy 
 	public static final double DECAY_VALUE = 0.95; //decay the probability of choosing past policies
 	
@@ -22,7 +22,7 @@ public class Constants {
 	
 	//num of times to run
 	public static final int NUM_EPISODES = 200000;
-	public static final int NUM_EPISODES_TEST = 1000;
+	public static final int NUM_EPISODES_TEST = 1500;
 	public static final int NUM_STEPS_PER_EPISODE = 20;
 	
 	public static final int NUM_TRAINING_SESSIONS = 3;
@@ -31,7 +31,7 @@ public class Constants {
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = true;
 	public static boolean print = false;
-	public static int NUM_AVERAGING = 20;
+	public static int NUM_AVERAGING = 25;
 	
 	public static int STATES_PER_FIRE = 5;
 	//public static int PERTURB1_TEST_NUM = 5;
@@ -56,10 +56,10 @@ public class Constants {
 	
 	public static String participantDir = dataDir;
 	
-	public static String simulationDir = "C:\\RSS_SimulationResults_Pruning\\";
-	public static String rewardProceQName = simulationDir+"proceQReward_29_92_39_Train60_06.csv";
-	public static String rewardPerturbQName = simulationDir+"perturbQReward_29_92_39_Train60_06.csv";
-	public static String rewardHRPRName = simulationDir+"HRPRReward_29_92_39_Train60_06.csv";
+	public static String simulationDir = "C:\\RSS_2015_FinalSimulationResults\\";
+	public static String rewardProceQName = simulationDir+"proceQReward_73_82_91_Train60_06.csv";
+	public static String rewardPerturbQName = simulationDir+"perturbQReward_73_82_91_Train60_06.csv";
+	public static String rewardHRPRName = simulationDir+"HRPRPolicyReuseReward_73_82_91_Train60_06.csv";
 
 	public static String fileBase = Constants.participantDir;
 	public static String rewardName = fileBase+"Reward.csv";

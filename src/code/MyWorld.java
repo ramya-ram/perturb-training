@@ -34,14 +34,14 @@ public class MyWorld {
 		//setting testWind and testDryness for the testing scenarios
 		if(typeOfWorld == Constants.TESTING){
 			if(sessionNum == 1){
-				testWind = 2;
-				testDryness = 9;
+				testWind = 7;
+				testDryness = 3;
 			} else if(sessionNum == 2){
-				testWind = 9;
+				testWind = 8;
 				testDryness = 2;
 			} else if(sessionNum == 3){
-				testWind = 3;
-				testDryness = 9;
+				testWind = 9;
+				testDryness = 1;
 			} 
 		} else if(typeOfWorld == Constants.TRAINING){
 			if(sessionNum == 2){
@@ -49,16 +49,16 @@ public class MyWorld {
 					//testWind = 8;
 					//testDryness = 1;
 					
-					simulationWind = 6;
-					simulationDryness = 0;
+					testWind = 6;
+					testDryness = 0;
 				}
 			} else if(sessionNum == 3){
 				if(perturb){
 					//testWind = 1;
 					//testDryness = 8;
 					
-					simulationWind = 0;
-					simulationDryness = 6;
+					testWind = 0;
+					testDryness = 6;
 				}
 			}
 		}
@@ -330,8 +330,8 @@ public class MyWorld {
 			if(Main.currWithSimulatedHuman)
 				textToDisplay += "State after your actions: "+beforeStochasticity.toStringSimple()+"\n";
 			
-			if(typeOfWorld == Constants.TESTING && sessionNum == 1)
-				return newState;
+			//if(typeOfWorld == Constants.TESTING && sessionNum == 1)
+			//	return newState;
 
 			if(dryness > 0){
 				int highBurnoutPercent = dryness*10 + 10;

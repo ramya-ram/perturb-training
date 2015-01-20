@@ -56,31 +56,31 @@ public class Main {
 			saveToFile = true;
 			
 			if(CURRENT_EXECUTION == SIMULATION){
-				for(int i=0; i<Constants.NUM_AVERAGING; i++){				
+				for(int i=0; i<Constants.NUM_AVERAGING; i++){	
 					//PROCEDURAL - Q-learning
-					TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
-					proceQ.executeTask();
+//					TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
+//					proceQ.executeTask();
 					//TODO: make sure the human sessions are run for only 1 episode
 					
 					//PERTURBATION - Q-learning
-					TaskExecution perturbQ = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PERTURB_Q);
-					perturbQ.executeTask();
+//					TaskExecution perturbQ = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PERTURB_Q);
+//					perturbQ.executeTask();
 					
 					//PERTURBATION - HRPR
 					TaskExecution HRPR = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.HRPR);
 					HRPR.executeTask();
 					
 					BufferedWriter rewardHRPRWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPRName), true));
-					BufferedWriter rewardPerturbQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbQName), true));
-					BufferedWriter rewardProceQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceQName), true));
+					//BufferedWriter rewardPerturbQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbQName), true));
+					//BufferedWriter rewardProceQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceQName), true));
 					
 					rewardHRPRWriter.write("\n");
-					rewardPerturbQWriter.write("\n");
-					rewardProceQWriter.write("\n");
+					//rewardPerturbQWriter.write("\n");
+					//rewardProceQWriter.write("\n");
 					
 					rewardHRPRWriter.close();
-					rewardPerturbQWriter.close();
-					rewardProceQWriter.close();
+					//rewardPerturbQWriter.close();
+					//rewardProceQWriter.close();
 				}
 			} else {
 				gameView = new GameView(CURRENT_EXECUTION);
