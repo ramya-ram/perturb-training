@@ -239,7 +239,8 @@ public class TaskExecution {
 	 */
 	public void runTestingPhase(List<QValuesSet> trainedLearners){
 		if(condition == ExperimentCondition.HRPR){
-			for(MyWorld testWorld : testingWorlds){
+			for(int i=0; i<testingWorlds.size(); i++){
+				MyWorld testWorld = testingWorlds.get(i);
 				PolicyReuseLearner PRLearner = new PolicyReuseLearner(testWorld, trainedLearners);
 				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
 				PRLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
