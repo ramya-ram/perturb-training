@@ -170,7 +170,8 @@ public class MyWorld {
 			System.out.println("USING PREDEFINED");
 			State nextState = getProcePredefinedNextState(state, agentActions).clone();
 			textToDisplay += "State after your actions: "+nextState.toStringSimple()+"\n";
-			Main.gameView.setAnnouncements(textToDisplay);
+			if(Main.gameView != null)
+				Main.gameView.setAnnouncements(textToDisplay);
 			
 			if(sessionNum == 1 && sessionNum == 2){ //base task
 				return nextState;  //TODO: change if 1st test task is not procedural (no wind/dryness)
@@ -204,7 +205,8 @@ public class MyWorld {
 				}
 			}
 			textToDisplay += "Final state: "+nextState.toStringSimple();
-			Main.gameView.setAnnouncements(textToDisplay);
+			if(Main.gameView != null)
+				Main.gameView.setAnnouncements(textToDisplay);
 			return nextState;
 		} catch(Exception e){
 			e.printStackTrace();
