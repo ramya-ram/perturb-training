@@ -14,7 +14,11 @@ import PR2_robot.GameView;
 import PR2_robot.MyServer;
 
 public class Main {
-	public static int SIMULATION = 0, SIMULATION_HUMAN_TRAIN_TEST = 1, SIMULATION_HUMAN_TRAIN = 2, ROBOT_HUMAN_TEST = 3, CREATE_PREDEFINED = 4;
+	public static int SIMULATION = 0, //used for running simulation runs on the computer
+			SIMULATION_HUMAN_TRAIN_TEST = 1, //used for human experiments where participants work with the simulation environment for training and testing
+			SIMULATION_HUMAN_TRAIN = 2, //used for human experiments where participants work with the simulation environment only for training
+			ROBOT_HUMAN_TEST = 3, //used for human experiments where participants work with the robot in testing after training in simulation
+			CREATE_PREDEFINED = 4;
 	public static int CURRENT_EXECUTION = ROBOT_HUMAN_TEST;
 	
 	public static boolean currWithSimulatedHuman = false;
