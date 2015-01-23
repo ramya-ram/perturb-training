@@ -14,7 +14,7 @@ import PR2_robot.GameView;
 import PR2_robot.MyServer;
 
 public class Main {
-	public static int SIMULATION = 0, SIMULATION_HUMAN_TRAIN_TEST = 1, SIMULATION_HUMAN_TRAIN, ROBOT_HUMAN_TEST = 2, CREATE_PREDEFINED = 3;
+	public static int SIMULATION = 0, SIMULATION_HUMAN_TRAIN_TEST = 1, SIMULATION_HUMAN_TRAIN = 2, ROBOT_HUMAN_TEST = 3, CREATE_PREDEFINED = 4;
 	public static int CURRENT_EXECUTION = ROBOT_HUMAN_TEST;
 	
 	public static boolean currWithSimulatedHuman = false;
