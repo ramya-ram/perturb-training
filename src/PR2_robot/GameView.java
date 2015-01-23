@@ -62,10 +62,10 @@ public class GameView extends JFrame {
         initTitleGUI("start");
         setResizable(false);
         
-    	if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
+    	if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN_TEST || Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN){
     		nextButton.addActionListener(new NextButtonListener());
     		startRound.addActionListener(new StartRoundListener());
-    	} else if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){  	
+    	} else if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN_TEST){  	
     		addMouseListener(new MouseAdapter(){
 			    public void mousePressed(MouseEvent e){
 			    	//System.out.println("event "+e);

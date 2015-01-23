@@ -42,13 +42,19 @@ public class TaskExecution {
 			runTestingPhase(trainedLearners);
 		}
 		
-		else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
+		else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN_TEST){
+			runPracticeSession();
+			List<QValuesSet> trainedResult = runTrainingPhase();
+			runTestingPhase(trainedResult);
+		}
+		
+		else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN){
 			runPracticeSession();
 			List<QValuesSet> trainedResult = runTrainingPhase();
 			saveTrainingToFile(trainedResult);
 		}
 		
-		else if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){
+		else if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN_TEST){
 			List<QValuesSet> trainedLearners = readTrainingFromFile();
 			System.out.println("read from training files");
 			Constants.MAX_TIME = 25;

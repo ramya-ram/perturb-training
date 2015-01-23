@@ -217,7 +217,7 @@ public class LearningAlgorithm {
 			timer.stop();
 			if(Main.gameView != null){
 				Main.gameView.setTime(-1);
-				if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN && actions.getRobotAction() != Action.WAIT){
+				if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN_TEST && actions.getRobotAction() != Action.WAIT){
 					String msg = Main.myServer.getRobotMessage(); //wait until robot completes the action
 					System.out.println("msg from robot: "+msg);
 				}
@@ -299,7 +299,7 @@ public class LearningAlgorithm {
 	}
 	
 	public void sendRobotMessage(String str) {
-		if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){
+		if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN_TEST){
 			try{
 				Main.myServer.sendMessage(str, Constants.ROBOT);
 			} catch(Exception e){
@@ -365,9 +365,9 @@ public class LearningAlgorithm {
 		startTimer();
 		CommResponse response = null;
 		try {
-			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){
+			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN_TEST){
 				response = Main.myServer.getHumanMessage(suggestedHumanAction);
-			} else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN){
+			} else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN_TEST || Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN){
 				response = waitForHumanMessage(suggestedHumanAction, currState);
 				while(LearningAlgorithm.timeLeft > 0 && ((response.humanAction == Action.WAIT))){
 					addToGUIMessage("Invalid input, please specify again what you would like to do!");
@@ -477,7 +477,7 @@ public class LearningAlgorithm {
 	
 	public void sendMessageToRobot(String str, int client){
 		try{
-			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN){
+			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN_TEST){
 				Main.myServer.sendMessage(str, client);
 			}
 		} catch(Exception e){

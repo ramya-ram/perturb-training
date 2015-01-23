@@ -14,8 +14,8 @@ import PR2_robot.GameView;
 import PR2_robot.MyServer;
 
 public class Main {
-	public static int SIMULATION = 0, SIMULATION_HUMAN = 1, ROBOT_HUMAN = 2, CREATE_PREDEFINED = 3;
-	public static int CURRENT_EXECUTION = ROBOT_HUMAN;
+	public static int SIMULATION = 0, SIMULATION_HUMAN_TRAIN_TEST = 1, SIMULATION_HUMAN_TRAIN, ROBOT_HUMAN_TEST = 2, CREATE_PREDEFINED = 3;
+	public static int CURRENT_EXECUTION = ROBOT_HUMAN_TEST;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -109,7 +109,7 @@ public class Main {
 					testWorld.setSimulationWindDryness(Constants.simulationWind_test[testWorld.sessionNum-1], Constants.simulationDryness_test[testWorld.sessionNum-1]);
 				
 				gameView = new GameView(CURRENT_EXECUTION);
-				if(CURRENT_EXECUTION == ROBOT_HUMAN){
+				if(CURRENT_EXECUTION == ROBOT_HUMAN_TEST){
 					myServer = new MyServer();
 					myServer.initConnections();
 					arduino = new Arduino();
