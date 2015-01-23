@@ -25,14 +25,14 @@ public class HRPerturbLearner extends LearningAlgorithm {
 		timer = new Timer(1000, timerListener());
 	}
 	
-	public Policy policyReuse(boolean withHuman, boolean computePolicy) {
-		return policyReuse(withHuman, computePolicy, null);
+	public Policy runHRPerturb(boolean withHuman) {
+		return runHRPerturb(withHuman, null);
 	}
 	
 	/**
 	 * Runs the policy reuse algorithm for the number of episodes specified
 	 */
-	public Policy policyReuse(boolean withHuman, boolean computePolicy, State initialStateHuman) {
+	public Policy runHRPerturb(boolean withHuman, State initialStateHuman) {
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
 		Main.currWithSimulatedHuman = withHuman;
@@ -117,8 +117,6 @@ public class HRPerturbLearner extends LearningAlgorithm {
 			}
 			rewardWriter.close();
 			
-			if(computePolicy)
-				policy = computePolicy();
 			long end = System.currentTimeMillis();
 			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
 				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration"+Constants.NUM_EPISODES_TEST+".csv"), true));

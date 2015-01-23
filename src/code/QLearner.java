@@ -25,14 +25,14 @@ public class QLearner extends LearningAlgorithm {
 		}
 	}
 	
-	public Policy run(MyWorld myWorld, boolean withHuman, boolean computePolicy){
-		return run(myWorld, withHuman, computePolicy, null);
+	public Policy run(MyWorld myWorld, boolean withHuman){
+		return run(myWorld, withHuman, null);
 	}
 	
 	/**
 	 * Run QLearning for the number of episodes specified and see how accumulated reward changes over these episodes
 	 */
-	public Policy run(MyWorld myWorld, boolean withHuman, boolean computePolicy, State initialStateHuman) {
+	public Policy run(MyWorld myWorld, boolean withHuman, State initialStateHuman) {
 		this.myWorld = myWorld;
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
@@ -81,8 +81,6 @@ public class QLearner extends LearningAlgorithm {
 					}
 				}
 	        }
-			if(computePolicy)
-				policy = computePolicy();
 			long end = System.currentTimeMillis();
 			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
 				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration"+Constants.NUM_EPISODES_TEST+".csv"), true));

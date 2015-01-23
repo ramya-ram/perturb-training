@@ -59,13 +59,8 @@ public class Main {
 		try {
 			if(Constants.useOfflineValues)
 				populateOfflineQValues();
-			if(Constants.usePredefinedTestCases){
+			if(Constants.usePredefinedTestCases)
 				readInPredefinedTestCases();
-				/*proceTestCase = readPredefinedTestCase(Constants.predefinedProceFileName);
-				perturb1TestCase = readPredefinedTestCase(Constants.predefinedPerturb1FileName);
-				perturb2TestCase = readPredefinedTestCase(Constants.predefinedPerturb2FileName);*/
-				
-			}		
 			saveToFile = true;
 						
 			if(CURRENT_EXECUTION == SIMULATION){
