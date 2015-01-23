@@ -17,6 +17,9 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 import code.*;
 
+/**
+ * Controls the server for the game, the human and robot connect as two clients and the server handles turn taking within the game
+ */
 public class MyServer {
     private ServerSocket regularSocket;
     private Server webServer;

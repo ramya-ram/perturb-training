@@ -9,8 +9,11 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
+/**
+ * Used to control the arduino that lights up the leds according to the state of fires
+ */
 public class Arduino implements SerialPortEventListener {
-    /** The port we're normally going to use. */
+    // The port we're normally going to use.
 	SerialPort serialPort;
 	
 	/**
@@ -19,11 +22,11 @@ public class Arduino implements SerialPortEventListener {
 	* making the displayed results codepage independent
 	*/
 	private BufferedReader input;
-	/** The output stream to the port */
+	// The output stream to the port
 	private OutputStream output;
-	/** Milliseconds to block while waiting for port open */
+	// Milliseconds to block while waiting for port open
 	private static final int TIME_OUT = 2000;
-	/** Default bits per second for COM port. */
+	// Default bits per second for COM port.
 	private static final int DATA_RATE = 9600;
 
 	public void initialize() {

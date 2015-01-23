@@ -5,6 +5,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ * Handles communication with the robot, sends action commands to the robot and receives confirmation when the actions are completed
+ */
 public class RobotClientHandler implements Runnable {
     public Socket socket;
     PrintWriter out = null;

@@ -10,8 +10,8 @@ import javax.swing.Timer;
 
 /**
  * Implementation of the policy reuse algorithm
- * Given a library of policies learned from the training sessions, the robot learns how to perform a new task it hasn't seen
- * Used in the testing session of the perturbation training condition
+ * Given a library of Q-value functions learned from the training sessions, the robot learns how to perform a new task it hasn't seen
+ * Used in the testing session of the perturbation training condition using HR-Perturb
  */
 public class PolicyReuseLearner extends LearningAlgorithm {
 	public PolicyReuseLearner(MyWorld myWorld, List<QValuesSet> learners){

@@ -27,6 +27,10 @@ import javax.swing.text.StyledDocument;
 import code.Main;
 import code.State;
 	
+/**
+ * Java swing GUI of fire extinguishing game
+ * Shows state of the fires, communication between teammates, and other task info
+ */
 public class GameView extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel centerPanel;

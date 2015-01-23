@@ -9,6 +9,9 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
+/**
+ * Handles communication with the human through google web speech recognition (on localhost:8080/test)
+ */
 @WebSocket
 public class HumanClientHandler {
 	public static String message;
