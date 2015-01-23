@@ -9,12 +9,12 @@ import java.util.List;
 import javax.swing.Timer;
 
 /**
- * Implementation of the policy reuse algorithm
+ * Implementation of the HR-Perturb algorithm that extends the policy reuse (PRQL) algorithm
  * Given a library of Q-value functions learned from the training sessions, the robot learns how to perform a new task it hasn't seen
  * Used in the testing session of the perturbation training condition using HR-Perturb
  */
-public class PolicyReuseLearner extends LearningAlgorithm {
-	public PolicyReuseLearner(MyWorld myWorld, List<QValuesSet> learners){
+public class HRPerturbLearner extends LearningAlgorithm {
+	public HRPerturbLearner(MyWorld myWorld, List<QValuesSet> learners){
 		this.myWorld = myWorld;
 		
 		qValuesList = new ArrayList<QValuesSet>();

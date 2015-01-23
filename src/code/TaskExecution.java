@@ -241,12 +241,12 @@ public class TaskExecution {
 		if(condition == ExperimentCondition.HRPR){
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
-				PolicyReuseLearner PRLearner = new PolicyReuseLearner(testWorld, trainedLearners);
+				HRPerturbLearner perturbLearner = new HRPerturbLearner(testWorld, trainedLearners);
 				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
-				PRLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
-				PRLearner.policyReuse(false, false);
-				PRLearner.policyReuse(true, false, initialState(testWorld, testWorld.sessionNum));
-				PRLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				perturbLearner.policyReuse(false, false);
+				perturbLearner.policyReuse(true, false, initialState(testWorld, testWorld.sessionNum));
+				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 			}
 		} else {
 			//Q-learning proce and perturb testing sessions
