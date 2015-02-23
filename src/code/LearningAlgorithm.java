@@ -475,16 +475,6 @@ public class LearningAlgorithm {
 		Main.gameView.setTeammateText(Main.gameView.getTeammateText()+"\n"+str);
 	}
 	
-	public void sendMessageToRobot(String str, int client){
-		try{
-			if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN_TEST){
-				Main.myServer.sendMessage(str, client);
-			}
-		} catch(Exception e){
-			e.printStackTrace();
-		}
-	}
-	
 	/**
 	 * Adds wait time to simulate a human playing
 	 */
