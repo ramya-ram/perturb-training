@@ -8,6 +8,7 @@ public class MyWorld {
 	public static Set<State> states = new HashSet<State>();
 	public static State[] initStates;
 	public String predefinedText;
+	public String textToDisplay;
 	
 	//prior probabilities for environment variables = wind, dryness
 	public static double[][] probObsGivenWind;
@@ -166,7 +167,7 @@ public class MyWorld {
 	 */
 	public State getPredefinedNextState(State state, HumanRobotActionPair agentActions){
 		try{
-			String textToDisplay = "";
+			textToDisplay = "";
 			System.out.println("USING PREDEFINED");
 			State nextState = getProcePredefinedNextState(state, agentActions).clone();
 			textToDisplay += "State after your actions: "+nextState.toStringSimple()+"\n";
@@ -189,10 +190,10 @@ public class MyWorld {
 					} 
 				}
 				for(int i=0; i<text.length(); i+=3){
-					//System.out.println("i "+i+" i+3 "+(i+3));
+					if(text.length()<=1)
+						break;
 					System.out.println("str causing error "+text);
 					String str = text.substring(i, i+3);
-					//System.out.println("str "+str);
 					if(str.charAt(0) == 'B'){
 						int fire = str.charAt(1)-48;
 						textToDisplay += getBurnoutMessage(fire)+"\n";
@@ -219,6 +220,9 @@ public class MyWorld {
 	 * There can be stochasticity through spreading and burnout of fires
 	 */
 	public State getNextState(State state, HumanRobotActionPair agentActions){
+		textToDisplay = "";
+		predefinedText = "";
+		
 		State newState = state.clone();
 		if(isGoalState(newState))
 			return newState;
@@ -238,7 +242,6 @@ public class MyWorld {
 				dryness = simulationDryness;
 			}
 			
-			String textToDisplay = "";
 			Action humanAction = agentActions.getHumanAction();
 			Action robotAction = agentActions.getRobotAction();
 			int humanFireIndex = -1;
@@ -248,117 +251,32 @@ public class MyWorld {
 			if(robotAction != Action.WAIT)
 				robotFireIndex = Integer.parseInt(robotAction.name().substring(7, 8));
 			
+			//if computing pre-defined next state
+			if(Main.CURRENT_EXECUTION == Main.CREATE_PREDEFINED){
+				if(Main.proceTestCase != null){
+					newState = getProcePredefinedNextState(newState, agentActions).clone();
+					newState = getStateAfterWindDryness(newState, wind, dryness);
+					return newState;
+				} else {
+					newState = getStochasStateAfterActions(newState, humanFireIndex, robotFireIndex);
+					predefinedText += newState.toStringFile();
+					return newState;
+				}
+			}
+			//end
+			
 			if(Main.currWithSimulatedHuman){
-				//System.out.println("wind "+wind+" dryness "+dryness);
-				if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){
-					int randNum = Tools.rand.nextInt(100);
-					if(randNum < 90)
-						newState.stateOfFires[humanFireIndex]-=3;
-					else
-						newState.stateOfFires[humanFireIndex]-=2;
-					if(newState.stateOfFires[humanFireIndex] < 0)
-						newState.stateOfFires[humanFireIndex] = Constants.NONE;
-				} else {
-					if(humanFireIndex >= 0){
-						int randNum1 = Tools.rand.nextInt(100);
-						if(randNum1 < 90)
-							newState.stateOfFires[humanFireIndex]-=1;
-						else
-							newState.stateOfFires[humanFireIndex]-=2;
-						if(newState.stateOfFires[humanFireIndex] < 0)
-							newState.stateOfFires[humanFireIndex] = Constants.NONE;
-					}
-	
-					if(robotFireIndex >= 0){
-						int randNum2 = Tools.rand.nextInt(100);
-						if(randNum2 < 90)
-							newState.stateOfFires[robotFireIndex]-=1;
-						else
-							newState.stateOfFires[robotFireIndex]-=2;
-						if(newState.stateOfFires[robotFireIndex] < 0)
-							newState.stateOfFires[robotFireIndex] = Constants.NONE;
-					}
-				}
+				newState = getStochasStateAfterActions(newState, humanFireIndex, robotFireIndex);
 			} else {
-				if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){
-					newState.stateOfFires[humanFireIndex]-=3;
-					if(newState.stateOfFires[humanFireIndex] < 0)
-						newState.stateOfFires[humanFireIndex] = Constants.NONE;
-				} else {
-					if(humanFireIndex >= 0){
-						newState.stateOfFires[humanFireIndex]-=1;
-						if(newState.stateOfFires[humanFireIndex] < 0)
-							newState.stateOfFires[humanFireIndex] = Constants.NONE;
-					}
-					if(robotFireIndex >= 0){
-						newState.stateOfFires[robotFireIndex]-=1;
-						if(newState.stateOfFires[robotFireIndex] < 0)
-							newState.stateOfFires[robotFireIndex] = Constants.NONE;
-					}
-				}
+				newState = getStateAfterActions(newState, humanFireIndex, robotFireIndex);
 			}
 			
 			State beforeStochasticity = newState.clone();
 			if(Main.currWithSimulatedHuman)
 				textToDisplay += "State after your actions: "+beforeStochasticity.toStringSimple()+"\n";
-			
-			//if(typeOfWorld == Constants.TESTING && sessionNum == 1)
-			//	return newState;
 
-			if(dryness > 0){
-				int highBurnoutPercent = dryness*10 + 10;
-				for(int i=0; i<newState.stateOfFires.length; i++){
-					if(newState.stateOfFires[i] == Constants.HIGHEST){
-						int randNum = Tools.rand.nextInt(100);
-						if(randNum < highBurnoutPercent){
-							newState.stateOfFires[i] = Constants.BURNOUT;
-							String text = getBurnoutMessage(i);
-							if(Main.currWithSimulatedHuman)
-								textToDisplay += text+"\n";
-						}
-					}
-				}
-			}
+			newState = getStateAfterWindDryness(newState, wind, dryness);
 			
-			if(wind > 0){
-				int numSpreaded = 0;
-				int highBurnoutPercent = wind*10 + 10;
-				int mediumBurnoutPercent = highBurnoutPercent - 10;
-				int lowBurnoutPercent = mediumBurnoutPercent - 10;
-				
-				for(int i=0; i<newState.stateOfFires.length; i++){
-					int burnoutPercent = 0;
-					if(newState.stateOfFires[i] == Constants.HIGHEST-2)
-						burnoutPercent = lowBurnoutPercent;
-					else if(newState.stateOfFires[i] == Constants.HIGHEST-1)
-						burnoutPercent = mediumBurnoutPercent;
-					else if(newState.stateOfFires[i] == Constants.HIGHEST)
-						burnoutPercent = highBurnoutPercent;
-					if(burnoutPercent > 0){
-						if(checkIfValidFireLoc(i-1, newState.stateOfFires)){
-							int randNum = Tools.rand.nextInt(100);
-							if(randNum < burnoutPercent && numSpreaded <= 4){
-								newState.stateOfFires[i-1]++;
-								numSpreaded++;
-								String text = getSpreadMessage(i, i-1);
-								if(Main.currWithSimulatedHuman)
-									textToDisplay += text+"\n";
-							}
-						}
-							
-						if(checkIfValidFireLoc(i+1, newState.stateOfFires)){
-							int randNum = Tools.rand.nextInt(100);
-							if(randNum < burnoutPercent && numSpreaded <= 4){
-								newState.stateOfFires[i+1]++;
-								numSpreaded++;
-								String text = getSpreadMessage(i, i+1);
-								if(Main.currWithSimulatedHuman)
-									textToDisplay += text+"\n";
-							}
-						}
-					}
-				}
-			}
 			if(!beforeStochasticity.equals(newState) && Main.currWithSimulatedHuman){
 				textToDisplay += "Final state: "+newState.toStringSimple();
 			}
@@ -370,61 +288,40 @@ public class MyWorld {
 		return newState;
 	}
 	
-	/**
-	 * Determines the next state and prints appropriate messages to SocketTest
-	 * There can be stochasticity through spreading and burnout of fires
-	 */
-	public State computePredefinedNextState(State state, HumanRobotActionPair agentActions){
-		State newState = state.clone();
-		int wind = testWind;
-		int dryness = testDryness;
-
-		predefinedText = "";
-		Action humanAction = agentActions.getHumanAction();
-		Action robotAction = agentActions.getRobotAction();
-		int humanFireIndex = -1;
-		int robotFireIndex = -1;
-		if(humanAction != Action.WAIT)
-			humanFireIndex = Integer.parseInt(humanAction.name().substring(7, 8));
-		if(robotAction != Action.WAIT)
-			robotFireIndex = Integer.parseInt(robotAction.name().substring(7, 8));
-		
-		if(Main.proceTestCase != null){
-			newState = getProcePredefinedNextState(newState, agentActions).clone();
+	public State getStochasStateAfterActions(State newState, int humanFireIndex, int robotFireIndex){
+		if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){
+			int randNum = Tools.rand.nextInt(100);
+			if(randNum < 90)
+				newState.stateOfFires[humanFireIndex]-=3;
+			else
+				newState.stateOfFires[humanFireIndex]-=2;
+			if(newState.stateOfFires[humanFireIndex] < 0)
+				newState.stateOfFires[humanFireIndex] = Constants.NONE;
 		} else {
-			if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){
-				int randNum = Tools.rand.nextInt(100);
-				if(randNum < 90)
-					newState.stateOfFires[humanFireIndex]-=3;
+			if(humanFireIndex >= 0){
+				int randNum1 = Tools.rand.nextInt(100);
+				if(randNum1 < 90)
+					newState.stateOfFires[humanFireIndex]-=1;
 				else
 					newState.stateOfFires[humanFireIndex]-=2;
 				if(newState.stateOfFires[humanFireIndex] < 0)
 					newState.stateOfFires[humanFireIndex] = Constants.NONE;
-			} else {
-				if(humanFireIndex >= 0){
-					int randNum1 = Tools.rand.nextInt(100);
-					if(randNum1 < 90)
-						newState.stateOfFires[humanFireIndex]-=1;
-					else
-						newState.stateOfFires[humanFireIndex]-=2;
-					if(newState.stateOfFires[humanFireIndex] < 0)
-						newState.stateOfFires[humanFireIndex] = Constants.NONE;
-				}
-	
-				if(robotFireIndex >= 0){
-					int randNum2 = Tools.rand.nextInt(100);
-					if(randNum2 < 90)
-						newState.stateOfFires[robotFireIndex]-=1;
-					else
-						newState.stateOfFires[robotFireIndex]-=2;
-					if(newState.stateOfFires[robotFireIndex] < 0)
-						newState.stateOfFires[robotFireIndex] = Constants.NONE;
-				}
 			}
-			predefinedText += newState.toStringFile();
-			return newState;
-		}
 
+			if(robotFireIndex >= 0){
+				int randNum2 = Tools.rand.nextInt(100);
+				if(randNum2 < 90)
+					newState.stateOfFires[robotFireIndex]-=1;
+				else
+					newState.stateOfFires[robotFireIndex]-=2;
+				if(newState.stateOfFires[robotFireIndex] < 0)
+					newState.stateOfFires[robotFireIndex] = Constants.NONE;
+			}
+		}
+		return newState;
+	}
+	
+	public State getStateAfterWindDryness(State newState, int wind, int dryness){
 		if(dryness > 0){
 			int highBurnoutPercent = dryness*10 + 10;
 			for(int i=0; i<newState.stateOfFires.length; i++){
@@ -433,6 +330,9 @@ public class MyWorld {
 					if(randNum < highBurnoutPercent){
 						newState.stateOfFires[i] = Constants.BURNOUT;
 						predefinedText+="B"+i+"#";
+						String text = getBurnoutMessage(i);
+						if(Main.currWithSimulatedHuman)
+							textToDisplay += text+"\n";
 					}
 				}
 			}
@@ -459,6 +359,9 @@ public class MyWorld {
 							newState.stateOfFires[i-1]++;
 							numSpreaded++;
 							predefinedText+="S"+i+(i-1)+"";
+							String text = getSpreadMessage(i, i-1);
+							if(Main.currWithSimulatedHuman)
+								textToDisplay += text+"\n";
 						}
 					}
 						
@@ -468,9 +371,32 @@ public class MyWorld {
 							newState.stateOfFires[i+1]++;
 							numSpreaded++;
 							predefinedText+="S"+i+(i+1)+"";
+							String text = getSpreadMessage(i, i+1);
+							if(Main.currWithSimulatedHuman)
+								textToDisplay += text+"\n";
 						}
 					}
 				}
+			}
+		}
+		return newState;
+	}
+	
+	public State getStateAfterActions(State newState, int humanFireIndex, int robotFireIndex){
+		if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){
+			newState.stateOfFires[humanFireIndex]-=3;
+			if(newState.stateOfFires[humanFireIndex] < 0)
+				newState.stateOfFires[humanFireIndex] = Constants.NONE;
+		} else {
+			if(humanFireIndex >= 0){
+				newState.stateOfFires[humanFireIndex]-=1;
+				if(newState.stateOfFires[humanFireIndex] < 0)
+					newState.stateOfFires[humanFireIndex] = Constants.NONE;
+			}
+			if(robotFireIndex >= 0){
+				newState.stateOfFires[robotFireIndex]-=1;
+				if(newState.stateOfFires[robotFireIndex] < 0)
+					newState.stateOfFires[robotFireIndex] = Constants.NONE;
 			}
 		}
 		return newState;

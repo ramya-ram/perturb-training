@@ -60,7 +60,7 @@ public class HRPerturbLearner extends LearningAlgorithm {
 		try{
 			BufferedWriter mainWriter = new BufferedWriter(new FileWriter(new File(Constants.qvaluesDir+"mainWriter_HRPR_test_"+(myWorld.sessionNum-1)+".txt"), true));
 			mainWriter.write("wind "+myWorld.testWind+" dryness "+myWorld.testDryness+"\n");
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPRName), true));
+			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPerturbName), true));
 			double currTemp = Constants.TEMP;
 			for(int k=0; k<numEpisodes; k++){
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
