@@ -22,7 +22,7 @@ public class Main {
 			CREATE_PREDEFINED = 4, //use for creating predefined test cases for human subject experiments (given a state and joint action, the next state will always be the same across participants)
 			CREATE_OFFLINE_QVALUES = 5; //use for running offline deterministic simulations and having these values saved to a file so that the robot starts with base knowledge when working with a human
 	
-	public static int CURRENT_EXECUTION = ROBOT_HUMAN_TEST;
+	public static int CURRENT_EXECUTION = ROBOT_HUMAN_TEST; //set CURRENT_EXECUTION to one of the above depending on which option you want to run
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -218,6 +218,9 @@ public class Main {
 		}
 	}
 	
+	/**
+	 * Write the given test case to a file so that it can be loaded for each participant (this will ensure consistency among participants in the experiment)
+	 */
 	public static void writePredefinedTestCase(MyWorld myWorld, String fileName){
 		try {
 			int num = 0;

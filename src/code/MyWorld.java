@@ -263,7 +263,6 @@ public class MyWorld {
 					return newState;
 				}
 			}
-			//end
 			
 			if(Main.currWithSimulatedHuman){
 				newState = getStochasStateAfterActions(newState, humanFireIndex, robotFireIndex);
@@ -288,6 +287,12 @@ public class MyWorld {
 		return newState;
 	}
 	
+	/**
+	 * Adds in stochasticity into the environment
+	 * For example, if the human and robot work separately on different fires, 90% of the time the fires go down by 1 level, 10% the fires go down by 2
+	 * If the human and robot work together, 90% of the time the fire goes down by 3 levels, 10% the fire goes down by 2
+	 * This noisy version of getStateAfterActions() models a real environment with stochasticity while the robot simulates with an approximate deterministic model as in getStateAfterActions()
+	 */
 	public State getStochasStateAfterActions(State newState, int humanFireIndex, int robotFireIndex){
 		if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){
 			int randNum = Tools.rand.nextInt(100);
@@ -321,6 +326,35 @@ public class MyWorld {
 		return newState;
 	}
 	
+	/**
+	 * Deterministic version of the getStochasStateAfterActions() method
+	 * Used when the robot simulates on its own, as this is the approximate model of the environment
+	 * When working with the human in real live interactions, noise is added, as in getStochasStateAfterActions(), to model a real environment
+	 */
+	public State getStateAfterActions(State newState, int humanFireIndex, int robotFireIndex){
+		if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){
+			newState.stateOfFires[humanFireIndex]-=3;
+			if(newState.stateOfFires[humanFireIndex] < 0)
+				newState.stateOfFires[humanFireIndex] = Constants.NONE;
+		} else {
+			if(humanFireIndex >= 0){
+				newState.stateOfFires[humanFireIndex]-=1;
+				if(newState.stateOfFires[humanFireIndex] < 0)
+					newState.stateOfFires[humanFireIndex] = Constants.NONE;
+			}
+			if(robotFireIndex >= 0){
+				newState.stateOfFires[robotFireIndex]-=1;
+				if(newState.stateOfFires[robotFireIndex] < 0)
+					newState.stateOfFires[robotFireIndex] = Constants.NONE;
+			}
+		}
+		return newState;
+	}
+	
+	/**
+	 * More stochasticity added based on wind and dryness in the environment
+	 * Wind causes fires to spread and dryness causes the building to burn down more quickly
+	 */
 	public State getStateAfterWindDryness(State newState, int wind, int dryness){
 		if(dryness > 0){
 			int highBurnoutPercent = dryness*10 + 10;
@@ -382,26 +416,6 @@ public class MyWorld {
 		return newState;
 	}
 	
-	public State getStateAfterActions(State newState, int humanFireIndex, int robotFireIndex){
-		if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){
-			newState.stateOfFires[humanFireIndex]-=3;
-			if(newState.stateOfFires[humanFireIndex] < 0)
-				newState.stateOfFires[humanFireIndex] = Constants.NONE;
-		} else {
-			if(humanFireIndex >= 0){
-				newState.stateOfFires[humanFireIndex]-=1;
-				if(newState.stateOfFires[humanFireIndex] < 0)
-					newState.stateOfFires[humanFireIndex] = Constants.NONE;
-			}
-			if(robotFireIndex >= 0){
-				newState.stateOfFires[robotFireIndex]-=1;
-				if(newState.stateOfFires[robotFireIndex] < 0)
-					newState.stateOfFires[robotFireIndex] = Constants.NONE;
-			}
-		}
-		return newState;
-	}
-	
 	/**
 	 * Initialize the prior probabilities of wind and dryness occurring 
 	 * and the conditional probabilities of the observation being correct given the real values.
@@ -447,6 +461,11 @@ public class MyWorld {
 		System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
+	/**
+	 * Given the actual testWind and testDryness in the real environment, here we calculate a noisy version of wind and dryness obtained from "sensors" that is used for simulation
+	 * Then in the real environment, the real values are used
+	 * This is used to make the point that the robot doesn't have an exact model of the real environment and so uses this "approximate" model for simulation
+	 */
 	public void calculateSimulationWindDryness(){
 		int randNumWind = Tools.rand.nextInt(100);
 		int randNumDryness = Tools.rand.nextInt(100);
@@ -475,12 +494,18 @@ public class MyWorld {
 		System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
+	/**
+	 * Makes appropriate changes to the state to reflect the fire burning down the building
+	 */
 	public State getNextStateAfterBurnout(State state, int fire){
 		State newState = state.clone();
 		newState.stateOfFires[fire] = Constants.BURNOUT;
 		return newState;
 	}
 	
+	/**
+	 * Makes appropriate changes to the state to reflect the fire spreading to the 'spreadTo' fire
+	 */
 	public State getNextStateAfterSpread(State state, int spreadTo){
 		State newState = state.clone();
 		newState.stateOfFires[spreadTo]++;

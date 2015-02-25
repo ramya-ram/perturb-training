@@ -32,7 +32,7 @@ public class TaskExecution {
 	}
 	
 	/**
-	 * Run training and testing phases
+	 * Run training and testing phases, according to which option is being run
 	 */
 	public void executeTask(){		
 		System.out.println("EXECUTE TASK");
@@ -62,6 +62,9 @@ public class TaskExecution {
 		}
 	}
 	
+	/**
+	 * If only the training is in simulation (and the testing is with the PR2), the training Q-values are saved to a file, which can be read when starting the testing sessions with the robot
+	 */
 	public void saveTrainingToFile(List<QValuesSet> learners){
 		File dir = new File(Constants.trainedQValuesDir);
 		for(File file : dir.listFiles())
@@ -72,6 +75,9 @@ public class TaskExecution {
 		}
 	}
 	
+	/**
+	 * Writes the Q-values to a file
+	 */
 	public void saveQValuesToFile(QValuesSet learner, int index) {
 		try {
 			BufferedWriter robotWriter = new BufferedWriter(new FileWriter(new File(Constants.trainedQValuesDir+"robot"+index+".txt")));
@@ -102,6 +108,9 @@ public class TaskExecution {
 		}
 	}
 	
+	/**
+	 * When working with the PR2 during testing, the Q-values learned from training with the simulated robot is read
+	 */
 	public List<QValuesSet> readTrainingFromFile(){
 		List<QValuesSet> trainedQValues = new ArrayList<QValuesSet>();
 		try {
@@ -113,7 +122,9 @@ public class TaskExecution {
 		}
 		return trainedQValues;
 	}
-	
+	/**
+	 * Reads saved Q-values from a file
+	 */
 	public QValuesSet readQValuesFromFile(int index){
 		QValuesSet set = new QValuesSet();
 		try{
@@ -164,6 +175,9 @@ public class TaskExecution {
 		return set;
 	}
 	
+	/**
+	 * Allows the human to practice using the simulated interface for two simple sessions before beginning training
+	 */
 	public void runPracticeSession(){
 		Main.saveToFile = false;
 		MyWorld practiceWorld1 = new MyWorld(Constants.PRACTICE, false, 1, 0, 0);
@@ -283,6 +297,9 @@ public class TaskExecution {
 			gameView.setTitleAndRoundLabel(str, roundNum, color);
 	}
 	
+	/**
+	 * To be consistent across all participants, the initial state for each case was identical and is specified here
+	 */
 	public State initialState(MyWorld myWorld, int roundNum){
 		if(myWorld.typeOfWorld == Constants.PRACTICE){
 			if(roundNum == 1){

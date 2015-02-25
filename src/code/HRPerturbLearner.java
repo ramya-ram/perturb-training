@@ -166,8 +166,4 @@ public class HRPerturbLearner extends LearningAlgorithm {
 		}
 		return probForPolicies;
 	}
-	
-	public boolean isPastPolicy(int index) {
-		return index > 0; //the first (index 0) policy is the current policy
-	}
 }

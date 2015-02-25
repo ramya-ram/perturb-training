@@ -92,6 +92,9 @@ public class QLearner extends LearningAlgorithm {
 		}
     }
 	
+	/**
+	 * This function saves the current Q-values (robot and joint Q-values) to a file so that the robot can read in the values and start with base knowledge when working with a human
+	 */
 	public void saveOfflineLearning() {
 		try{
 			BufferedWriter jointWriter = new BufferedWriter(new FileWriter(new File(Constants.jointQValuesFile), true));

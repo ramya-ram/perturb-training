@@ -93,7 +93,7 @@ public class LearningAlgorithm {
 	}
 	
 	/**
-	 * Updates the joint QValues and the robot's QValues based on an interaction
+	 * Update the joint Q-values and the robot Q-values based on an interaction
 	 */
 	public void updateQValues(State state, HumanRobotActionPair agentActions, State nextState, double reward){
 		//if there's a library of q-value functions, update all of them
@@ -109,6 +109,9 @@ public class LearningAlgorithm {
 		}
 	}
 	
+	/**
+	 * Update the current Q-values set (both the robot and joint Q-values) for this particular state, joint action, and next state
+	 */
 	public void updateOneQValuesSet(State state, HumanRobotActionPair agentActions, State nextState, double reward){
 		int humanAction = agentActions.getHumanAction().ordinal();
 		int robotAction = agentActions.getRobotAction().ordinal();
@@ -402,6 +405,10 @@ public class LearningAlgorithm {
 		return response;
 	}
 	
+	/**
+	 * Parse text the human entered while working with the simulated robot
+	 * Extract the communication type and the human and robot action from this text
+	 */
 	public CommResponse parseHumanInput(String text, Action suggestedHumanAction, State currState){
 		CommType commType = CommType.NONE;
 		Action humanAction = Action.WAIT;
@@ -433,6 +440,9 @@ public class LearningAlgorithm {
 		return new CommResponse(commType, humanAction, robotAction);
 	}
 	
+	/**
+	 * Convert entered string to the appropriate action and check if the action is a possible/allowed action
+	 */
 	public Action convertToAction(String str, List<Action> possibleActions){
 		str = str.trim();
 		System.out.println("converting "+str);
@@ -502,18 +512,6 @@ public class LearningAlgorithm {
 		} catch(Exception e){
 			e.printStackTrace();
 		}
-	}
-	
-	/**
-	 * Computes a policy (indicating what action should be taken for each state) given the q value table
-	 */
-	public Policy computePolicy(){
-		HumanRobotActionPair[] policy = new HumanRobotActionPair[mdp.states.size()];
-		for(State state : mdp.states()){
-			HumanRobotActionPair actions = getGreedyJointAction(state).getFirst();
-			policy[state.getId()] = actions;
-		}
-		return new Policy(policy);
 	}
 	
 	/**

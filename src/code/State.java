@@ -17,6 +17,9 @@ public class State {
 		return id;
 	}
 	
+	/**
+	 * This string is sent to the arduino to display the current intensities of the fires on the LED lights
+	 */
 	public String getArduinoString(){
 		String str = "";
 		for(int i=0; i<stateOfFires.length; i++){

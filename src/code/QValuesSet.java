@@ -1,7 +1,7 @@
 package code;
 
 /**
- * Used to transfer q values between sessions
+ * Used to store and transfer a Q-values set that includes both the robot Q-values Q(s, a_r) and the joint Q-values Q(s, a_h, a_r)
  */
 public class QValuesSet {
 	public double[][] robotQValues; 
@@ -13,6 +13,9 @@ public class QValuesSet {
 		this(null, null);
 	}
 		
+	/**
+	 * Does a deep copy of the Q-values set (copies every element rather than the references)
+	 */
 	public QValuesSet(double[][] robotQValues_param, double[][][] jointQValues_param){
 		this.robotQValues = new double[MyWorld.mdp.states.size()][Action.values().length];//new HashMap<StateRobotActionPair, Double>();
 		this.jointQValues = new double[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
