@@ -34,12 +34,18 @@ public class RobotClientHandler implements Runnable {
         t.start();
     }
     
+    /**
+     * Sends the given message to the robot
+     */
     public void sendMessage(String msg) throws Exception {	
 		out.println(msg);
 		out.flush();
 		System.out.println("Message to robot: " + msg);	
 	}
 
+    /**
+     * Handles getting messages from the robot (which is a socket in ROS)
+     */
     public String getMessage() throws Exception {
     	String message = null;
     	boolean messageReceived = false;

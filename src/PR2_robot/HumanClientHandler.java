@@ -38,12 +38,18 @@ public class HumanClientHandler {
         }
     }
 
+    /**
+     * When a message is received, it is saved as a variable to be used by another class/function
+     */
     @OnWebSocketMessage
     public void onMessage(String message) {
     	HumanClientHandler.message = message;
     	System.out.println("Message from human: " + message);
     }
     
+    /**
+     * Sends the given message to Google Web Speech Recognition through a web socket
+     */
     public static void sendMessage(String msg) {
         try {
         	System.out.println("Message to human: "+msg);
@@ -53,6 +59,9 @@ public class HumanClientHandler {
         }
     }
     
+    /**
+     * Resets to no message to indicate that the human has not yet responded
+     */
     public static void resetMessage() {
     	HumanClientHandler.message = "";
     }

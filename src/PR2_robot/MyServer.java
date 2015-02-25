@@ -32,6 +32,9 @@ public class MyServer {
     static int NUM_SECS_RESEND = 15;
     static int resendTimeLeft = NUM_SECS_RESEND; 
 
+    /**
+     * Connects to both the human (through Google Web Speech Recognition) and robot (through ROS) clients
+     */
     public MyServer() {
         try {
         	timer = new Timer(1000, timerListener());
@@ -51,6 +54,9 @@ public class MyServer {
         }
     }
     
+    /**
+     * Sends a message to the client specified by the 'client' parameter
+     */
     public void sendMessage(String msg, int client) throws Exception{
     	lastMessageSent = new String(msg);
     	if(client == Constants.ROBOT){
@@ -60,6 +66,11 @@ public class MyServer {
     	}
     }
     
+    /**
+     * Parses human input received from Google Web Speech Recognition
+     * Looks for keywords to determine communication type and actions
+     * Prompts experimenter if these keywords are not found or are not sufficient to determine what the human wants to do
+     */
     public CommResponse parseHumanInput(String str, Action suggestedHumanAction){
     	str = str.toLowerCase();
     	CommType type = null;
@@ -156,8 +167,12 @@ public class MyServer {
     	return "None";
     }
     
+    /**
+     * Gets messages from the human and calls parseHumanInput to determine the communication type and actions
+     * Keeps track of the time left and forces a wait action if the time goes to 0
+     * Resends a message to the client is a response hasn't been received in some amount of time
+     */
     public CommResponse getHumanMessage(Action suggestedHumanAction) {
-    	//addKeyListener();
     	try{
 			resendTimeLeft = NUM_SECS_RESEND;
 			timer.start();
@@ -170,7 +185,6 @@ public class MyServer {
 				}
 				if(LearningAlgorithm.timeLeft == 0){
 					System.out.println("time over");
-					//return "None";
     				return new CommResponse(CommType.NONE, Action.WAIT, Action.WAIT);	
     			}
 				System.out.print("");
@@ -179,9 +193,6 @@ public class MyServer {
 			String temp = HumanClientHandler.message;
 			HumanClientHandler.message = null;
 			return parseHumanInput(temp, suggestedHumanAction);
-			//String temp = HumanClientHandler.message;
-			//HumanClientHandler.message = null;
-			//return tuple;
         } catch(Exception e){
         	e.printStackTrace();
         }

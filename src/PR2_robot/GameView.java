@@ -62,30 +62,13 @@ public class GameView extends JFrame {
         initTitleGUI("start");
         setResizable(false);
         
-    	if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN_TEST || Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN){
-    		nextButton.addActionListener(new NextButtonListener());
-    		startRound.addActionListener(new StartRoundListener());
-    	} else if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN_TEST){  	
-    		addMouseListener(new MouseAdapter(){
-			    public void mousePressed(MouseEvent e){
-			    	//System.out.println("event "+e);
-			    	int buttonToPress = 3;
-			    	if(e.getButton() == buttonToPress){
-			    		System.out.println("button "+buttonToPress+" clicked");
-			    		if(nextClicked == false && nextButton.isEnabled() && !titleView){
-			    			nextClicked = true;
-			    			//System.out.println("setting nextClicked to true");
-			    		}
-			    		if(startRoundClicked == false && startRound.isEnabled() && titleView){
-			    			startRoundClicked = true;
-			    			//System.out.println("setting startRoundClicked to true");
-			    		}
-			    	}
-			    }
-	        });
-    	}
+		nextButton.addActionListener(new NextButtonListener());
+		startRound.addActionListener(new StartRoundListener());
     }
     
+    /**
+     * Creates a title GUI screen with a message specified by the associated jpg image in data/
+     */
     public void initTitleGUI(String title){
     	titleView = true;
     	getContentPane().removeAll();
@@ -141,6 +124,10 @@ public class GameView extends JFrame {
         setVisible(true);     
     }
 
+    /**
+     * Initializes the main GUI screen that participants view to interact with the simulated robot
+     * The particular session, the time, the state of the fires, the actions of both team members, and a text field for input are displayed to allow for interaction
+     */
     public void initGUI() {
     	titleView = false;
     	getContentPane().removeAll();
@@ -285,6 +272,9 @@ public class GameView extends JFrame {
     	startRound.setEnabled(enable);
     }
     
+    /**
+     * Wait for the next button to be clicked before moving on to the next time step
+     */
     public void waitForNextClick() {
 		focusNextButton();
 
@@ -296,6 +286,9 @@ public class GameView extends JFrame {
 		System.out.println("nextclicked now false");
     }
     
+    /**
+     * Wait for the start round button to be clicked before moving on to the next interaction round
+     */
     public void waitForStartRoundClick() {
 		focusStartRound();
 
@@ -323,6 +316,9 @@ public class GameView extends JFrame {
     		timeLabel.setText("Time Left: "+timeLeft);	
     }
     
+    /**
+     * Updates the images of the 5 fires after each time step to reflect each fire's intensity level
+     */
     public void updateState(State state) {
     	stateView.removeAll();
         for(int i=0; i < state.stateOfFires.length; i++){
