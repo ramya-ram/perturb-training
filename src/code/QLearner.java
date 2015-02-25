@@ -25,14 +25,14 @@ public class QLearner extends LearningAlgorithm {
 		}
 	}
 	
-	public Policy run(MyWorld myWorld, boolean withHuman){
-		return run(myWorld, withHuman, null);
+	public void run(MyWorld myWorld, boolean withHuman){
+		run(myWorld, withHuman, null);
 	}
 	
 	/**
 	 * Run QLearning for the number of episodes specified and see how accumulated reward changes over these episodes
 	 */
-	public Policy run(MyWorld myWorld, boolean withHuman, State initialStateHuman) {
+	public void run(MyWorld myWorld, boolean withHuman, State initialStateHuman) {
 		this.myWorld = myWorld;
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
@@ -55,7 +55,6 @@ public class QLearner extends LearningAlgorithm {
 			Main.gameView.setStartRoundEnable(true);
 			Main.gameView.waitForStartRoundClick();
 		}
-		Policy policy = null;
 		
 		try{
 	        for(int i = 0; i < numEpisodes; i++) {
@@ -91,6 +90,5 @@ public class QLearner extends LearningAlgorithm {
 		} catch(Exception e){
 			e.printStackTrace();
 		}
-		return policy;
     }
 }

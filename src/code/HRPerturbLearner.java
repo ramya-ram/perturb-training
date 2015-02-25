@@ -25,14 +25,14 @@ public class HRPerturbLearner extends LearningAlgorithm {
 		timer = new Timer(1000, timerListener());
 	}
 	
-	public Policy runHRPerturb(boolean withHuman) {
-		return runHRPerturb(withHuman, null);
+	public void runHRPerturb(boolean withHuman) {
+		runHRPerturb(withHuman, null);
 	}
 	
 	/**
 	 * Runs the policy reuse algorithm for the number of episodes specified
 	 */
-	public Policy runHRPerturb(boolean withHuman, State initialStateHuman) {
+	public void runHRPerturb(boolean withHuman, State initialStateHuman) {
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
 		Main.currWithSimulatedHuman = withHuman;
@@ -54,7 +54,6 @@ public class HRPerturbLearner extends LearningAlgorithm {
 			Main.gameView.setStartRoundEnable(true);
 			Main.gameView.waitForStartRoundClick();
 		}
-		Policy policy = null;
 
 		//starting policy reuse algorithm
 		try{
@@ -128,7 +127,6 @@ public class HRPerturbLearner extends LearningAlgorithm {
 		} catch(Exception e){
 			e.printStackTrace();
 		}	
-		return policy;
 	}
 	
 	public void printWeights(){
