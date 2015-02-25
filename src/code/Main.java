@@ -104,8 +104,8 @@ public class Main {
 					perturbQ.executeTask();
 					
 					//PERTURBATION - HRPR
-					TaskExecution HRPR = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.HRPR);
-					HRPR.executeTask();
+					TaskExecution HRPerturb = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.HR_PERTURB);
+					HRPerturb.executeTask();
 					
 					BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPerturbName), true));
 					BufferedWriter rewardPerturbQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbQName), true));
@@ -154,8 +154,8 @@ public class Main {
 					perturbQ.executeTask();
 				} else if(trainingType.equalsIgnoreCase("BH")){
 					//PERTURBATION
-					TaskExecution HRPR = new TaskExecution(gameView, trainingWorldsPerturb, testingWorlds, ExperimentCondition.HRPR);
-					HRPR.executeTask();
+					TaskExecution HRPerturb = new TaskExecution(gameView, trainingWorldsPerturb, testingWorlds, ExperimentCondition.HR_PERTURB);
+					HRPerturb.executeTask();
 				}
 				Main.gameView.initTitleGUI("end");
 				Main.gameView.setTitleAndRoundLabel("", 0, Color.BLACK);

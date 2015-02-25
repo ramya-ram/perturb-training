@@ -206,11 +206,11 @@ public class TaskExecution {
 		learners.add(baseQLearner.currQValues);
 		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+0, Constants.print);
 		
-		if(condition == ExperimentCondition.HRPR){
+		if(condition == ExperimentCondition.HR_PERTURB){
 			//perturbation training sessions
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
-				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.HRPR);
+				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.HR_PERTURB);
 				setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false);
 				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+1));
@@ -244,7 +244,7 @@ public class TaskExecution {
 	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
 	 */
 	public void runTestingPhase(List<QValuesSet> trainedLearners){
-		if(condition == ExperimentCondition.HRPR){
+		if(condition == ExperimentCondition.HR_PERTURB){
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
 				HRPerturbLearner perturbLearner = new HRPerturbLearner(testWorld, trainedLearners);
