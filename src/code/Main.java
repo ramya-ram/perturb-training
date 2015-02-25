@@ -18,7 +18,10 @@ public class Main {
 			SIMULATION_HUMAN_TRAIN_TEST = 1, //use for human experiments where participants work with the simulation environment for training and testing
 			SIMULATION_HUMAN_TRAIN = 2, //use for human experiments where participants work with the simulation environment only for training
 			ROBOT_HUMAN_TEST = 3, //use for human experiments where participants work with the robot in testing after training in simulation
-			CREATE_PREDEFINED = 4;
+			
+			CREATE_PREDEFINED = 4, //use for creating predefined test cases for human subject experiments (given a state and joint action, the next state will always be the same across participants)
+			CREATE_OFFLINE_QVALUES = 5; //use for running offline deterministic simulations and having these values saved to a file so that the robot starts with base knowledge when working with a human
+	
 	public static int CURRENT_EXECUTION = ROBOT_HUMAN_TEST;
 	
 	public static boolean currWithSimulatedHuman = false;
@@ -51,6 +54,13 @@ public class Main {
 		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
 			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, Constants.testWind_test[i-1], Constants.testDryness_test[i-1]);
 			testingWorlds.add(testWorld);
+		}
+		
+		if(CURRENT_EXECUTION == CREATE_OFFLINE_QVALUES){
+			QLearner qLearnerProce = new QLearner(null, ExperimentCondition.PROCE_Q);
+			qLearnerProce.run(trainingWorldsProce.get(0), false /*withHuman*/);
+			qLearnerProce.saveOfflineLearning();
+			return;
 		}
 		
 		if(CURRENT_EXECUTION == CREATE_PREDEFINED){
