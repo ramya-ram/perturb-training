@@ -122,6 +122,7 @@ public class TaskExecution {
 		}
 		return trainedQValues;
 	}
+	
 	/**
 	 * Reads saved Q-values from a file
 	 */
@@ -197,7 +198,6 @@ public class TaskExecution {
 			e.printStackTrace();
 		}
 	}
-
 	
 	/**
 	 * Run all training sessions

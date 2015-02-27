@@ -7,8 +7,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -24,7 +22,6 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import code.Main;
 import code.State;
 	
 /**
@@ -110,7 +107,6 @@ public class GameView extends JFrame {
         startRound.setAlignmentX(Component.CENTER_ALIGNMENT);
         startRound.setAlignmentY(Component.CENTER_ALIGNMENT);
         startRound.setEnabled(false);
-        //startRound.addActionListener(new StartRoundListener());
         panel.add(startRound);
         
         JPanel bottomPanel = new JPanel();
@@ -163,7 +159,7 @@ public class GameView extends JFrame {
         
         stateView = new JPanel();
         updateState(new State(new int[]{0,0,0,0,0}));    
-        centerPanel.add(stateView);//, BorderLayout.CENTER);
+        centerPanel.add(stateView);
         
         JPanel fireNamesPanel = new JPanel();
         fireNamesPanel.setBackground(Color.WHITE);
@@ -231,7 +227,6 @@ public class GameView extends JFrame {
         nextButton.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
         nextButton.setAlignmentX(CENTER_ALIGNMENT);
         nextButton.setEnabled(false);
-        //nextButton.addActionListener(new NextButtonListener());
         bottomPanel.add(nextButton, BorderLayout.SOUTH);
 
         add(bottomPanel, BorderLayout.SOUTH);
