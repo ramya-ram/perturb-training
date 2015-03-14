@@ -46,10 +46,8 @@ public class QLearner extends LearningAlgorithm {
 		}
 		if(withHuman)
 			numEpisodes = 1;
-		
-		resetCommunicationCounts();	
-		System.out.println("testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness);
-		
+		System.out.println("running for "+numEpisodes+" episodes");
+		resetCommunicationCounts();			
 		if(withHuman && Main.gameView != null){
 			System.out.println("with human");
 			Main.gameView.setStartRoundEnable(true);
@@ -101,21 +99,27 @@ public class QLearner extends LearningAlgorithm {
 			BufferedWriter robotWriter = new BufferedWriter(new FileWriter(new File(Constants.robotQValuesFile), true));
 	
 	    	int num=0;
-			int statesPerFire = Constants.STATES_PER_FIRE;
-	        for(int i=0; i<statesPerFire; i++){
-				for(int j=0; j<statesPerFire; j++){
-					for(int k=0; k<statesPerFire; k++){
-						for(int l=0; l<statesPerFire; l++){
-							for(int m=0; m<statesPerFire; m++){
+			int statesPerItem = Constants.STATES_PER_ITEM;
+			int numPos = Constants.NUM_POS;
+
+	        for(int i=0; i<statesPerItem; i++){
+				for(int j=0; j<statesPerItem; j++){
+					for(int k=0; k<statesPerItem; k++){
+						for(int l=0; l<statesPerItem; l++){
+							for(int m=0; m<statesPerItem; m++){
 								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);
-								for(Action robotAction : Action.values()){
-									double robotValue = currQValues.robotQValues[state.getId()][robotAction.ordinal()];
-									robotWriter.write(robotValue+",");
-									for(Action humanAction : Action.values()){
-										num++;
-										double jointValue = currQValues.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()];
-										jointWriter.write(jointValue+",");
+								for(int humanPos=0; humanPos<numPos; humanPos++){
+									for(int robotPos=0; robotPos<numPos; robotPos++){
+										State state = new State(stateOfFires, humanPos, robotPos);	
+										for(Action robotAction : Action.values()){
+											double robotValue = currQValues.robotQValues[state.getId()][robotAction.ordinal()];
+											robotWriter.write(robotValue+",");
+											for(Action humanAction : Action.values()){
+												num++;
+												double jointValue = currQValues.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()];
+												jointWriter.write(jointValue+",");
+											}
+										}
 									}
 								}
 							}

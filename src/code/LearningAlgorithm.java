@@ -44,7 +44,7 @@ public class LearningAlgorithm {
         long startTime = System.currentTimeMillis();
         
 		State state = null;
-		if(initialStateHuman != null && Main.CURRENT_EXECUTION != Main.SIMULATION)
+		if(initialStateHuman != null) //) && Main.CURRENT_EXECUTION != Main.SIMULATION)
 			state = initialStateHuman.clone();
 		else
 			state = myWorld.initialState().clone();
@@ -135,12 +135,18 @@ public class LearningAlgorithm {
 	public HumanRobotActionPair getAgentActionsSimulation(State state){
 		HumanRobotActionPair proposedJointAction = null;
 		if(Tools.rand.nextDouble() < Constants.EPSILON){
+			if(Main.currWithSimulatedHuman)
+				System.out.println("random action");
+			Action[] possibleHumanActions = mdp.humanAgent.actions(state);
 			Action[] possibleRobotActions = mdp.robotAgent.actions(state);
-			Action[] possibleHumanActions = mdp.humanAgent.actions(state); //from robot state because that's what robot sees
-	        Action robotAction = possibleRobotActions[Tools.rand.nextInt(possibleRobotActions.length)];
 	        Action humanAction = possibleHumanActions[Tools.rand.nextInt(possibleHumanActions.length)];
+	        Action robotAction = possibleRobotActions[Tools.rand.nextInt(possibleRobotActions.length)];
 	        proposedJointAction = new HumanRobotActionPair(humanAction, robotAction);
 		} else { // otherwise, choose the best action/the one with the highest q value
+			if(Main.currWithSimulatedHuman){
+				Tools.printArray(mdp.humanAgent.actions(state));
+				Tools.printArray(mdp.robotAgent.actions(state));
+			}
 			Pair<HumanRobotActionPair, Double> proposed = getGreedyJointAction(state);
 			proposedJointAction = proposed.getFirst();
 		}
@@ -234,8 +240,8 @@ public class LearningAlgorithm {
 	
 	public String getPrintableFromAction(Action action){
 		if(action != Action.WAIT){
-			int fireIndex = Integer.parseInt(action.name().substring(7, 8));
-			return "extinguish "+MyWorld.convertToFireName(fireIndex);
+			//int fireIndex = Integer.parseInt(action.name().substring(7, 8));
+			return "extinguish ";//+MyWorld.convertToFireName(fireIndex);
 		}
 		return "have to wait this turn";
 	}
@@ -490,11 +496,11 @@ public class LearningAlgorithm {
 	 */
 	public void simulateWaitTime(State state) {
 		int stateScore = 0;
-		for(int i=0; i<state.stateOfFires.length; i++){
-			int num = state.stateOfFires[i];
-			if(num == Constants.BURNOUT)
-				stateScore += 0;
-			else
+		for(int i=0; i<state.stateOfItems.length; i++){
+			int num = state.stateOfItems[i];
+			//if(num == Constants.BURNOUT)
+			//	stateScore += 0;
+			//else
 				stateScore += num;
 		}
 		System.out.println("score "+stateScore);

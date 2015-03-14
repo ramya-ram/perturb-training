@@ -82,18 +82,23 @@ public class TaskExecution {
 		try {
 			BufferedWriter robotWriter = new BufferedWriter(new FileWriter(new File(Constants.trainedQValuesDir+"robot"+index+".txt")));
 			BufferedWriter jointWriter = new BufferedWriter(new FileWriter(new File(Constants.trainedQValuesDir+"joint"+index+".txt")));
-			int statesPerFire = Constants.STATES_PER_FIRE;
+			int statesPerFire = Constants.STATES_PER_ITEM;
+			int numPos = Constants.NUM_POS;
 			for(int i=0; i<statesPerFire; i++){
 				for(int j=0; j<statesPerFire; j++){
 					for(int k=0; k<statesPerFire; k++){
 						for(int l=0; l<statesPerFire; l++){
 							for(int m=0; m<statesPerFire; m++){
-								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);													
-								for(Action robotAction : Action.values()){
-									robotWriter.write(learner.robotQValues[state.getId()][robotAction.ordinal()]+",");
-									for(Action humanAction : Action.values()){
-										jointWriter.write(learner.jointQValues[state.getId()][robotAction.ordinal()][humanAction.ordinal()]+",");
+								int[] stateOfItems = {i,j,k,l,m};
+								for(int humanPos=0; humanPos<numPos; humanPos++){
+									for(int robotPos=0; robotPos<numPos; robotPos++){
+										State state = new State(stateOfItems, humanPos, robotPos);	
+										for(Action robotAction : Action.values()){
+											robotWriter.write(learner.robotQValues[state.getId()][robotAction.ordinal()]+",");
+											for(Action humanAction : Action.values()){
+												jointWriter.write(learner.jointQValues[state.getId()][robotAction.ordinal()][humanAction.ordinal()]+",");
+											}
+										}
 									}
 								}
 							}
@@ -143,26 +148,31 @@ public class TaskExecution {
 			
 			int jointNum=0;
 			int robotNum=0;
-			int statesPerFire = Constants.STATES_PER_FIRE;
-	        for(int i=0; i<statesPerFire; i++){
-				for(int j=0; j<statesPerFire; j++){
-					for(int k=0; k<statesPerFire; k++){
-						for(int l=0; l<statesPerFire; l++){
-							for(int m=0; m<statesPerFire; m++){
-								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);													
-								for(Action robotAction : Action.values()){
-									double robotValue = Double.parseDouble(robotValues[robotNum]);
-									if(robotValue != 0){
-										set.robotQValues[state.getId()][robotAction.ordinal()] = robotValue;	
-									}
-									robotNum++;
-									for(Action humanAction : Action.values()){
-										double jointValue = Double.parseDouble(jointValues[jointNum]);
-										if(jointValue != 0){
-											set.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = jointValue;
+			int statesPerItem = Constants.STATES_PER_ITEM;
+			int numPos = Constants.NUM_POS;
+	        for(int i=0; i<statesPerItem; i++){
+				for(int j=0; j<statesPerItem; j++){
+					for(int k=0; k<statesPerItem; k++){
+						for(int l=0; l<statesPerItem; l++){
+							for(int m=0; m<statesPerItem; m++){
+								int[] stateOfItems = {i,j,k,l,m};
+								for(int humanPos=0; humanPos<numPos; humanPos++){
+									for(int robotPos=0; robotPos<numPos; robotPos++){
+										State state = new State(stateOfItems, humanPos, robotPos);	
+										for(Action robotAction : Action.values()){
+											double robotValue = Double.parseDouble(robotValues[robotNum]);
+											if(robotValue != 0){
+												set.robotQValues[state.getId()][robotAction.ordinal()] = robotValue;	
+											}
+											robotNum++;
+											for(Action humanAction : Action.values()){
+												double jointValue = Double.parseDouble(jointValues[jointNum]);
+												if(jointValue != 0){
+													set.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = jointValue;
+												}
+												jointNum++;
+											}
 										}
-										jointNum++;
 									}
 								}
 							}
@@ -181,8 +191,8 @@ public class TaskExecution {
 	 */
 	public void runPracticeSession(){
 		Main.saveToFile = false;
-		MyWorld practiceWorld1 = new MyWorld(Constants.PRACTICE, false, 1, 0, 0);
-		MyWorld practiceWorld2 = new MyWorld(Constants.PRACTICE, false, 2, 0, 0);
+		MyWorld practiceWorld1 = new MyWorld(Constants.PRACTICE, false, 1);
+		MyWorld practiceWorld2 = new MyWorld(Constants.PRACTICE, false, 2);
 		
 		//practice session	
 		QLearner practice1 = new QLearner(null, ExperimentCondition.PROCE_Q);
@@ -213,12 +223,12 @@ public class TaskExecution {
 		MyWorld trainWorld0 = trainingWorlds.get(0);
 		setTitleLabel(trainWorld0, 1, colorsTraining[0]);
 		baseQLearner.run(trainWorld0, false /*withHuman*/);
-		baseQLearner.run(trainWorld0, true, initialState(trainWorld0, 1));
+ 		baseQLearner.run(trainWorld0, true, initialState(trainWorld0, 1));
 		setTitleLabel(trainWorld0, 2, colorsTraining[0]);
 		baseQLearner.run(trainWorld0, false);
 		baseQLearner.run(trainWorld0, true, initialState(trainWorld0, 2));
 		learners.add(baseQLearner.currQValues);
-		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+0, Constants.print);
+		//baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+0, Constants.print);
 		
 		if(condition == ExperimentCondition.HR_PERTURB){
 			//perturbation training sessions
@@ -232,7 +242,7 @@ public class TaskExecution {
 				perturbLearner.run(trainWorld, false);
 				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
 				learners.add(perturbLearner.currQValues);
-				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
+				//perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
 			}
 		} else { //both perturb and proce Q-learning use one qlearner to learn all training tasks
 			//extra training sessions after base session
@@ -245,7 +255,7 @@ public class TaskExecution {
 				setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				baseQLearner.run(trainWorld, false);
 				baseQLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
-				baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
+				//baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
 			}
 		}
 		
@@ -263,20 +273,20 @@ public class TaskExecution {
 				MyWorld testWorld = testingWorlds.get(i);
 				HRPerturbLearner perturbLearner = new HRPerturbLearner(testWorld, trainedLearners);
 				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
-				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				//perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				perturbLearner.runHRPerturb(false);
 				perturbLearner.runHRPerturb(true, initialState(testWorld, testWorld.sessionNum));
-				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				//perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 			}
 		} else {
 			//Q-learning proce and perturb testing sessions
 			for(MyWorld testWorld : testingWorlds){
 				QLearner testQLearner = new QLearner(trainedLearners.get(0), condition);
 				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
-				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				//testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				testQLearner.run(testWorld, false);
 				testQLearner.run(testWorld, true, initialState(testWorld, testWorld.sessionNum));
-				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				//testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 			}
 		}
 	}
@@ -292,7 +302,7 @@ public class TaskExecution {
 				str+= "Testing Session ";
 		} else
 			str+= "Practice Session ";
-		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
+		//str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
 		if(gameView != null)
 			gameView.setTitleAndRoundLabel(str, roundNum, color);
 	}
@@ -301,73 +311,6 @@ public class TaskExecution {
 	 * To be consistent across all participants, the initial state for each case was identical and is specified here
 	 */
 	public State initialState(MyWorld myWorld, int roundNum){
-		if(myWorld.typeOfWorld == Constants.PRACTICE){
-			if(roundNum == 1){
-				int[] stateOfFires = {3,3,3,3,3};
-				return new State(stateOfFires);
-			} else if(roundNum == 2){
-				int[] stateOfFires = {3,2,0,3,1};
-				return new State(stateOfFires);
-			}	
-		} else if(myWorld.typeOfWorld == Constants.TRAINING){
-			if(myWorld.perturb){
-				switch(roundNum){
-					case 1:
-						int[] stateOfFires = {2,3,3,1,2};
-						return new State(stateOfFires);
-					case 2:
-						int[] stateOfFires1 = {2,2,1,3,3};
-						return new State(stateOfFires1);
-					case 3:
-						int[] stateOfFires2 = {0,2,1,2,3};
-						return new State(stateOfFires2);
-					case 4:
-						int[] stateOfFires3 = {0,1,1,2,3};
-						return new State(stateOfFires3);
-					case 5:
-						int[] stateOfFires4 = {3,3,3,2,3};
-						return new State(stateOfFires4);
-					case 6:
-						int[] stateOfFires5 = {3,3,2,3,1};
-						return new State(stateOfFires5);
-				}
-			} else if(!myWorld.perturb) {
-				switch(roundNum){
-					case 1:
-						int[] stateOfFires = {2,3,3,1,2};
-						return new State(stateOfFires);
-					case 2:
-						int[] stateOfFires1 = {2,2,1,3,3};
-						return new State(stateOfFires1);
-					case 3:
-						int[] stateOfFires2 = {3,1,3,1,2};
-						return new State(stateOfFires2);
-					case 4:
-						int[] stateOfFires3 = {2,3,1,1,3};
-						return new State(stateOfFires3);
-					case 5:
-						int[] stateOfFires4 = {3,3,2,3,3};
-						return new State(stateOfFires4);
-					case 6:
-						int[] stateOfFires5 = {3,2,3,3,3};
-						return new State(stateOfFires5);
-				}
-			}
-		} else if(myWorld.typeOfWorld == Constants.TESTING) {
-			if(roundNum == 1){
-				int[] stateOfFires = {0,1,1,1,0};
-				return new State(stateOfFires);
-			} else if(roundNum == 2){
-				int[] stateOfFires = {3,1,3,1,1};
-				return new State(stateOfFires);
-			} else if(roundNum == 3){
-				int[] stateOfFires = {1,0,3,3,1};
-				return new State(stateOfFires);
-			} else if(roundNum == 4){
-				int[] stateOfFires = {0,1,1,1,3};
-				return new State(stateOfFires);
-			} 
-		}
-		return null;
+		return new State(new int[]{2,1,2,2,1}, 4, 0);
 	}
 }

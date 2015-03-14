@@ -22,7 +22,7 @@ public class Main {
 			CREATE_PREDEFINED = 4, //use for creating predefined test cases for human subject experiments (given a state and joint action, the next state will always be the same across participants)
 			CREATE_OFFLINE_QVALUES = 5; //use for running offline deterministic simulations and having these values saved to a file so that the robot starts with base knowledge when working with a human
 	
-	public static int CURRENT_EXECUTION = ROBOT_HUMAN_TEST; //set CURRENT_EXECUTION to one of the above depending on which option you want to run
+	public static int CURRENT_EXECUTION = SIMULATION; //set CURRENT_EXECUTION to one of the above depending on which option you want to run
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -44,15 +44,15 @@ public class Main {
 		List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
 		List<MyWorld> trainingWorldsPerturb = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TRAINING_SESSIONS; i++){
-			MyWorld proceWorld = new MyWorld(Constants.TRAINING, false, i, Constants.testWind_train[0], Constants.testDryness_train[0]);
+			MyWorld proceWorld = new MyWorld(Constants.TRAINING, false, i);
 			trainingWorldsProce.add(proceWorld);
-			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i, Constants.testWind_train[i-1], Constants.testDryness_train[i-1]);
+			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i);
 			trainingWorldsPerturb.add(perturbWorld);
 		}
 		//construct testing worlds for both training
 		List<MyWorld> testingWorlds = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
-			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, Constants.testWind_test[i-1], Constants.testDryness_test[i-1]);
+			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i);
 			testingWorlds.add(testWorld);
 		}
 		
@@ -87,21 +87,20 @@ public class Main {
 				for(int i=0; i<Constants.NUM_AVERAGING; i++){
 					//makes simulation wind and dryness a noisy version of the real one
 					System.out.println("NEW simulation");
-					for(MyWorld trainWorld : trainingWorldsProce)
+					/*for(MyWorld trainWorld : trainingWorldsProce)
 						trainWorld.calculateSimulationWindDryness();
 					for(MyWorld trainWorld : trainingWorldsPerturb)
 						trainWorld.calculateSimulationWindDryness();
 					for(MyWorld testWorld : testingWorlds)
-						testWorld.calculateSimulationWindDryness();
+						testWorld.calculateSimulationWindDryness();*/
 					
 					//PROCEDURAL - Q-learning
-					TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
-					proceQ.executeTask();
-					//TODO: make sure the human sessions are run for only 1 episode
+					//TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
+					//proceQ.executeTask();
 					
 					//PERTURBATION - Q-learning
-					TaskExecution perturbQ = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PERTURB_Q);
-					perturbQ.executeTask();
+					//TaskExecution perturbQ = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PERTURB_Q);
+					//perturbQ.executeTask();
 					
 					//PERTURBATION - HRPR
 					TaskExecution HRPerturb = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.HR_PERTURB);
@@ -121,12 +120,12 @@ public class Main {
 				}
 			} else {	
 				//sets simulation wind and dryness
-				for(MyWorld trainWorld : trainingWorldsProce)
+				/*for(MyWorld trainWorld : trainingWorldsProce)
 					trainWorld.setSimulationWindDryness(Constants.simulationWind_train[0], Constants.simulationDryness_train[0]);
 				for(MyWorld trainWorld : trainingWorldsPerturb)
 					trainWorld.setSimulationWindDryness(Constants.simulationWind_train[trainWorld.sessionNum-1], Constants.simulationDryness_train[trainWorld.sessionNum-1]);
 				for(MyWorld testWorld : testingWorlds)
-					testWorld.setSimulationWindDryness(Constants.simulationWind_test[testWorld.sessionNum-1], Constants.simulationDryness_test[testWorld.sessionNum-1]);
+					testWorld.setSimulationWindDryness(Constants.simulationWind_test[testWorld.sessionNum-1], Constants.simulationDryness_test[testWorld.sessionNum-1]);*/
 				
 				gameView = new GameView(CURRENT_EXECUTION);
 				if(CURRENT_EXECUTION == ROBOT_HUMAN_TEST){
@@ -186,26 +185,31 @@ public class Main {
 							
 			int jointNum=0;
 			int robotNum=0;
-			int statesPerFire = Constants.STATES_PER_FIRE;
-	        for(int i=0; i<statesPerFire; i++){
-				for(int j=0; j<statesPerFire; j++){
-					for(int k=0; k<statesPerFire; k++){
-						for(int l=0; l<statesPerFire; l++){
-							for(int m=0; m<statesPerFire; m++){
-								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);													
-								for(Action robotAction : Action.values()){
-									double robotValue = Double.parseDouble(robotValues[robotNum]);
-									if(robotValue != 0){
-										robotQValuesOffline[state.getId()][robotAction.ordinal()] = robotValue;	
-									}
-									robotNum++;
-									for(Action humanAction : Action.values()){
-										double jointValue = Double.parseDouble(jointValues[jointNum]);
-										if(jointValue != 0){
-											jointQValuesOffline[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = jointValue;
+			int statesPerItem = Constants.STATES_PER_ITEM;
+			int numPos = Constants.NUM_POS;
+	        for(int i=0; i<statesPerItem; i++){
+				for(int j=0; j<statesPerItem; j++){
+					for(int k=0; k<statesPerItem; k++){
+						for(int l=0; l<statesPerItem; l++){
+							for(int m=0; m<statesPerItem; m++){
+								int[] stateOfItems = {i,j,k,l,m};
+								for(int humanPos=0; humanPos<numPos; humanPos++){
+									for(int robotPos=0; robotPos<numPos; robotPos++){
+										State state = new State(stateOfItems, humanPos, robotPos);													
+										for(Action robotAction : Action.values()){
+											double robotValue = Double.parseDouble(robotValues[robotNum]);
+											if(robotValue != 0){
+												robotQValuesOffline[state.getId()][robotAction.ordinal()] = robotValue;	
+											}
+											robotNum++;
+											for(Action humanAction : Action.values()){
+												double jointValue = Double.parseDouble(jointValues[jointNum]);
+												if(jointValue != 0){
+													jointQValuesOffline[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = jointValue;
+												}
+												jointNum++;
+											}
 										}
-										jointNum++;
 									}
 								}
 							}
@@ -229,34 +233,39 @@ public class Main {
 			if(file.exists())
 				file.delete();
 			BufferedWriter stateWriter = new BufferedWriter(new FileWriter(file, true));
-			int statesPerFire = Constants.STATES_PER_FIRE;
+			int statesPerItem = Constants.STATES_PER_ITEM;
+			int numPos = Constants.NUM_POS;
 
-			for(int i=0; i<statesPerFire; i++){
-				for(int j=0; j<statesPerFire; j++){
-					for(int k=0; k<statesPerFire; k++){
-						for(int l=0; l<statesPerFire; l++){
-							for(int m=0; m<statesPerFire; m++){
-								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);
-								if(MyWorld.isGoalState(state))
-									continue;
-								for(Action humanAction : Action.values()){
-									for(Action robotAction : Action.values()){
-										if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
-												&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
-											State nextState;
-											HumanRobotActionPair agentActions;
-											do{
-												agentActions = new HumanRobotActionPair(humanAction, robotAction);
-												nextState = myWorld.getNextState(state, agentActions);
-												if(humanAction==Action.WAIT && robotAction==Action.WAIT)
-													break;
-											} while(state.equals(nextState));
-											if(myWorld.predefinedText.length() > 0)
-												stateWriter.write(myWorld.predefinedText+",");
-											else
-												stateWriter.write("-,");
-											num++;
+			for(int i=0; i<statesPerItem; i++){
+				for(int j=0; j<statesPerItem; j++){
+					for(int k=0; k<statesPerItem; k++){
+						for(int l=0; l<statesPerItem; l++){
+							for(int m=0; m<statesPerItem; m++){
+								int[] stateOfItems = {i,j,k,l,m};
+								for(int humanPos=0; humanPos<numPos; humanPos++){
+									for(int robotPos=0; robotPos<numPos; robotPos++){
+										State state = new State(stateOfItems, humanPos, robotPos);	
+										if(MyWorld.isGoalState(state))
+											continue;
+										for(Action humanAction : Action.values()){
+											for(Action robotAction : Action.values()){
+												if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
+														&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
+													State nextState;
+													HumanRobotActionPair agentActions;
+													do{
+														agentActions = new HumanRobotActionPair(humanAction, robotAction);
+														nextState = myWorld.getNextState(state, agentActions);
+														if(humanAction==Action.WAIT && robotAction==Action.WAIT)
+															break;
+													} while(state.equals(nextState));
+													if(myWorld.predefinedText.length() > 0)
+														stateWriter.write(myWorld.predefinedText+",");
+													else
+														stateWriter.write("-,");
+													num++;
+												}
+											}
 										}
 									}
 								}
@@ -285,25 +294,31 @@ public class Main {
 			System.out.println("next states size "+nextStates.length);
 			
 			int num=0;	
-	        for(int i=0; i<Constants.STATES_PER_FIRE; i++){
-				for(int j=0; j<Constants.STATES_PER_FIRE; j++){
-					for(int k=0; k<Constants.STATES_PER_FIRE; k++){
-						for(int l=0; l<Constants.STATES_PER_FIRE; l++){
-							for(int m=0; m<Constants.STATES_PER_FIRE; m++){
-								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);
-								if(MyWorld.isGoalState(state))
-									continue;
-								for(Action humanAction : Action.values()){
-									for(Action robotAction : Action.values()){
-										if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
-												&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
-											
-											String str1 = nextStates[num];
-											if(str1.length() > 0)
-												arr[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = str1;
-											
-											num++;
+			int statesPerItem = Constants.STATES_PER_ITEM;
+			int numPos = Constants.NUM_POS;
+	        for(int i=0; i<statesPerItem; i++){
+				for(int j=0; j<statesPerItem; j++){
+					for(int k=0; k<statesPerItem; k++){
+						for(int l=0; l<statesPerItem; l++){
+							for(int m=0; m<statesPerItem; m++){
+								int[] stateOfItems = {i,j,k,l,m};
+								for(int humanPos=0; humanPos<numPos; humanPos++){
+									for(int robotPos=0; robotPos<numPos; robotPos++){
+										State state = new State(stateOfItems, humanPos, robotPos);	
+										if(MyWorld.isGoalState(state))
+											continue;
+										for(Action humanAction : Action.values()){
+											for(Action robotAction : Action.values()){
+												if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
+														&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
+													
+													String str1 = nextStates[num];
+													if(str1.length() > 0)
+														arr[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = str1;
+													
+													num++;
+												}
+											}
 										}
 									}
 								}

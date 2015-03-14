@@ -158,7 +158,7 @@ public class GameView extends JFrame {
         centerPanel.add(firesLabel);
         
         stateView = new JPanel();
-        updateState(new State(new int[]{0,0,0,0,0}));    
+        updateState(new State(new int[]{0,0,0,0,0}, 0, 0));    
         centerPanel.add(stateView);
         
         JPanel fireNamesPanel = new JPanel();
@@ -316,9 +316,9 @@ public class GameView extends JFrame {
      */
     public void updateState(State state) {
     	stateView.removeAll();
-        for(int i=0; i < state.stateOfFires.length; i++){
+        for(int i=0; i < state.stateOfItems.length; i++){
         	JLabel label = new JLabel();
-        	label.setIcon(intensityImages[state.stateOfFires[i]]);    
+        	label.setIcon(intensityImages[state.stateOfItems[i]]);    
         	stateView.add(label);
         }
         stateView.revalidate();
