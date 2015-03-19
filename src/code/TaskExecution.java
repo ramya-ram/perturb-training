@@ -217,7 +217,7 @@ public class TaskExecution {
 	public List<QValuesSet> runTrainingPhase(){
 		Main.saveToFile = true;
 		List<QValuesSet> learners = new ArrayList<QValuesSet>();
-		
+		System.out.println("TRAINING SESSION 1");
 		//first training session -- same for procedural and perturbation
 		QLearner baseQLearner = new QLearner(null, ExperimentCondition.PROCE_Q);
 		MyWorld trainWorld0 = trainingWorlds.get(0);
@@ -233,6 +233,7 @@ public class TaskExecution {
 		if(condition == ExperimentCondition.HR_PERTURB){
 			//perturbation training sessions
 			for(int i=1; i<trainingWorlds.size(); i++){
+				System.out.println("TRAINING SESSION "+(i+1));
 				MyWorld trainWorld = trainingWorlds.get(i);
 				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.HR_PERTURB);
 				setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);

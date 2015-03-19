@@ -143,12 +143,14 @@ public class LearningAlgorithm {
 	        Action robotAction = possibleRobotActions[Tools.rand.nextInt(possibleRobotActions.length)];
 	        proposedJointAction = new HumanRobotActionPair(humanAction, robotAction);
 		} else { // otherwise, choose the best action/the one with the highest q value
-			if(Main.currWithSimulatedHuman){
+			/*if(Main.currWithSimulatedHuman){
 				Tools.printArray(mdp.humanAgent.actions(state));
 				Tools.printArray(mdp.robotAgent.actions(state));
-			}
+			}*/
 			Pair<HumanRobotActionPair, Double> proposed = getGreedyJointAction(state);
 			proposedJointAction = proposed.getFirst();
+			if(Main.currWithSimulatedHuman)
+				System.out.println("FINAL ACTION human "+proposedJointAction.getHumanAction()+" robot "+proposedJointAction.getRobotAction());
 		}
 		return proposedJointAction;
 	}
@@ -554,6 +556,8 @@ public class LearningAlgorithm {
 			for(Action robotAction : mdp.robotAgent.actions(state)){
 				HumanRobotActionPair actionPair = new HumanRobotActionPair(humanAction, robotAction);
 				double value = getJointQValue(state, actionPair);
+				if(Main.currWithSimulatedHuman)
+					System.out.println("human "+humanAction+" robot "+robotAction+" = "+value);
 				if(value > maxValue){
 					maxValue = value;
 					possibleActions.clear();

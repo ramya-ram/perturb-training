@@ -16,6 +16,8 @@ public class MyWorld {
 	public boolean perturb; //specifies if this world is for perturbation or procedural training
 	public int typeOfWorld; //specifies if this world is for training or testing
 	
+	public List<Integer> heavyItems = Arrays.asList(2,3,4);
+	
 	public List<Integer> humanPossibleItems = Arrays.asList(0,1,2,3);
 	public List<Integer> robotPossibleItems = Arrays.asList(1,2,3,4);
 	
@@ -161,13 +163,18 @@ public class MyWorld {
 		//int robotNewIndex = agentActions.getRobotAction().ordinal();
 		
 		double reward = -1;
-		reward -= Math.abs(nextState.humanPos - state.humanPos);
-	    reward -= Math.abs(nextState.robotPos - state.robotPos);
+		reward -= 1*Math.abs(nextState.humanPos - state.humanPos);
+	    reward -= 1*Math.abs(nextState.robotPos - state.robotPos);
 	    
 		if(typeOfWorld == Constants.TRAINING && perturb && sessionNum == 3){
-			reward -= nextState.stateOfItems[0];
-			reward -= nextState.stateOfItems[Constants.NUM_ITEMS-1];
+			if(heavyItems.contains(nextState.humanPos))
+				reward -= 10;			
 		}
+	    
+//		if(typeOfWorld == Constants.TRAINING && perturb && sessionNum == 3){
+//			reward -= 50*nextState.stateOfItems[0];
+//			reward -= 50*nextState.stateOfItems[Constants.NUM_ITEMS-1];
+//		}
 	
 		return reward;
 	}
@@ -250,8 +257,10 @@ public class MyWorld {
 		int humanStochasPercent = 100;
 		int robotStochasPercent = 100;
 		
-		if(typeOfWorld == Constants.TRAINING && perturb && sessionNum == 2)
-			robotStochasPercent = 50;
+		if(typeOfWorld == Constants.TRAINING && perturb && sessionNum == 2){
+			if(heavyItems.contains(robotItemIndex))
+				robotStochasPercent = 50;
+		}
 			
 		if(Main.currWithSimulatedHuman)
 			System.out.println("humanStochasPercent "+humanStochasPercent+" robotStochasPercent "+robotStochasPercent);
