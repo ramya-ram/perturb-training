@@ -55,29 +55,33 @@ public class QLearner extends LearningAlgorithm {
 		}
 		
 		try{
+			String fileName = "";
+			if(condition == ExperimentCondition.PERTURB_Q)
+				fileName = Constants.rewardPerturbQName;
+			else if(condition == ExperimentCondition.PROCE_Q)
+				fileName = Constants.rewardProceQName;
+			else if(condition == ExperimentCondition.HR_PERTURB)
+				fileName = Constants.rewardHRPerturbName;
+			File file = new File(fileName);
+			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(file, true));
 	        for(int i = 0; i < numEpisodes; i++) {
 				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 				//System.out.print(i+" ");
 	            
-	            if(withHuman && Main.saveToFile){
+	            if(/*withHuman && */Main.saveToFile){
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 						saveDataToFile(tuple.getFirst(), tuple.getSecond(), tuple.getThird());
 					else{
-						if(myWorld.typeOfWorld == Constants.TESTING){
-							String fileName = "";
-							if(condition == ExperimentCondition.PERTURB_Q)
-			    				fileName = Constants.rewardPerturbQName;
-			    			else if(condition == ExperimentCondition.PROCE_Q)
-			    				fileName = Constants.rewardProceQName;
-							BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
-
-							System.out.println("writing");
-							rewardWriter.write(""+tuple.getFirst()+", ");
-							rewardWriter.close();
-						}
+						//if(myWorld.typeOfWorld == Constants.TESTING){
+							
+							//System.out.println("writing to "+file.getAbsolutePath());
+							if(i % 100 == 0)
+								rewardWriter.write(tuple.getFirst()+", ");
+						//}
 					}
 				}
 	        }
+			rewardWriter.close();
 			long end = System.currentTimeMillis();
 			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
 				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration"+Constants.NUM_EPISODES_TEST+".csv"), true));
@@ -107,17 +111,19 @@ public class QLearner extends LearningAlgorithm {
 					for(int k=0; k<statesPerItem; k++){
 						for(int l=0; l<statesPerItem; l++){
 							for(int m=0; m<statesPerItem; m++){
-								int[] stateOfFires = {i,j,k,l,m};
+								int[] stateOfItems = {i,j,k,l,m};
 								for(int humanPos=0; humanPos<numPos; humanPos++){
 									for(int robotPos=0; robotPos<numPos; robotPos++){
-										State state = new State(stateOfFires, humanPos, robotPos);	
-										for(Action robotAction : Action.values()){
-											double robotValue = currQValues.robotQValues[state.getId()][robotAction.ordinal()];
-											robotWriter.write(robotValue+",");
-											for(Action humanAction : Action.values()){
-												num++;
-												double jointValue = currQValues.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()];
-												jointWriter.write(jointValue+",");
+										for(int robotOrientation=0; robotOrientation<numPos; robotOrientation++){
+											State state = new State(stateOfItems, humanPos, robotPos, robotOrientation);	
+											for(Action robotAction : Action.values()){
+												double robotValue = currQValues.robotQValues[state.getId()][robotAction.ordinal()];
+												robotWriter.write(robotValue+",");
+												for(Action humanAction : Action.values()){
+													num++;
+													double jointValue = currQValues.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()];
+													jointWriter.write(jointValue+",");
+												}
 											}
 										}
 									}

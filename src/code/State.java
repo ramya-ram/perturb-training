@@ -4,22 +4,25 @@ package code;
  * Representation for a state in this MDP
  */
 public class State {
-	public int[] stateOfItems;
+	public int[] stateOfBox;
 	public int humanPos;
 	public int robotPos;
+	public int robotOrientation;
 	
-	public State(int[] stateOfItems, int humanPos, int robotPos){
-		this.stateOfItems = stateOfItems.clone();
+	public State(int[] stateOfBox, int humanPos, int robotPos, int robotOrientation){
+		this.stateOfBox = stateOfBox.clone();
 		this.humanPos = humanPos;
 		this.robotPos = robotPos;
+		this.robotOrientation = robotOrientation;
 	}
 	
 	public int getId(){
 		int statesPerItem = Constants.STATES_PER_ITEM;
+		double exp = Math.pow(statesPerItem, stateOfBox.length);
 		int id = 0;
-		for(int i=0; i<stateOfItems.length; i++)
-			id += Math.pow(statesPerItem, i)*stateOfItems[i];
-		id +=  Math.pow(statesPerItem, stateOfItems.length)*humanPos + Math.pow(statesPerItem, stateOfItems.length)*Constants.NUM_POS*robotPos;
+		for(int i=0; i<stateOfBox.length; i++)
+			id += Math.pow(statesPerItem, i)*stateOfBox[i];
+		id +=  exp*humanPos + exp*Constants.NUM_POS*robotPos + exp*Constants.NUM_POS*Constants.NUM_POS*robotOrientation;
 		return id;
 	}
 	
@@ -28,11 +31,11 @@ public class State {
 	 */
 	public String getArduinoString(){
 		String str = "";
-		for(int i=0; i<stateOfItems.length; i++){
-			//if(stateOfItems[i] == Constants.NONE || stateOfItems[i] == Constants.BURNOUT)
+		for(int i=0; i<stateOfBox.length; i++){
+			//if(stateOfBox[i] == Constants.NONE || stateOfBox[i] == Constants.BURNOUT)
 			//	str += "0";
 			//else
-				str += ""+stateOfItems[i];
+				str += ""+stateOfBox[i];
 		}
 		return str;
 	}
@@ -47,8 +50,10 @@ public class State {
 			return false;
 		if(robotPos != state.robotPos)
 			return false;
-		for(int i = 0; i < stateOfItems.length; i++) {
-			if(stateOfItems[i] != state.stateOfItems[i])
+		if(robotOrientation != state.robotOrientation)
+			return false;
+		for(int i = 0; i < stateOfBox.length; i++) {
+			if(stateOfBox[i] != state.stateOfBox[i])
 				return false;  
 		}
 		return true;
@@ -56,36 +61,36 @@ public class State {
 	
 	public int getNumItemsInState(int stateOfItem){
 		int count = 0;
-		for(int i=0; i<stateOfItems.length; i++){
-			if(stateOfItems[i] == stateOfItem)
+		for(int i=0; i<stateOfBox.length; i++){
+			if(stateOfBox[i] == stateOfItem)
 				count++;
 		}
 		return count;
 	}
 	
 	public State clone(){
-		return new State(stateOfItems.clone(), humanPos, robotPos);
+		return new State(stateOfBox.clone(), humanPos, robotPos, robotOrientation);
 	}
 	
 	public boolean anyItemInState(int stateOfItem){
-		for(int i=0; i<stateOfItems.length; i++){
-			if(stateOfItems[i] == stateOfItem)
+		for(int i=0; i<stateOfBox.length; i++){
+			if(stateOfBox[i] == stateOfItem)
 				return true;
 		}
 		return false;
 	}
 	
 	public boolean allItemsInState(int stateOfItem1){
-		for(int i=0; i<stateOfItems.length; i++){
-			if(stateOfItems[i] != stateOfItem1)
+		for(int i=0; i<stateOfBox.length; i++){
+			if(stateOfBox[i] != stateOfItem1)
 				return false;
 		}
 		return true;
 	}
 	
 	public boolean noItemsInState(int stateOfItem){
-		for(int i=0; i<stateOfItems.length; i++){
-			if(stateOfItems[i] == stateOfItem)
+		for(int i=0; i<stateOfBox.length; i++){
+			if(stateOfBox[i] == stateOfItem)
 				return false;
 		}
 		return true;
@@ -93,34 +98,34 @@ public class State {
 	
 	public String toStringFile() {
 		String str = "";
-		for(int i=0; i<stateOfItems.length; i++){
-			str+=stateOfItems[i];
+		for(int i=0; i<stateOfBox.length; i++){
+			str+=stateOfBox[i];
 		}
-		str+= ","+humanPos+","+robotPos;
+		str+= ","+humanPos+","+robotPos+","+robotOrientation;
 		return str;
 	}
 	
 	public String toString() {
 		String str = "";
-		for(int i=0; i<stateOfItems.length; i++){
-			if(i == stateOfItems.length-1)
-				str+=getCharFromIntensity(stateOfItems[i]);
+		for(int i=0; i<stateOfBox.length; i++){
+			if(i == stateOfBox.length-1)
+				str+=getCharFromIntensity(stateOfBox[i]);
 			else
-				str+=getCharFromIntensity(stateOfItems[i])+" ";
+				str+=getCharFromIntensity(stateOfBox[i])+" ";
 		}
-		str+=" Human: "+humanPos+" Robot: "+robotPos;
+		str+=" HumanPos: "+humanPos+" RobotPos: "+robotPos+" RobotOrient: "+robotOrientation;
 		return str;
 	}
 	
 	public String toStringSimple() {
 		String str = "";
-		for(int i=0; i<stateOfItems.length; i++){
-			if(i == stateOfItems.length-1)
-				str+=getCharFromIntensity(stateOfItems[i]);
+		for(int i=0; i<stateOfBox.length; i++){
+			if(i == stateOfBox.length-1)
+				str+=getCharFromIntensity(stateOfBox[i]);
 			else
-				str+=getCharFromIntensity(stateOfItems[i])+" ";
+				str+=getCharFromIntensity(stateOfBox[i])+" ";
 		}
-		str+= humanPos+", "+robotPos;
+		str+= humanPos+", "+robotPos+", "+robotOrientation;
 		return str;
 	}
 	

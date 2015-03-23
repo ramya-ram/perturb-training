@@ -17,19 +17,19 @@ public class Constants {
 	public static double THRESHOLD_REJECT = 2;
 	
 	//num of times to run
-	public static final int NUM_EPISODES = 750000;
-	public static final int NUM_EPISODES_TEST = 1500;
-	public static final int NUM_STEPS_PER_EPISODE = 20; 
+	public static final int NUM_EPISODES = 100000;//500000;
+	public static final int NUM_EPISODES_TEST = 100;//1500;
+	public static final int NUM_STEPS_PER_EPISODE = 200; 
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
 	public static boolean print = false;
 	public static int NUM_AVERAGING = 1;
 	
-	public static int STATES_PER_ITEM = 3;
-	public static int NUM_ITEMS = 5;
-	public static int NUM_POS = NUM_ITEMS;
-	public static int indexOfItemInAction = 4; //GET_[0,1,2,3,4] -- the item number is at the 4th index
+	public static int STATES_PER_ITEM = 2;
+	//public static int NUM_ITEMS = 5;
+	public static int NUM_POS = 5;//NUM_ITEMS;
+	//public static int indexOfItemInAction = 4; //GET_[0,1,2,3,4] -- the item number is at the 4th index
 	
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
@@ -46,8 +46,8 @@ public class Constants {
 	public static int[] testWind_test =    {0, 0, 2, 9};
 	public static int[] testDryness_test = {0, 0, 9, 2};*/	
 	
-	public static final int NUM_TRAINING_SESSIONS = 3;//testWind_train.length;
-	public static final int NUM_TESTING_SESSIONS = 3;//testWind_test.length;
+	public static final int NUM_TRAINING_SESSIONS = 1;//testWind_train.length;
+	public static final int NUM_TESTING_SESSIONS = 1;//testWind_test.length;
 
 	//file names where results are stored
 	public static String dataDir = "inputFiles\\";

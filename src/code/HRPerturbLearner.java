@@ -117,7 +117,7 @@ public class HRPerturbLearner extends LearningAlgorithm {
 			long end = System.currentTimeMillis();
 			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
 				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration"+Constants.NUM_EPISODES_TEST+".csv"), true));
-				System.out.println("policyReuse duration "+(end-start));
+				//System.out.println("policyReuse duration "+(end-start));
 				writer.write((end-start)+"\n");
 				writer.close();
 			}

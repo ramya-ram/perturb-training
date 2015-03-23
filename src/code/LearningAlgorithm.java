@@ -135,8 +135,8 @@ public class LearningAlgorithm {
 	public HumanRobotActionPair getAgentActionsSimulation(State state){
 		HumanRobotActionPair proposedJointAction = null;
 		if(Tools.rand.nextDouble() < Constants.EPSILON){
-			if(Main.currWithSimulatedHuman)
-				System.out.println("random action");
+			//if(Main.currWithSimulatedHuman)
+				//System.out.println("random action");
 			Action[] possibleHumanActions = mdp.humanAgent.actions(state);
 			Action[] possibleRobotActions = mdp.robotAgent.actions(state);
 	        Action humanAction = possibleHumanActions[Tools.rand.nextInt(possibleHumanActions.length)];
@@ -149,8 +149,8 @@ public class LearningAlgorithm {
 			}*/
 			Pair<HumanRobotActionPair, Double> proposed = getGreedyJointAction(state);
 			proposedJointAction = proposed.getFirst();
-			if(Main.currWithSimulatedHuman)
-				System.out.println("FINAL ACTION human "+proposedJointAction.getHumanAction()+" robot "+proposedJointAction.getRobotAction());
+			//if(Main.currWithSimulatedHuman)
+			//	System.out.println("FINAL ACTION human "+proposedJointAction.getHumanAction()+" robot "+proposedJointAction.getRobotAction());
 		}
 		return proposedJointAction;
 	}
@@ -498,8 +498,8 @@ public class LearningAlgorithm {
 	 */
 	public void simulateWaitTime(State state) {
 		int stateScore = 0;
-		for(int i=0; i<state.stateOfItems.length; i++){
-			int num = state.stateOfItems[i];
+		for(int i=0; i<state.stateOfBox.length; i++){
+			int num = state.stateOfBox[i];
 			//if(num == Constants.BURNOUT)
 			//	stateScore += 0;
 			//else
@@ -556,8 +556,8 @@ public class LearningAlgorithm {
 			for(Action robotAction : mdp.robotAgent.actions(state)){
 				HumanRobotActionPair actionPair = new HumanRobotActionPair(humanAction, robotAction);
 				double value = getJointQValue(state, actionPair);
-				if(Main.currWithSimulatedHuman)
-					System.out.println("human "+humanAction+" robot "+robotAction+" = "+value);
+				//if(Main.currWithSimulatedHuman)
+				//	System.out.println("human "+humanAction+" robot "+robotAction+" = "+value);
 				if(value > maxValue){
 					maxValue = value;
 					possibleActions.clear();
@@ -601,6 +601,7 @@ public class LearningAlgorithm {
     }
 	
 	public double getRobotQValue(State state, Action robotAction){
+		//System.out.println("state "+state+" id "+state.getId());
 		return currQValues.robotQValues[state.getId()][robotAction.ordinal()];
 	}
 	

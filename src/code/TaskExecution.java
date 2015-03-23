@@ -25,6 +25,7 @@ public class TaskExecution {
 	public Color[] colorsTesting = {new Color(178,34,34), new Color(148,0,211), Color.BLUE, new Color(148,0,211)};
 	
 	public TaskExecution(GameView gameView, List<MyWorld> trainingWorlds, List<MyWorld> testingWorlds, ExperimentCondition condition){
+		System.out.println("got to task execution");
 		this.gameView = gameView;
 		this.trainingWorlds = trainingWorlds;
 		this.testingWorlds = testingWorlds;
@@ -92,11 +93,13 @@ public class TaskExecution {
 								int[] stateOfItems = {i,j,k,l,m};
 								for(int humanPos=0; humanPos<numPos; humanPos++){
 									for(int robotPos=0; robotPos<numPos; robotPos++){
-										State state = new State(stateOfItems, humanPos, robotPos);	
-										for(Action robotAction : Action.values()){
-											robotWriter.write(learner.robotQValues[state.getId()][robotAction.ordinal()]+",");
-											for(Action humanAction : Action.values()){
-												jointWriter.write(learner.jointQValues[state.getId()][robotAction.ordinal()][humanAction.ordinal()]+",");
+										for(int robotOrientation=0; robotOrientation<numPos; robotOrientation++){
+											State state = new State(stateOfItems, humanPos, robotPos, robotOrientation);	
+											for(Action robotAction : Action.values()){
+												robotWriter.write(learner.robotQValues[state.getId()][robotAction.ordinal()]+",");
+												for(Action humanAction : Action.values()){
+													jointWriter.write(learner.jointQValues[state.getId()][robotAction.ordinal()][humanAction.ordinal()]+",");
+												}
 											}
 										}
 									}
@@ -158,19 +161,21 @@ public class TaskExecution {
 								int[] stateOfItems = {i,j,k,l,m};
 								for(int humanPos=0; humanPos<numPos; humanPos++){
 									for(int robotPos=0; robotPos<numPos; robotPos++){
-										State state = new State(stateOfItems, humanPos, robotPos);	
-										for(Action robotAction : Action.values()){
-											double robotValue = Double.parseDouble(robotValues[robotNum]);
-											if(robotValue != 0){
-												set.robotQValues[state.getId()][robotAction.ordinal()] = robotValue;	
-											}
-											robotNum++;
-											for(Action humanAction : Action.values()){
-												double jointValue = Double.parseDouble(jointValues[jointNum]);
-												if(jointValue != 0){
-													set.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = jointValue;
+										for(int robotOrientation=0; robotOrientation<numPos; robotOrientation++){
+											State state = new State(stateOfItems, humanPos, robotPos, robotOrientation);	
+											for(Action robotAction : Action.values()){
+												double robotValue = Double.parseDouble(robotValues[robotNum]);
+												if(robotValue != 0){
+													set.robotQValues[state.getId()][robotAction.ordinal()] = robotValue;	
 												}
-												jointNum++;
+												robotNum++;
+												for(Action humanAction : Action.values()){
+													double jointValue = Double.parseDouble(jointValues[jointNum]);
+													if(jointValue != 0){
+														set.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = jointValue;
+													}
+													jointNum++;
+												}
 											}
 										}
 									}
@@ -219,7 +224,7 @@ public class TaskExecution {
 		List<QValuesSet> learners = new ArrayList<QValuesSet>();
 		System.out.println("TRAINING SESSION 1");
 		//first training session -- same for procedural and perturbation
-		QLearner baseQLearner = new QLearner(null, ExperimentCondition.PROCE_Q);
+		QLearner baseQLearner = new QLearner(null, condition);
 		MyWorld trainWorld0 = trainingWorlds.get(0);
 		setTitleLabel(trainWorld0, 1, colorsTraining[0]);
 		baseQLearner.run(trainWorld0, false /*withHuman*/);
@@ -312,6 +317,6 @@ public class TaskExecution {
 	 * To be consistent across all participants, the initial state for each case was identical and is specified here
 	 */
 	public State initialState(MyWorld myWorld, int roundNum){
-		return new State(new int[]{2,1,2,2,1}, 4, 0);
+		return new State(new int[]{1,1,1,1,1}, 4, 0, 0);
 	}
 }
