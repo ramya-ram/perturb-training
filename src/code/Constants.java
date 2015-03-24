@@ -27,9 +27,10 @@ public class Constants {
 	public static int NUM_AVERAGING = 1;
 	
 	public static int STATES_PER_ITEM = 2;
-	//public static int NUM_ITEMS = 5;
+	public static int NUM_ITEMS = 5;
 	public static int NUM_POS = 5;//NUM_ITEMS;
-	//public static int indexOfItemInAction = 4; //GET_[0,1,2,3,4] -- the item number is at the 4th index
+	//public static int NUM_HUMAN_POS = 3;
+	public static int indexOfItemInAction = 4; //GET_[0,1,2,3,4] -- the item number is at the 4th index
 	
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
