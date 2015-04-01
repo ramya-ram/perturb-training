@@ -8,5 +8,5 @@ package code;
  * -perturbation training using Q-learning
  */
 public enum ExperimentCondition {
-	HR_PERTURB, PROCE_Q, PERTURB_Q
+	HR_PERTURB, PROCE_Q, PERTURB_Q, PRQL
 }

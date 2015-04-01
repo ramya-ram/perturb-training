@@ -10,6 +10,10 @@ public class Constants {
 	public static final double TEMP = 0; //temperature parameter 
 	public static final double DELTA_TEMP = 0.01; //change in temperature parameter 
 	
+	//For PRQL
+	public static final double PAST_PROB = 1; //probability of choosing a past policy 
+	public static final double DECAY_VALUE = 0.95; //decay the probability of choosing past policies
+	
 	public static int MAX_TIME = 15;
 	public static final double EPSILON = 0.1;
 	
@@ -60,7 +64,8 @@ public class Constants {
 	public static String rewardProceQName = simulationDir+"PQtest.csv";
 	public static String rewardPerturbQName = simulationDir+"BQtest.csv";
 	public static String rewardHRPerturbName = simulationDir+"BHtest.csv";
-
+	public static String rewardPRQLName = simulationDir+"PRQLtest.csv";
+	
 	public static String qvaluesDir = simulationDir;
 	
 	public static String trainedQValuesDir = "C:\\Users\\julie\\Dropbox (MIT)\\trainingQValues\\";

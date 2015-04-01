@@ -38,27 +38,34 @@ public class TaskExecution {
 		System.out.println("EXECUTE TASK");
 		
 		if(Main.CURRENT_EXECUTION == Main.SIMULATION){
-			List<QValuesSet> trainedLearners = runTrainingPhase();
-			runTestingPhase(trainedLearners);
+			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
+			List<QValuesSet> trainedLearners = trainedResult.getFirst();
+			List<Policy> trainedPolicies = trainedResult.getSecond();
+			runTestingPhase(trainedLearners, trainedPolicies);
 		}
 		
 		else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN_TEST){
 			runPracticeSession();
-			List<QValuesSet> trainedResult = runTrainingPhase();
-			runTestingPhase(trainedResult);
+			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
+			List<QValuesSet> trainedLearners = trainedResult.getFirst();
+			List<Policy> trainedPolicies = trainedResult.getSecond();
+			runTestingPhase(trainedLearners, trainedPolicies);
 		}
 		
 		else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN){
 			runPracticeSession();
-			List<QValuesSet> trainedResult = runTrainingPhase();
-			saveTrainingToFile(trainedResult);
+			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
+			List<QValuesSet> trainedLearners = trainedResult.getFirst();
+			//TODO: only saving qvalues, not policies (so this cannot work for PRQL)
+			saveTrainingToFile(trainedLearners);
 		}
 		
 		else if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN_TEST){
 			List<QValuesSet> trainedLearners = readTrainingFromFile();
 			System.out.println("read from training files");
 			Constants.MAX_TIME = 25;
-			runTestingPhase(trainedLearners);
+			//TODO: only running with qvalues read from file, no policies (so this cannot work for PRQL)
+			runTestingPhase(trainedLearners, null);
 		}
 	}
 	
@@ -184,9 +191,10 @@ public class TaskExecution {
 	 * Regardless of the training type, the first session runs through the base task
 	 * The second and third sessions either have perturbations or are repeated rounds of the base task
 	 */
-	public List<QValuesSet> runTrainingPhase(){
+	public Pair<List<QValuesSet>, List<Policy>> runTrainingPhase(){
 		Main.saveToFile = true;
 		List<QValuesSet> learners = new ArrayList<QValuesSet>();
+		List<Policy> policies = new ArrayList<Policy>();
 		
 		//first training session -- same for procedural and perturbation
 		QLearner baseQLearner = new QLearner(null, ExperimentCondition.PROCE_Q);
@@ -198,9 +206,11 @@ public class TaskExecution {
 		baseQLearner.run(trainWorld0, false);
 		baseQLearner.run(trainWorld0, true, initialState(trainWorld0, 2));
 		learners.add(baseQLearner.currQValues);
+		if(condition == ExperimentCondition.PRQL)
+			policies.add(baseQLearner.computePolicy());
 		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+0, Constants.print);
 		
-		if(condition == ExperimentCondition.HR_PERTURB){
+		if(condition == ExperimentCondition.HR_PERTURB || condition == ExperimentCondition.PRQL){
 			//perturbation training sessions
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
@@ -211,7 +221,10 @@ public class TaskExecution {
 				setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false);
 				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
-				learners.add(perturbLearner.currQValues);
+				if(condition == ExperimentCondition.HR_PERTURB)
+					learners.add(perturbLearner.currQValues);
+				else if(condition == ExperimentCondition.PRQL)
+					policies.add(perturbLearner.computePolicy());
 				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
 			}
 		} else { //both perturb and proce Q-learning use one qlearner to learn all training tasks
@@ -229,7 +242,7 @@ public class TaskExecution {
 			}
 		}
 		
-		return learners;
+		return new Pair<List<QValuesSet>, List<Policy>>(learners, policies);
 	}
 	
 	/**
@@ -237,7 +250,7 @@ public class TaskExecution {
 	 * Procedural uses Q-learning and is initialized with Q-values learned from training
 	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
 	 */
-	public void runTestingPhase(List<QValuesSet> trainedLearners){
+	public void runTestingPhase(List<QValuesSet> trainedLearners, List<Policy> trainedPolicies){
 		if(condition == ExperimentCondition.HR_PERTURB){
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
@@ -247,6 +260,16 @@ public class TaskExecution {
 				perturbLearner.runHRPerturb(false);
 				perturbLearner.runHRPerturb(true, initialState(testWorld, testWorld.sessionNum));
 				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+			}
+		} else if(condition == ExperimentCondition.PRQL){
+			for(int i=0; i<testingWorlds.size(); i++){
+				MyWorld testWorld = testingWorlds.get(i);
+				PRQLearner learner = new PRQLearner(testWorld, trainedPolicies, trainedLearners.get(0));
+				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
+				learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				learner.runPRQL(false);
+				learner.runPRQL(true, initialState(testWorld, testWorld.sessionNum));
+				learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 			}
 		} else {
 			//Q-learning proce and perturb testing sessions

@@ -34,11 +34,15 @@ public class LearningAlgorithm {
 
 	public static Timer timer;
 	public static int timeLeft = Constants.MAX_TIME;
+	
+	public Tuple<Double, Integer, Long> run(int maxSteps, State initialStateHuman){
+		return run(false, maxSteps, initialStateHuman);
+	}
 
 	/**
 	 * Runs one episode of the task
 	 */
-	public Tuple<Double, Integer, Long> run(int maxSteps, State initialStateHuman){
+	public Tuple<Double, Integer, Long> run(boolean fullyGreedy, int maxSteps, State initialStateHuman){
         double episodeReward = 0;
         int iterations = 0;
         long startTime = System.currentTimeMillis();
@@ -55,6 +59,8 @@ public class LearningAlgorithm {
 	        	HumanRobotActionPair agentActions = null;
 				if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION) {
 					agentActions = getAgentActionsCommWithHuman(state); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
+				} else if(fullyGreedy){
+					agentActions = getAgentActionsSimulationGreedy(state); //uses greedy approach
 				} else {
 					agentActions = getAgentActionsSimulation(state); //uses e-greedy approach (with probability epsilon, choose a random action) 
 				}
@@ -90,6 +96,18 @@ public class LearningAlgorithm {
         	System.out.println("EPISODE REWARD "+episodeReward);
         long endTime = System.currentTimeMillis();
         return new Tuple<Double,Integer,Long>(episodeReward, iterations, (endTime - startTime));
+	}
+	
+	/**
+	 * Computes a policy (indicating what action should be taken for each state) given the q value table
+	 */
+	public Policy computePolicy(){
+		HumanRobotActionPair[] policy = new HumanRobotActionPair[mdp.states.size()];
+		for(State state : mdp.states()){
+			HumanRobotActionPair actions = getGreedyJointAction(state).getFirst();
+			policy[state.getId()] = actions;
+		}
+		return new Policy(policy);
 	}
 	
 	/**
@@ -145,6 +163,10 @@ public class LearningAlgorithm {
 			proposedJointAction = proposed.getFirst();
 		}
 		return proposedJointAction;
+	}
+	
+	public HumanRobotActionPair getAgentActionsSimulationGreedy(State state){
+		return getGreedyJointAction(state).getFirst();
 	}
 	
 	/**
