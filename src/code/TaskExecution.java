@@ -82,22 +82,12 @@ public class TaskExecution {
 		try {
 			BufferedWriter robotWriter = new BufferedWriter(new FileWriter(new File(Constants.trainedQValuesDir+"robot"+index+".txt")));
 			BufferedWriter jointWriter = new BufferedWriter(new FileWriter(new File(Constants.trainedQValuesDir+"joint"+index+".txt")));
-			int statesPerFire = Constants.STATES_PER_FIRE;
-			for(int i=0; i<statesPerFire; i++){
-				for(int j=0; j<statesPerFire; j++){
-					for(int k=0; k<statesPerFire; k++){
-						for(int l=0; l<statesPerFire; l++){
-							for(int m=0; m<statesPerFire; m++){
-								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);													
-								for(Action robotAction : Action.values()){
-									robotWriter.write(learner.robotQValues[state.getId()][robotAction.ordinal()]+",");
-									for(Action humanAction : Action.values()){
-										jointWriter.write(learner.jointQValues[state.getId()][robotAction.ordinal()][humanAction.ordinal()]+",");
-									}
-								}
-							}
-						}
+			for(int i=0; i<MyWorld.states.size(); i++){
+				State state = MyWorld.states.get(i);													
+				for(Action robotAction : Action.values()){
+					robotWriter.write(learner.robotQValues[state.getId()][robotAction.ordinal()]+",");
+					for(Action humanAction : Action.values()){
+						jointWriter.write(learner.jointQValues[state.getId()][robotAction.ordinal()][humanAction.ordinal()]+",");
 					}
 				}
 			}
@@ -143,30 +133,20 @@ public class TaskExecution {
 			
 			int jointNum=0;
 			int robotNum=0;
-			int statesPerFire = Constants.STATES_PER_FIRE;
-	        for(int i=0; i<statesPerFire; i++){
-				for(int j=0; j<statesPerFire; j++){
-					for(int k=0; k<statesPerFire; k++){
-						for(int l=0; l<statesPerFire; l++){
-							for(int m=0; m<statesPerFire; m++){
-								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);													
-								for(Action robotAction : Action.values()){
-									double robotValue = Double.parseDouble(robotValues[robotNum]);
-									if(robotValue != 0){
-										set.robotQValues[state.getId()][robotAction.ordinal()] = robotValue;	
-									}
-									robotNum++;
-									for(Action humanAction : Action.values()){
-										double jointValue = Double.parseDouble(jointValues[jointNum]);
-										if(jointValue != 0){
-											set.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = jointValue;
-										}
-										jointNum++;
-									}
-								}
-							}
+			for(int i=0; i<MyWorld.states.size(); i++){
+				State state = MyWorld.states.get(i);													
+				for(Action robotAction : Action.values()){
+					double robotValue = Double.parseDouble(robotValues[robotNum]);
+					if(robotValue != 0){
+						set.robotQValues[state.getId()][robotAction.ordinal()] = robotValue;	
+					}
+					robotNum++;
+					for(Action humanAction : Action.values()){
+						double jointValue = Double.parseDouble(jointValues[jointNum]);
+						if(jointValue != 0){
+							set.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = jointValue;
 						}
+						jointNum++;
 					}
 				}
 			} 

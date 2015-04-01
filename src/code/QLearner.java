@@ -101,25 +101,15 @@ public class QLearner extends LearningAlgorithm {
 			BufferedWriter robotWriter = new BufferedWriter(new FileWriter(new File(Constants.robotQValuesFile), true));
 	
 	    	int num=0;
-			int statesPerFire = Constants.STATES_PER_FIRE;
-	        for(int i=0; i<statesPerFire; i++){
-				for(int j=0; j<statesPerFire; j++){
-					for(int k=0; k<statesPerFire; k++){
-						for(int l=0; l<statesPerFire; l++){
-							for(int m=0; m<statesPerFire; m++){
-								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);
-								for(Action robotAction : Action.values()){
-									double robotValue = currQValues.robotQValues[state.getId()][robotAction.ordinal()];
-									robotWriter.write(robotValue+",");
-									for(Action humanAction : Action.values()){
-										num++;
-										double jointValue = currQValues.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()];
-										jointWriter.write(jointValue+",");
-									}
-								}
-							}
-						}
+	    	for(int i=0; i<MyWorld.states.size(); i++){
+				State state = MyWorld.states.get(i);
+				for(Action robotAction : Action.values()){
+					double robotValue = currQValues.robotQValues[state.getId()][robotAction.ordinal()];
+					robotWriter.write(robotValue+",");
+					for(Action humanAction : Action.values()){
+						num++;
+						double jointValue = currQValues.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()];
+						jointWriter.write(jointValue+",");
 					}
 				}
 			}

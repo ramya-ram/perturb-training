@@ -22,7 +22,7 @@ public class Main {
 			CREATE_PREDEFINED = 4, //use for creating predefined test cases for human subject experiments (given a state and joint action, the next state will always be the same across participants)
 			CREATE_OFFLINE_QVALUES = 5; //use for running offline deterministic simulations and having these values saved to a file so that the robot starts with base knowledge when working with a human
 	
-	public static int CURRENT_EXECUTION = ROBOT_HUMAN_TEST; //set CURRENT_EXECUTION to one of the above depending on which option you want to run
+	public static int CURRENT_EXECUTION = SIMULATION; //set CURRENT_EXECUTION to one of the above depending on which option you want to run
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -186,30 +186,20 @@ public class Main {
 							
 			int jointNum=0;
 			int robotNum=0;
-			int statesPerFire = Constants.STATES_PER_FIRE;
-	        for(int i=0; i<statesPerFire; i++){
-				for(int j=0; j<statesPerFire; j++){
-					for(int k=0; k<statesPerFire; k++){
-						for(int l=0; l<statesPerFire; l++){
-							for(int m=0; m<statesPerFire; m++){
-								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);													
-								for(Action robotAction : Action.values()){
-									double robotValue = Double.parseDouble(robotValues[robotNum]);
-									if(robotValue != 0){
-										robotQValuesOffline[state.getId()][robotAction.ordinal()] = robotValue;	
-									}
-									robotNum++;
-									for(Action humanAction : Action.values()){
-										double jointValue = Double.parseDouble(jointValues[jointNum]);
-										if(jointValue != 0){
-											jointQValuesOffline[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = jointValue;
-										}
-										jointNum++;
-									}
-								}
-							}
+			for(int i=0; i<MyWorld.states.size(); i++){
+				State state = MyWorld.states.get(i);												
+				for(Action robotAction : Action.values()){
+					double robotValue = Double.parseDouble(robotValues[robotNum]);
+					if(robotValue != 0){
+						robotQValuesOffline[state.getId()][robotAction.ordinal()] = robotValue;	
+					}
+					robotNum++;
+					for(Action humanAction : Action.values()){
+						double jointValue = Double.parseDouble(jointValues[jointNum]);
+						if(jointValue != 0){
+							jointQValuesOffline[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = jointValue;
 						}
+						jointNum++;
 					}
 				}
 			}     
@@ -229,38 +219,27 @@ public class Main {
 			if(file.exists())
 				file.delete();
 			BufferedWriter stateWriter = new BufferedWriter(new FileWriter(file, true));
-			int statesPerFire = Constants.STATES_PER_FIRE;
-
-			for(int i=0; i<statesPerFire; i++){
-				for(int j=0; j<statesPerFire; j++){
-					for(int k=0; k<statesPerFire; k++){
-						for(int l=0; l<statesPerFire; l++){
-							for(int m=0; m<statesPerFire; m++){
-								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);
-								if(MyWorld.isGoalState(state))
-									continue;
-								for(Action humanAction : Action.values()){
-									for(Action robotAction : Action.values()){
-										if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
-												&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
-											State nextState;
-											HumanRobotActionPair agentActions;
-											do{
-												agentActions = new HumanRobotActionPair(humanAction, robotAction);
-												nextState = myWorld.getNextState(state, agentActions);
-												if(humanAction==Action.WAIT && robotAction==Action.WAIT)
-													break;
-											} while(state.equals(nextState));
-											if(myWorld.predefinedText.length() > 0)
-												stateWriter.write(myWorld.predefinedText+",");
-											else
-												stateWriter.write("-,");
-											num++;
-										}
-									}
-								}
-							}
+			for(int i=0; i<MyWorld.states.size(); i++){
+				State state = MyWorld.states.get(i);
+				if(MyWorld.isGoalState(state))
+					continue;
+				for(Action humanAction : Action.values()){
+					for(Action robotAction : Action.values()){
+						if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
+								&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
+							State nextState;
+							HumanRobotActionPair agentActions;
+							do{
+								agentActions = new HumanRobotActionPair(humanAction, robotAction);
+								nextState = myWorld.getNextState(state, agentActions);
+								if(humanAction==Action.WAIT && robotAction==Action.WAIT)
+									break;
+							} while(state.equals(nextState));
+							if(myWorld.predefinedText.length() > 0)
+								stateWriter.write(myWorld.predefinedText+",");
+							else
+								stateWriter.write("-,");
+							num++;
 						}
 					}
 				}
@@ -285,29 +264,20 @@ public class Main {
 			System.out.println("next states size "+nextStates.length);
 			
 			int num=0;	
-	        for(int i=0; i<Constants.STATES_PER_FIRE; i++){
-				for(int j=0; j<Constants.STATES_PER_FIRE; j++){
-					for(int k=0; k<Constants.STATES_PER_FIRE; k++){
-						for(int l=0; l<Constants.STATES_PER_FIRE; l++){
-							for(int m=0; m<Constants.STATES_PER_FIRE; m++){
-								int[] stateOfFires = {i,j,k,l,m};
-								State state = new State(stateOfFires);
-								if(MyWorld.isGoalState(state))
-									continue;
-								for(Action humanAction : Action.values()){
-									for(Action robotAction : Action.values()){
-										if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
-												&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
-											
-											String str1 = nextStates[num];
-											if(str1.length() > 0)
-												arr[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = str1;
-											
-											num++;
-										}
-									}
-								}
-							}
+			for(int i=0; i<MyWorld.states.size(); i++){
+				State state = MyWorld.states.get(i);
+				if(MyWorld.isGoalState(state))
+					continue;
+				for(Action humanAction : Action.values()){
+					for(Action robotAction : Action.values()){
+						if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
+								&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
+							
+							String str1 = nextStates[num];
+							if(str1.length() > 0)
+								arr[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = str1;
+							
+							num++;
 						}
 					}
 				}

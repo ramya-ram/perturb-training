@@ -61,9 +61,9 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
 	public static String simulationDir = "C:\\Extra\\";
-	public static String rewardProceQName = simulationDir+"PQ_train00_06_60_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
-	public static String rewardPerturbQName = simulationDir+"BQ_train00_06_60_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
-	public static String rewardHRPerturbName = simulationDir+"BH_train00_06_60_"+testWind_test[0]+testDryness_test[0]+"_"+testWind_test[1]+testDryness_test[1]+"_"+testWind_test[2]+testDryness_test[2]+".csv";
+	public static String rewardProceQName = simulationDir+"PQtest.csv";
+	public static String rewardPerturbQName = simulationDir+"BQtest.csv";
+	public static String rewardHRPerturbName = simulationDir+"BHtest.csv";
 
 	public static String qvaluesDir = simulationDir;
 	

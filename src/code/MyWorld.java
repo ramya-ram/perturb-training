@@ -1,11 +1,13 @@
 package code;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class MyWorld {
 	public static MDP mdp;
-	public static Set<State> states = new HashSet<State>();
+	public static List<State> states = new ArrayList<State>();
 	public static State[] initStates;
 	public String predefinedText;
 	public String textToDisplay;
