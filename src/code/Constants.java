@@ -21,8 +21,8 @@ public class Constants {
 	public static final int NUM_EPISODES_TEST = 1500;
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
-	public static boolean usePredefinedTestCases = true;
-	public static boolean useOfflineValues = true;
+	public static boolean usePredefinedTestCases = false;
+	public static boolean useOfflineValues = false;
 	public static boolean print = false;
 	public static int NUM_AVERAGING = 25;
 	
@@ -30,20 +30,16 @@ public class Constants {
 	public static int NUM_FIRES = 5;
 	public static int NONE = 0, HIGHEST = 3, BURNOUT = 4;
 	public static int indexOfFireInAction = 7; //PUT_OUT[0,1,2,3,4] -- the fire number is at the 7th index
-	public static int NUM_VARIABLES = 2; //wind + dryness = 2
 	
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
 	
 	public static int[] simulationWind_train =    {0, 5, 0};
 	public static int[] simulationDryness_train = {0, 0, 5};
-	
 	public static int[] testWind_train =    {0, 6, 0};
 	public static int[] testDryness_train = {0, 0, 6};
-	
 	public static int[] simulationWind_test =    {0, 0, 1, 8};
 	public static int[] simulationDryness_test = {0, 0, 8, 1};
-	
 	public static int[] testWind_test =    {0, 0, 2, 9};
 	public static int[] testDryness_test = {0, 0, 9, 2};	
 	
