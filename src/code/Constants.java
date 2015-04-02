@@ -28,7 +28,7 @@ public class Constants {
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
 	public static boolean print = false;
-	public static int NUM_AVERAGING = 25;
+	public static int NUM_AVERAGING = 3;
 	
 	public static int STATES_PER_FIRE = 5;
 	public static int NUM_FIRES = 5;

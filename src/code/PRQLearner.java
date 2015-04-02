@@ -15,10 +15,10 @@ public class PRQLearner extends LearningAlgorithm {
 	public PRQLearner(MyWorld myWorld, List<Policy> library, QValuesSet qValuesSet){
 		this.myWorld = myWorld;
 		this.library = library;
+		System.out.println("LIBRARY SIZE "+library.size());
 		timer = new Timer(1000, timerListener());
 		
-		currQValues.robotQValues = qValuesSet.getRobotQValues();
-		currQValues.jointQValues = qValuesSet.getJointQValues();
+		currQValues = new QValuesSet(qValuesSet.getRobotQValues(), qValuesSet.getJointQValues());
 		weights = new double[library.size()+1];
 		numOfEpisodesChosen = new int[library.size()+1];
 		for(int i=0; i<weights.length-1; i++){

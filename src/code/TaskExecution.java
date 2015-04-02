@@ -206,8 +206,8 @@ public class TaskExecution {
 		baseQLearner.run(trainWorld0, false);
 		baseQLearner.run(trainWorld0, true, initialState(trainWorld0, 2));
 		learners.add(baseQLearner.currQValues);
-		if(condition == ExperimentCondition.PRQL)
-			policies.add(baseQLearner.computePolicy());
+		//if(condition == ExperimentCondition.PRQL)
+		//	policies.add(baseQLearner.computePolicy());
 		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+0, Constants.print);
 		
 		if(condition == ExperimentCondition.HR_PERTURB || condition == ExperimentCondition.PRQL){
