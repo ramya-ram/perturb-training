@@ -74,7 +74,7 @@ public class PRQLearner extends LearningAlgorithm {
 				int policyNum = 0;
 				if(withHuman){
 					System.out.println("using current policy");
-					policyNum = probForPolicies.length-1;
+					policyNum = probForPolicies.length-1; //the new policy
 				} else {
 					int randNum = Tools.rand.nextInt(100);
 					while(randNum>probForPolicies[policyNum]){
