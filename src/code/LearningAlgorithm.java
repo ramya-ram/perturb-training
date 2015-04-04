@@ -60,7 +60,7 @@ public class LearningAlgorithm {
 				if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION) {
 					agentActions = getAgentActionsCommWithHuman(state); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
 				} else if(fullyGreedy){
-					agentActions = getAgentActionsSimulationGreedy(state); //uses greedy approach
+					agentActions = getAgentActionsFullyGreedySimulation(state); //uses greedy approach
 				} else {
 					agentActions = getAgentActionsSimulation(state); //uses e-greedy approach (with probability epsilon, choose a random action) 
 				}
@@ -71,8 +71,8 @@ public class LearningAlgorithm {
 	            saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward);     
 	            updateQValues(state, agentActions, nextState, reward);
 	            
-	            if(myWorld.typeOfWorld == Constants.TESTING && Main.currWithSimulatedHuman)
-	            	System.out.println(state.toStringFile()+" "+agentActions+" "+nextState.toStringFile()+" = "+reward);
+	            //if(myWorld.typeOfWorld == Constants.TESTING && Main.currWithSimulatedHuman)
+	            	//System.out.println(state.toStringFile()+" "+agentActions+" "+nextState.toStringFile()+" = "+reward);
 	            
 	            state = nextState.clone();
 	            if(Main.arduino != null && Main.currWithSimulatedHuman)
@@ -92,8 +92,8 @@ public class LearningAlgorithm {
         } catch(Exception e){
         	e.printStackTrace();
         }
-        if(myWorld.typeOfWorld == Constants.TESTING && Main.currWithSimulatedHuman)
-        	System.out.println("EPISODE REWARD "+episodeReward);
+        //if(myWorld.typeOfWorld == Constants.TESTING && Main.currWithSimulatedHuman)
+        //	System.out.println("EPISODE REWARD "+episodeReward);
         long endTime = System.currentTimeMillis();
         return new Tuple<Double,Integer,Long>(episodeReward, iterations, (endTime - startTime));
 	}
@@ -165,8 +165,12 @@ public class LearningAlgorithm {
 		return proposedJointAction;
 	}
 	
-	public HumanRobotActionPair getAgentActionsSimulationGreedy(State state){
-		return getGreedyJointAction(state).getFirst();
+	/**
+	 * Gets the best greedy joint action (no probability of random actions)
+	 */
+	public HumanRobotActionPair getAgentActionsFullyGreedySimulation(State state){
+		Pair<HumanRobotActionPair, Double> proposed = getGreedyJointAction(state);
+		return proposed.getFirst();
 	}
 	
 	/**
@@ -204,14 +208,6 @@ public class LearningAlgorithm {
 		} catch(Exception e){
 			e.printStackTrace();
 		}
-	}
-	
-	/**
-	 * Gets the best greedy joint action (no probability of random actions)
-	 */
-	public HumanRobotActionPair getAgentActionsFullyGreedySimulation(State state){
-		Pair<HumanRobotActionPair, Double> proposed = getGreedyJointAction(state);
-		return proposed.getFirst();
 	}
 	
 	public int getFireIndex(Action action){

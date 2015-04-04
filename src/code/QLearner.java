@@ -48,10 +48,9 @@ public class QLearner extends LearningAlgorithm {
 			numEpisodes = 1;
 		
 		resetCommunicationCounts();	
-		System.out.println("testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness);
+		//System.out.println("testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness);
 		
 		if(withHuman && Main.gameView != null){
-			System.out.println("with human");
 			Main.gameView.setStartRoundEnable(true);
 			Main.gameView.waitForStartRoundClick();
 		}
@@ -59,7 +58,6 @@ public class QLearner extends LearningAlgorithm {
 		try{
 	        for(int i = 0; i < numEpisodes; i++) {
 				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
-				//System.out.print(i+" ");
 	            
 	            if(withHuman && Main.saveToFile){
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
@@ -73,7 +71,6 @@ public class QLearner extends LearningAlgorithm {
 			    				fileName = Constants.rewardProceQName;
 							BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
 
-							System.out.println("writing");
 							rewardWriter.write(""+tuple.getFirst()+", ");
 							rewardWriter.close();
 						}
@@ -81,12 +78,12 @@ public class QLearner extends LearningAlgorithm {
 				}
 	        }
 			long end = System.currentTimeMillis();
-			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
+			/*if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
 				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration"+Constants.NUM_EPISODES_TEST+".csv"), true));
 				System.out.println("qlearner duration "+(end-start));
 				writer.write((end-start)+"\n");
 				writer.close();
-			}
+			}*/
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -113,8 +110,6 @@ public class QLearner extends LearningAlgorithm {
 					}
 				}
 			}
-	        
-	        System.out.println("num "+num);
 	        jointWriter.close();
 	        robotWriter.close();
 		} catch(Exception e){

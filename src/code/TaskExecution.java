@@ -29,14 +29,13 @@ public class TaskExecution {
 		this.trainingWorlds = trainingWorlds;
 		this.testingWorlds = testingWorlds;
 		this.condition = condition;
+		System.out.println(condition);
 	}
 	
 	/**
 	 * Run training and testing phases, according to which option is being run
 	 */
 	public void executeTask(){		
-		System.out.println("EXECUTE TASK");
-		
 		if(Main.CURRENT_EXECUTION == Main.SIMULATION){
 			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
@@ -215,10 +214,10 @@ public class TaskExecution {
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
 				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.HR_PERTURB);
-				setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
+				//setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false);
 				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+1));
-				setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
+				//setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false);
 				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
 				if(condition == ExperimentCondition.HR_PERTURB)
@@ -231,11 +230,10 @@ public class TaskExecution {
 			//extra training sessions after base session
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
-				System.out.println("trainworld "+trainingWorlds.get(i).sessionNum);
-				setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
+				//setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				baseQLearner.run(trainWorld, false);
 				baseQLearner.run(trainWorld, true, initialState(trainWorld, i*2+1));
-				setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
+				//setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				baseQLearner.run(trainWorld, false);
 				baseQLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
 				baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
@@ -255,7 +253,7 @@ public class TaskExecution {
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
 				HRPerturbLearner perturbLearner = new HRPerturbLearner(testWorld, trainedLearners);
-				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
+				//setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
 				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				perturbLearner.runHRPerturb(false);
 				perturbLearner.runHRPerturb(true, initialState(testWorld, testWorld.sessionNum));
@@ -265,7 +263,7 @@ public class TaskExecution {
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
 				PRQLearner learner = new PRQLearner(testWorld, trainedPolicies, trainedLearners.get(0));
-				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
+				//setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
 				learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				learner.runPRQL(false);
 				learner.runPRQL(true, initialState(testWorld, testWorld.sessionNum));
@@ -274,8 +272,8 @@ public class TaskExecution {
 		} else {
 			//Q-learning proce and perturb testing sessions
 			for(MyWorld testWorld : testingWorlds){
-				QLearner testQLearner = new QLearner(trainedLearners.get(0), condition);
-				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
+				QLearner testQLearner = new QLearner(trainedLearners.get(0), condition); //both proce and perturb Q only have one Q-value function so it is directly transferred to the test case
+				//setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
 				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				testQLearner.run(testWorld, false);
 				testQLearner.run(testWorld, true, initialState(testWorld, testWorld.sessionNum));

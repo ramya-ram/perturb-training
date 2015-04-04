@@ -86,7 +86,7 @@ public class Main {
 			if(CURRENT_EXECUTION == SIMULATION){
 				for(int i=0; i<Constants.NUM_AVERAGING; i++){
 					//makes simulation wind and dryness a noisy version of the real one
-					System.out.println("NEW simulation");
+					System.out.println("*** "+i+" ***");
 					for(MyWorld trainWorld : trainingWorldsProce)
 						trainWorld.calculateSimulationWindDryness();
 					for(MyWorld trainWorld : trainingWorldsPerturb)

@@ -15,19 +15,20 @@ public class PRQLearner extends LearningAlgorithm {
 	public PRQLearner(MyWorld myWorld, List<Policy> library, QValuesSet qValuesSet){
 		this.myWorld = myWorld;
 		this.library = library;
-		System.out.println("LIBRARY SIZE "+library.size());
 		timer = new Timer(1000, timerListener());
 		
-		currQValues = new QValuesSet(qValuesSet.getRobotQValues(), qValuesSet.getJointQValues());
+		if(qValuesSet != null)
+			currQValues = qValuesSet.clone();
+		else
+			currQValues = new QValuesSet();
+		
 		weights = new double[library.size()+1];
 		numOfEpisodesChosen = new int[library.size()+1];
 		for(int i=0; i<weights.length-1; i++){
 			weights[i] = 0;
 			numOfEpisodesChosen[i] = 0;
-			System.out.println("weights["+i+"] = "+weights[i]);
 		}
 		weights[library.size()] = 0;
-		System.out.println("weights["+library.size()+"] = "+weights[library.size()]);
 	}
 	
 	public void runPRQL(boolean withHuman) {
@@ -52,19 +53,18 @@ public class PRQLearner extends LearningAlgorithm {
 		
 		resetCommunicationCounts();
 		
-		System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
+		//System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
 		
 		if(withHuman && Main.gameView != null){
-			System.out.println("with human");
 			Main.gameView.setStartRoundEnable(true);
 			Main.gameView.waitForStartRoundClick();
 		}
 		
 		//starting policy reuse algorithm
-		System.out.println("weights: ");
-		Tools.printArray(weights);
-		System.out.println("num of episodes chosen: ");
-		Tools.printArray(numOfEpisodesChosen);
+//		System.out.println("weights: ");
+//		Tools.printArray(weights);
+//		System.out.println("num of episodes chosen: ");
+//		Tools.printArray(numOfEpisodesChosen);
 		try{
 			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
 			double currTemp = Constants.TEMP;
@@ -73,7 +73,6 @@ public class PRQLearner extends LearningAlgorithm {
 				double[] probForPolicies = getProbForPolicies(weights, currTemp);
 				int policyNum = 0;
 				if(withHuman){
-					System.out.println("using current policy");
 					policyNum = probForPolicies.length-1; //the new policy
 				} else {
 					int randNum = Tools.rand.nextInt(100);
@@ -89,7 +88,7 @@ public class PRQLearner extends LearningAlgorithm {
 				int iterations = 0;
 				long duration = 0;
 				if(isPastPolicy(library, policyNum)){
-					System.out.println("using policy num "+policyNum);
+					//System.out.println("using policy num "+policyNum);
 					Policy currPolicy = library.get(policyNum);
 					Tuple<Double, Integer, Long> tuple = piReuse(currPolicy, 1, Constants.NUM_STEPS_PER_EPISODE, 
 							Constants.PAST_PROB, Constants.DECAY_VALUE);
@@ -97,7 +96,7 @@ public class PRQLearner extends LearningAlgorithm {
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
 				} else {
-					System.out.println("using curr policy");
+					//System.out.println("using curr policy");
 					Tuple<Double, Integer, Long> tuple = runFullyGreedy(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
@@ -116,10 +115,10 @@ public class PRQLearner extends LearningAlgorithm {
 				numOfEpisodesChosen[policyNum] = numOfEpisodesChosen[policyNum] + 1;
 				currTemp = currTemp + Constants.DELTA_TEMP;
 				
-				System.out.println("weights: ");
-				Tools.printArray(weights);
-				System.out.println("num of episodes chosen: ");
-				Tools.printArray(numOfEpisodesChosen);
+//				System.out.println("weights: ");
+//				Tools.printArray(weights);
+//				System.out.println("num of episodes chosen: ");
+//				Tools.printArray(numOfEpisodesChosen);
 			}
 			rewardWriter.close();
 		} catch(Exception e){
@@ -199,8 +198,7 @@ public class PRQLearner extends LearningAlgorithm {
 	 * Run QLearning for the number of episodes specified and see how accumulated reward changes over these episodes
 	 */
 	public Tuple<Double, Integer, Long> runFullyGreedy(int maxSteps, State initialStateHuman) {
-		Tuple<Double, Integer, Long> tuple = run(true, maxSteps, initialStateHuman);
-        return new Tuple<Double, Integer, Long>(tuple.getFirst(), tuple.getSecond(), tuple.getThird());
+		return run(true, maxSteps, initialStateHuman);
     }
 	
 	/**

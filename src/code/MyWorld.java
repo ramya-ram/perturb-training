@@ -38,7 +38,7 @@ public class MyWorld {
 		if(probObsGivenWind == null || probObsGivenDryness == null)
 			initPriorProbabilities();
 		
-		System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
+		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
 	public static State getStateFromFile(String str){
@@ -447,20 +447,20 @@ public class MyWorld {
 			}
 		}
 		
-		for(int i=0; i<probObsGivenWind.length; i++){
+		/*for(int i=0; i<probObsGivenWind.length; i++){
 			for(int j=0; j<probObsGivenWind[i].length; j++){
 				probObsGivenDryness[i][j] = probObsGivenWind[i][j];
 				System.out.print(probObsGivenDryness[i][j]+" ");
 			}
 			System.out.println();
-		}
+		}*/
 	}
 	
 	public void setSimulationWindDryness(int simulationWind, int simulationDryness){
 		this.simulationWind = simulationWind;
 		this.simulationDryness = simulationDryness;
 		
-		System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
+		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
 	/**
@@ -473,7 +473,6 @@ public class MyWorld {
 		int randNumDryness = Tools.rand.nextInt(100);
 		double sum = 0;
 		int count = 0;
-		//System.out.println("testWorld wind "+testWind+" dryness "+testDryness);
 		while(count < probObsGivenWind.length){
 			sum += probObsGivenWind[count][testWind]*100;
 			if(randNumWind <= sum)
@@ -481,7 +480,6 @@ public class MyWorld {
 			count++;
 		}
 		simulationWind = count;
-		//System.out.println("obsWind "+simulationWind);
 		
 		sum = 0;
 		count = 0;
@@ -492,8 +490,7 @@ public class MyWorld {
 			count++;
 		}
 		simulationDryness = count;
-		//System.out.println("obsDryness "+simulationDryness);
-		System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
+		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
 	/**
