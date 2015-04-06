@@ -158,7 +158,7 @@ public class GameView extends JFrame {
         centerPanel.add(firesLabel);
         
         stateView = new JPanel();
-        updateState(new State(new int[]{0,0,0,0,0}));    
+        updateState(new State(new int[]{0,0,0,0,0}, 0, 0));    
         centerPanel.add(stateView);
         
         JPanel fireNamesPanel = new JPanel();

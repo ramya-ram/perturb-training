@@ -207,7 +207,7 @@ public class TaskExecution {
 		learners.add(baseQLearner.currQValues);
 		//if(condition == ExperimentCondition.PRQL)
 		//	policies.add(baseQLearner.computePolicy());
-		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+0, Constants.print);
+		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}, trainWorld0.testWind, trainWorld0.testDryness), condition+"_"+0, Constants.print);
 		
 		if(condition == ExperimentCondition.HR_PERTURB || condition == ExperimentCondition.PRQL){
 			//perturbation training sessions
@@ -224,7 +224,7 @@ public class TaskExecution {
 					learners.add(perturbLearner.currQValues);
 				else if(condition == ExperimentCondition.PRQL)
 					policies.add(perturbLearner.computePolicy());
-				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
+				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}, trainWorld.testWind, trainWorld.testDryness), condition+"_"+i, Constants.print);
 			}
 		} else { //both perturb and proce Q-learning use one qlearner to learn all training tasks
 			//extra training sessions after base session
@@ -236,7 +236,7 @@ public class TaskExecution {
 				//setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				baseQLearner.run(trainWorld, false);
 				baseQLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
-				baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
+				baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}, trainWorld.testWind, trainWorld.testDryness), condition+"_"+i, Constants.print);
 			}
 		}
 		
@@ -254,30 +254,30 @@ public class TaskExecution {
 				MyWorld testWorld = testingWorlds.get(i);
 				HRPerturbLearner perturbLearner = new HRPerturbLearner(testWorld, trainedLearners);
 				//setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
-				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}, testWorld.testWind, testWorld.testDryness), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				perturbLearner.runHRPerturb(false);
 				perturbLearner.runHRPerturb(true, initialState(testWorld, testWorld.sessionNum));
-				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}, testWorld.testWind, testWorld.testDryness), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 			}
 		} else if(condition == ExperimentCondition.PRQL){
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
 				PRQLearner learner = new PRQLearner(testWorld, trainedPolicies, trainedLearners.get(0));
 				//setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
-				learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}, testWorld.testWind, testWorld.testDryness), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				learner.runPRQL(false);
 				learner.runPRQL(true, initialState(testWorld, testWorld.sessionNum));
-				learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}, testWorld.testWind, testWorld.testDryness), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 			}
 		} else {
 			//Q-learning proce and perturb testing sessions
 			for(MyWorld testWorld : testingWorlds){
 				QLearner testQLearner = new QLearner(trainedLearners.get(0), condition); //both proce and perturb Q only have one Q-value function so it is directly transferred to the test case
 				//setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
-				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}, testWorld.testWind, testWorld.testDryness), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				testQLearner.run(testWorld, false);
 				testQLearner.run(testWorld, true, initialState(testWorld, testWorld.sessionNum));
-				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}, testWorld.testWind, testWorld.testDryness), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 			}
 		}
 	}
@@ -305,68 +305,68 @@ public class TaskExecution {
 		if(myWorld.typeOfWorld == Constants.PRACTICE){
 			if(roundNum == 1){
 				int[] stateOfFires = {3,3,3,3,3};
-				return new State(stateOfFires);
+				return new State(stateOfFires, myWorld.testWind, myWorld.testDryness);
 			} else if(roundNum == 2){
 				int[] stateOfFires = {3,2,0,3,1};
-				return new State(stateOfFires);
+				return new State(stateOfFires, myWorld.testWind, myWorld.testDryness);
 			}	
 		} else if(myWorld.typeOfWorld == Constants.TRAINING){
 			if(myWorld.perturb){
 				switch(roundNum){
 					case 1:
 						int[] stateOfFires = {2,3,3,1,2};
-						return new State(stateOfFires);
+						return new State(stateOfFires, myWorld.testWind, myWorld.testDryness);
 					case 2:
 						int[] stateOfFires1 = {2,2,1,3,3};
-						return new State(stateOfFires1);
+						return new State(stateOfFires1, myWorld.testWind, myWorld.testDryness);
 					case 3:
 						int[] stateOfFires2 = {0,2,1,2,3};
-						return new State(stateOfFires2);
+						return new State(stateOfFires2, myWorld.testWind, myWorld.testDryness);
 					case 4:
 						int[] stateOfFires3 = {0,1,1,2,3};
-						return new State(stateOfFires3);
+						return new State(stateOfFires3, myWorld.testWind, myWorld.testDryness);
 					case 5:
 						int[] stateOfFires4 = {3,3,3,2,3};
-						return new State(stateOfFires4);
+						return new State(stateOfFires4, myWorld.testWind, myWorld.testDryness);
 					case 6:
 						int[] stateOfFires5 = {3,3,2,3,1};
-						return new State(stateOfFires5);
+						return new State(stateOfFires5, myWorld.testWind, myWorld.testDryness);
 				}
 			} else if(!myWorld.perturb) {
 				switch(roundNum){
 					case 1:
 						int[] stateOfFires = {2,3,3,1,2};
-						return new State(stateOfFires);
+						return new State(stateOfFires, myWorld.testWind, myWorld.testDryness);
 					case 2:
 						int[] stateOfFires1 = {2,2,1,3,3};
-						return new State(stateOfFires1);
+						return new State(stateOfFires1, myWorld.testWind, myWorld.testDryness);
 					case 3:
 						int[] stateOfFires2 = {3,1,3,1,2};
-						return new State(stateOfFires2);
+						return new State(stateOfFires2, myWorld.testWind, myWorld.testDryness);
 					case 4:
 						int[] stateOfFires3 = {2,3,1,1,3};
-						return new State(stateOfFires3);
+						return new State(stateOfFires3, myWorld.testWind, myWorld.testDryness);
 					case 5:
 						int[] stateOfFires4 = {3,3,2,3,3};
-						return new State(stateOfFires4);
+						return new State(stateOfFires4, myWorld.testWind, myWorld.testDryness);
 					case 6:
 						int[] stateOfFires5 = {3,2,3,3,3};
-						return new State(stateOfFires5);
+						return new State(stateOfFires5, myWorld.testWind, myWorld.testDryness);
 				}
 			}
 		} else if(myWorld.typeOfWorld == Constants.TESTING) {
 			if(roundNum == 1){
 				int[] stateOfFires = {0,1,1,1,0};
-				return new State(stateOfFires);
+				return new State(stateOfFires, myWorld.testWind, myWorld.testDryness);
 			} else if(roundNum == 2){
 				int[] stateOfFires = {3,1,3,1,1};
-				return new State(stateOfFires);
+				return new State(stateOfFires, myWorld.testWind, myWorld.testDryness);
 			} else if(roundNum == 3){
 				int[] stateOfFires = {1,0,3,3,1};
-				return new State(stateOfFires);
+				return new State(stateOfFires, myWorld.testWind, myWorld.testDryness);
 			} else if(roundNum == 4){
 				int[] stateOfFires = {0,1,1,1,3};
-				return new State(stateOfFires);
+				return new State(stateOfFires, myWorld.testWind, myWorld.testDryness);
 			} 
 		}
 		return null;

@@ -5,15 +5,21 @@ package code;
  */
 public class State {
 	public int[] stateOfFires;
+	public int wind;
+	public int dryness;
 	
-	public State(int[] stateOfFires){
+	public State(int[] stateOfFires, int wind, int dryness){
 		this.stateOfFires = stateOfFires.clone();
+		this.wind = wind;
+		this.dryness = dryness;
 	}
 	
 	public int getId(){
 		int id = 0;
+		double exp = Math.pow(Constants.STATES_PER_FIRE, stateOfFires.length);
 		for(int i=0; i<stateOfFires.length; i++)
 			id += Math.pow(Constants.STATES_PER_FIRE, i)*stateOfFires[i];
+		id +=  exp*wind + exp*Constants.NUM_LEVELS*dryness;
 		return id;
 	}
 	
@@ -37,6 +43,10 @@ public class State {
 	
 	public boolean equals(Object Obj){
 		State state = (State)Obj;
+		if(wind != state.wind)
+			return false;
+		if(dryness != state.dryness)
+			return false;
 		for(int i = 0; i < stateOfFires.length; i++) {
 			if(stateOfFires[i] != state.stateOfFires[i])
 				return false;  
@@ -54,7 +64,7 @@ public class State {
 	}
 	
 	public State clone(){
-		return new State(stateOfFires.clone());
+		return new State(stateOfFires.clone(), wind, dryness);
 	}
 	
 	public boolean anyItemInState(int stateOfItem){
@@ -86,6 +96,7 @@ public class State {
 		for(int i=0; i<stateOfFires.length; i++){
 			str+=stateOfFires[i];
 		}
+		str+=" W: "+wind+" D: "+dryness;
 		return str;
 	}
 	

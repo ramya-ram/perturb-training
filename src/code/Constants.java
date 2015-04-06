@@ -34,12 +34,13 @@ public class Constants {
 	public static int NUM_FIRES = 5;
 	public static int NONE = 0, HIGHEST = 3, BURNOUT = 4;
 	public static int indexOfFireInAction = 7; //PUT_OUT[0,1,2,3,4] -- the fire number is at the 7th index
+	public static int NUM_LEVELS = 10;
 	
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
 	
-	public static int[] simulationWind_train =    {0, 5, 0};
-	public static int[] simulationDryness_train = {0, 0, 5};
+	public static int[] simulationWind_train =   {};//{0, 5, 0}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically
+	public static int[] simulationDryness_train = {};//{0, 0, 5};
 	public static int[] testWind_train =    {0, 6, 0};
 	public static int[] testDryness_train = {0, 0, 6};
 	public static int[] simulationWind_test =    {};//{0, 1, 8}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
@@ -61,10 +62,10 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
 	public static String simulationDir = "C:\\Extra\\";
-	public static String rewardProceQName = simulationDir+"PQtest.csv";
-	public static String rewardPerturbQName = simulationDir+"BQtest.csv";
-	public static String rewardHRPerturbName = simulationDir+"BHtest.csv";
-	public static String rewardPRQLName = simulationDir+"PRQLtest.csv";
+	public static String rewardProceQName = simulationDir+"PQ_windDrynessInState.csv";
+	public static String rewardPerturbQName = simulationDir+"BQ_windDrynessInState.csv";
+	public static String rewardHRPerturbName = simulationDir+"BH_windDrynessInState.csv";
+	public static String rewardPRQLName = simulationDir+"PRQL_windDrynessInState.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	

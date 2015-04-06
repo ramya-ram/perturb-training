@@ -45,7 +45,7 @@ public class MyWorld {
 		int[] statesOfFires = new int[Constants.NUM_FIRES];
 		for(int i=0; i<str.length(); i++)
 			statesOfFires[i] = str.charAt(i)-'0';
-		return new State(statesOfFires);
+		return new State(statesOfFires, 0, 0);
 	}
 	
 	/**
@@ -73,8 +73,12 @@ public class MyWorld {
 					for(int l=0; l<statesPerFire; l++){
 						for(int m=0; m<statesPerFire; m++){
 							int[] statesOfFire = {i,j,k,l,m};
-							State state = new State(statesOfFire);
-							states.add(state);
+							for(int wind=0; wind<Constants.NUM_LEVELS; wind++){
+								for(int dryness=0; dryness<Constants.NUM_LEVELS; dryness++){
+									State state = new State(statesOfFire, wind, dryness);
+									states.add(state);
+								}
+							}
 						}
 					}
 				}
@@ -84,7 +88,7 @@ public class MyWorld {
 		initStates = new State[numStates];
 		int count=0;
 		for(State state : states){
-			if(state.noItemsInState(Constants.BURNOUT)){
+			if(state.wind == testWind && state.dryness == testDryness && state.noItemsInState(Constants.BURNOUT)){
 				initStates[count] = state.clone();
 				count++;
 			}
@@ -141,7 +145,7 @@ public class MyWorld {
 	public State initialState(){
 		if(Main.currWithSimulatedHuman && typeOfWorld == Constants.TESTING){
 			int[] stateOfFires = {1,1,0,3,3};
-			return new State(stateOfFires);
+			return new State(stateOfFires, testWind, testDryness);
 		}
 		return initStates[Tools.rand.nextInt(initStates.length)];	
 	}
@@ -237,12 +241,15 @@ public class MyWorld {
 					newState = getPredefinedNextState(newState, agentActions);
 					return newState;
 				}
-				wind = testWind;
-				dryness = testDryness;
+				//wind = testWind;
+				//dryness = testDryness;
 			} else {
-				wind = simulationWind;
-				dryness = simulationDryness;
+				//wind = simulationWind;
+				//dryness = simulationDryness;
 			}
+			
+			wind = testWind;
+			dryness = testDryness;
 			
 			Action humanAction = agentActions.getHumanAction();
 			Action robotAction = agentActions.getRobotAction();
