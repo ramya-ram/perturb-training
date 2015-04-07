@@ -66,7 +66,7 @@ public class PRQLearner extends LearningAlgorithm {
 //		System.out.println("num of episodes chosen: ");
 //		Tools.printArray(numOfEpisodesChosen);
 		try{
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
+			//BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
 			double currTemp = Constants.TEMP;
 			for(int k=0; k<numEpisodes; k++){
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
@@ -102,12 +102,18 @@ public class PRQLearner extends LearningAlgorithm {
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
 				}
+				
+				if(myWorld.typeOfWorld == Constants.TESTING && k%100 == 0){
+					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName+"_"+myWorld.sessionNum+".csv"), true));
+					rewardWriter.write(""+reward+", ");
+					rewardWriter.close();
+				}
+				
 				if(withHuman && Main.saveToFile){
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 						saveDataToFile(reward, iterations, duration);
 					else{
-						if(myWorld.typeOfWorld == Constants.TESTING)
-							rewardWriter.write(""+reward+", ");
+						
 					}
 				}
 	           
@@ -120,6 +126,9 @@ public class PRQLearner extends LearningAlgorithm {
 //				System.out.println("num of episodes chosen: ");
 //				Tools.printArray(numOfEpisodesChosen);
 			}
+			//rewardWriter.close();
+			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName+"_"+myWorld.sessionNum+".csv"), true));
+			rewardWriter.write("\n");
 			rewardWriter.close();
 		} catch(Exception e){
 			e.printStackTrace();
