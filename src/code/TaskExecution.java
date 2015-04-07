@@ -205,8 +205,8 @@ public class TaskExecution {
 		baseQLearner.run(trainWorld0, false);
 		baseQLearner.run(trainWorld0, true, initialState(trainWorld0, 2));
 		learners.add(baseQLearner.currQValues);
-		//if(condition == ExperimentCondition.PRQL)
-		//	policies.add(baseQLearner.computePolicy());
+		if(condition == ExperimentCondition.PRQL)
+			policies.add(baseQLearner.computePolicy());
 		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}, trainWorld0.testWind, trainWorld0.testDryness), condition+"_"+0, Constants.print);
 		
 		if(condition == ExperimentCondition.HR_PERTURB || condition == ExperimentCondition.PRQL){
@@ -260,6 +260,7 @@ public class TaskExecution {
 				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}, testWorld.testWind, testWorld.testDryness), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 			}
 		} else if(condition == ExperimentCondition.PRQL){
+			System.out.println("Library size "+trainedPolicies.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
 				PRQLearner learner = new PRQLearner(testWorld, trainedPolicies, trainedLearners.get(0));

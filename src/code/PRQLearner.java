@@ -17,10 +17,10 @@ public class PRQLearner extends LearningAlgorithm {
 		this.library = library;
 		timer = new Timer(1000, timerListener());
 		
-		if(qValuesSet != null)
-			currQValues = qValuesSet.clone();
-		else
-			currQValues = new QValuesSet();
+		if(qValuesSet != null) //transfer the previously learned q-values passed in as a parameter if not null
+			currQValues = qValuesSet.clone();			
+		else //if there are no qvalues to transfer from previous tasks, use the ones from offline learning
+			currQValues = new QValuesSet(Main.robotQValuesOffline, Main.jointQValuesOffline);
 		
 		weights = new double[library.size()+1];
 		numOfEpisodesChosen = new int[library.size()+1];
