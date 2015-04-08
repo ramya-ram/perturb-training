@@ -87,21 +87,21 @@ public class Main {
 				for(int i=0; i<Constants.NUM_AVERAGING; i++){
 					//makes simulation wind and dryness a noisy version of the real one
 					System.out.println("*** "+i+" ***");
-					for(MyWorld trainWorld : trainingWorldsProce)
+					/*for(MyWorld trainWorld : trainingWorldsProce)
 						trainWorld.calculateSimulationWindDryness();
 					for(MyWorld trainWorld : trainingWorldsPerturb)
 						trainWorld.calculateSimulationWindDryness();
 					for(MyWorld testWorld : testingWorlds)
-						testWorld.calculateSimulationWindDryness();
+						testWorld.calculateSimulationWindDryness();*/
 					
-					//PROCEDURAL - Q-learning
+					/*//PROCEDURAL - Q-learning
 					TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
 					proceQ.executeTask();
 					//TODO: make sure the human sessions are run for only 1 episode
 					
 					//PERTURBATION - Q-learning
 					TaskExecution perturbQ = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PERTURB_Q);
-					perturbQ.executeTask();
+					perturbQ.executeTask();*/
 					
 					//PERTURBATION - HRPR
 					TaskExecution HRPerturb = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.HR_PERTURB);
@@ -112,18 +112,18 @@ public class Main {
 					PRQL.executeTask();
 					
 					BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPerturbName), true));
-					BufferedWriter rewardPerturbQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbQName), true));
-					BufferedWriter rewardProceQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceQName), true));
+					//BufferedWriter rewardPerturbQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbQName), true));
+					//BufferedWriter rewardProceQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceQName), true));
 					BufferedWriter rewardPRQLWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
 					
 					rewardHRPerturbWriter.write("\n");
-					rewardPerturbQWriter.write("\n");
-					rewardProceQWriter.write("\n");
+					//rewardPerturbQWriter.write("\n");
+					//rewardProceQWriter.write("\n");
 					rewardPRQLWriter.write("\n");
 					
 					rewardHRPerturbWriter.close();
-					rewardPerturbQWriter.close();
-					rewardProceQWriter.close();
+					//rewardPerturbQWriter.close();
+					//rewardProceQWriter.close();
 					rewardPRQLWriter.close();
 				}
 			} else {	

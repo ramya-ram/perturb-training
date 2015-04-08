@@ -28,7 +28,7 @@ public class Constants {
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
 	public static boolean print = false;
-	public static int NUM_AVERAGING = 25;
+	public static int NUM_AVERAGING = 50;
 	
 	public static int STATES_PER_FIRE = 5;
 	public static int NUM_FIRES = 5;
@@ -61,10 +61,10 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
 	public static String simulationDir = "C:\\Extra\\";
-	public static String rewardProceQName = simulationDir+"PQ_3Policies.csv";
-	public static String rewardPerturbQName = simulationDir+"BQ_3Policies.csv";
-	public static String rewardHRPerturbName = simulationDir+"BH_3Policies.csv";
-	public static String rewardPRQLName = simulationDir+"PRQL_3Policies.csv";
+	public static String rewardProceQName = simulationDir+"PQ_3Policies_50Aver_NoNoise.csv";
+	public static String rewardPerturbQName = simulationDir+"BQ_3Policies_50Aver_NoNoise.csv";
+	public static String rewardHRPerturbName = simulationDir+"BH_3Policies_50Aver_NoNoise.csv";
+	public static String rewardPRQLName = simulationDir+"PRQL_3Policies_50Aver_NoNoise.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	

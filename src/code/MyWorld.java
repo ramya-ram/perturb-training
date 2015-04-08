@@ -237,12 +237,15 @@ public class MyWorld {
 					newState = getPredefinedNextState(newState, agentActions);
 					return newState;
 				}
-				wind = testWind;
-				dryness = testDryness;
-			} else {
-				wind = simulationWind;
-				dryness = simulationDryness;
-			}
+				//wind = testWind;
+				//dryness = testDryness;
+			} //else {
+			//	wind = simulationWind;
+			//	dryness = simulationDryness;
+			//}
+			
+			wind = testWind;
+			dryness = testDryness;
 			
 			Action humanAction = agentActions.getHumanAction();
 			Action robotAction = agentActions.getRobotAction();
@@ -468,7 +471,7 @@ public class MyWorld {
 	 * Then in the real environment, the real values are used
 	 * This is used to make the point that the robot doesn't have an exact model of the real environment and so uses this "approximate" model for simulation
 	 */
-	public void calculateSimulationWindDryness(){
+	/*public void calculateSimulationWindDryness(){
 		int randNumWind = Tools.rand.nextInt(100);
 		int randNumDryness = Tools.rand.nextInt(100);
 		double sum = 0;
@@ -491,7 +494,7 @@ public class MyWorld {
 		}
 		simulationDryness = count;
 		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
-	}
+	}*/
 	
 	/**
 	 * Makes appropriate changes to the state to reflect the fire burning down the building
