@@ -72,9 +72,15 @@ public class MyWorld {
 				for(int k=0; k<statesPerFire; k++){
 					for(int l=0; l<statesPerFire; l++){
 						for(int m=0; m<statesPerFire; m++){
-							int[] statesOfFire = {i,j,k,l,m};
-							State state = new State(statesOfFire);
-							states.add(state);
+							for(int n=0; n<statesPerFire; n++){
+								for(int o=0; o<statesPerFire; o++){
+									for(int p=0; p<statesPerFire; p++){
+										int[] statesOfFire = {i,j,k,l,m,n,o,p};
+										State state = new State(statesOfFire);
+										states.add(state);
+									}
+								}
+							}		
 						}
 					}
 				}

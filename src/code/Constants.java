@@ -31,7 +31,7 @@ public class Constants {
 	public static int NUM_AVERAGING = 50;
 	
 	public static int STATES_PER_FIRE = 5;
-	public static int NUM_FIRES = 5;
+	public static int NUM_FIRES = 8;
 	public static int NONE = 0, HIGHEST = 3, BURNOUT = 4;
 	public static int indexOfFireInAction = 7; //PUT_OUT[0,1,2,3,4] -- the fire number is at the 7th index
 	
@@ -61,10 +61,10 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
 	public static String simulationDir = "C:\\Extra\\";
-	public static String rewardProceQName = simulationDir+"PQ_3Policies_50Aver_NoNoise.csv";
-	public static String rewardPerturbQName = simulationDir+"BQ_3Policies_50Aver_NoNoise.csv";
-	public static String rewardHRPerturbName = simulationDir+"BH_3Policies_50Aver_NoNoise.csv";
-	public static String rewardPRQLName = simulationDir+"PRQL_3Policies_50Aver_NoNoise.csv";
+	public static String rewardProceQName = simulationDir+"PQ_3Policies_50Aver_NoNoise_8Fires.csv";
+	public static String rewardPerturbQName = simulationDir+"BQ_3Policies_50Aver_NoNoise_8Fires.csv";
+	public static String rewardHRPerturbName = simulationDir+"BH_3Policies_50Aver_NoNoise_8Fires.csv";
+	public static String rewardPRQLName = simulationDir+"PRQL_3Policies_50Aver_NoNoise_8Fires.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	
