@@ -508,8 +508,8 @@ public class LearningAlgorithm {
 	 */
 	public void simulateWaitTime(State state) {
 		int stateScore = 0;
-		for(int i=0; i<state.stateOfFires.length; i++){
-			int num = state.stateOfFires[i];
+		for(int i=0; i<state.stateOfParts.length; i++){
+			int num = state.stateOfParts[i];
 			if(num == Constants.BURNOUT)
 				stateScore += 0;
 			else

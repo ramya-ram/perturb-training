@@ -4,5 +4,5 @@ package code;
  * Set of possible actions
  */
 public enum Action {
-	PUT_OUT0, PUT_OUT1, PUT_OUT2, PUT_OUT3, PUT_OUT4, WAIT
+	P0,P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13,P14,WAIT
 }

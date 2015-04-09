@@ -4,16 +4,16 @@ package code;
  * Representation for a state in this MDP
  */
 public class State {
-	public int[] stateOfFires;
+	public int[] stateOfParts;
 	
-	public State(int[] stateOfFires){
-		this.stateOfFires = stateOfFires.clone();
+	public State(int[] stateOfParts){
+		this.stateOfParts = stateOfParts.clone();
 	}
 	
 	public int getId(){
 		int id = 0;
-		for(int i=0; i<stateOfFires.length; i++)
-			id += Math.pow(Constants.STATES_PER_FIRE, i)*stateOfFires[i];
+		for(int i=0; i<stateOfParts.length; i++)
+			id += Math.pow(Constants.STATES_PER_FIRE, i)*stateOfParts[i];
 		return id;
 	}
 	
@@ -22,11 +22,11 @@ public class State {
 	 */
 	public String getArduinoString(){
 		String str = "";
-		for(int i=0; i<stateOfFires.length; i++){
-			if(stateOfFires[i] == Constants.NONE || stateOfFires[i] == Constants.BURNOUT)
+		for(int i=0; i<stateOfParts.length; i++){
+			if(stateOfParts[i] == Constants.NONE || stateOfParts[i] == Constants.BURNOUT)
 				str += "0";
 			else
-				str += ""+stateOfFires[i];
+				str += ""+stateOfParts[i];
 		}
 		return str;
 	}
@@ -37,8 +37,8 @@ public class State {
 	
 	public boolean equals(Object Obj){
 		State state = (State)Obj;
-		for(int i = 0; i < stateOfFires.length; i++) {
-			if(stateOfFires[i] != state.stateOfFires[i])
+		for(int i = 0; i < stateOfParts.length; i++) {
+			if(stateOfParts[i] != state.stateOfParts[i])
 				return false;  
 		}
 		return true;
@@ -46,36 +46,36 @@ public class State {
 	
 	public int getNumItemsInState(int stateOfItem){
 		int count = 0;
-		for(int i=0; i<stateOfFires.length; i++){
-			if(stateOfFires[i] == stateOfItem)
+		for(int i=0; i<stateOfParts.length; i++){
+			if(stateOfParts[i] == stateOfItem)
 				count++;
 		}
 		return count;
 	}
 	
 	public State clone(){
-		return new State(stateOfFires.clone());
+		return new State(stateOfParts.clone());
 	}
 	
 	public boolean anyItemInState(int stateOfItem){
-		for(int i=0; i<stateOfFires.length; i++){
-			if(stateOfFires[i] == stateOfItem)
+		for(int i=0; i<stateOfParts.length; i++){
+			if(stateOfParts[i] == stateOfItem)
 				return true;
 		}
 		return false;
 	}
 	
 	public boolean allItemsInState(int stateOfItem1, int stateOfItem2){
-		for(int i=0; i<stateOfFires.length; i++){
-			if(stateOfFires[i] != stateOfItem1 && stateOfFires[i] != stateOfItem2)
+		for(int i=0; i<stateOfParts.length; i++){
+			if(stateOfParts[i] != stateOfItem1 && stateOfParts[i] != stateOfItem2)
 				return false;
 		}
 		return true;
 	}
 	
 	public boolean noItemsInState(int stateOfItem){
-		for(int i=0; i<stateOfFires.length; i++){
-			if(stateOfFires[i] == stateOfItem)
+		for(int i=0; i<stateOfParts.length; i++){
+			if(stateOfParts[i] == stateOfItem)
 				return false;
 		}
 		return true;
@@ -83,30 +83,30 @@ public class State {
 	
 	public String toStringFile() {
 		String str = "";
-		for(int i=0; i<stateOfFires.length; i++){
-			str+=stateOfFires[i];
+		for(int i=0; i<stateOfParts.length; i++){
+			str+=stateOfParts[i];
 		}
 		return str;
 	}
 	
 	public String toString() {
 		String str = "Intensities: ";
-		for(int i=0; i<stateOfFires.length; i++){
-			if(i == stateOfFires.length-1)
-				str+=getCharFromIntensity(stateOfFires[i]);
+		for(int i=0; i<stateOfParts.length; i++){
+			if(i == stateOfParts.length-1)
+				str+=getCharFromIntensity(stateOfParts[i]);
 			else
-				str+=getCharFromIntensity(stateOfFires[i])+" ";
+				str+=getCharFromIntensity(stateOfParts[i])+" ";
 		}
 		return str;
 	}
 	
 	public String toStringSimple() {
 		String str = "";
-		for(int i=0; i<stateOfFires.length; i++){
-			if(i == stateOfFires.length-1)
-				str+=getCharFromIntensity(stateOfFires[i]);
+		for(int i=0; i<stateOfParts.length; i++){
+			if(i == stateOfParts.length-1)
+				str+=getCharFromIntensity(stateOfParts[i]);
 			else
-				str+=getCharFromIntensity(stateOfFires[i])+" ";
+				str+=getCharFromIntensity(stateOfParts[i])+" ";
 		}
 		return str;
 	}

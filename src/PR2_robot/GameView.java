@@ -316,9 +316,9 @@ public class GameView extends JFrame {
      */
     public void updateState(State state) {
     	stateView.removeAll();
-        for(int i=0; i < state.stateOfFires.length; i++){
+        for(int i=0; i < state.stateOfParts.length; i++){
         	JLabel label = new JLabel();
-        	label.setIcon(intensityImages[state.stateOfFires[i]]);    
+        	label.setIcon(intensityImages[state.stateOfParts[i]]);    
         	stateView.add(label);
         }
         stateView.revalidate();
