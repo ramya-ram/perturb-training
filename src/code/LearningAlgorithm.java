@@ -55,7 +55,7 @@ public class LearningAlgorithm {
 		if(Main.arduino != null && Main.currWithSimulatedHuman)
 			Main.arduino.sendString(state.getArduinoString());
         try{
-	        while (!MyWorld.isGoalState(state) && iterations < maxSteps) {
+	        while (!myWorld.isGoalState(state) && iterations < maxSteps) {
 	        	HumanRobotActionPair agentActions = null;
 				if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION) {
 					agentActions = getAgentActionsCommWithHuman(state); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
@@ -82,7 +82,7 @@ public class LearningAlgorithm {
 				if(withHuman && Main.gameView != null){
 					Main.gameView.setNextEnable(true);
 					Main.gameView.waitForNextClick();
-					if(MyWorld.isGoalState(state)){
+					if(myWorld.isGoalState(state)){
 						Main.gameView.initTitleGUI("congrats");
 					}
 					else if(iterations >= maxSteps)
@@ -201,7 +201,7 @@ public class LearningAlgorithm {
 			for(int j=0; j<qValuesSet.jointQValues[stateId].length; j++){
 				for(int k=0; k<qValuesSet.jointQValues[stateId][j].length; k++){
 					if(qValuesSet.jointQValues[stateId][j][k] < 0 || qValuesSet.jointQValues[stateId][j][k] > 0){
-						writer.write("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+qValuesSet.jointQValues[stateId][j][k]+"\n");
+						writer.write("jointQValues["+state.toString()+" "+stateId+"]["+j+"]["+k+"] = "+qValuesSet.jointQValues[stateId][j][k]+"\n");
 					}
 				}
 			}
@@ -508,13 +508,13 @@ public class LearningAlgorithm {
 	 */
 	public void simulateWaitTime(State state) {
 		int stateScore = 0;
-		for(int i=0; i<state.stateOfFires.length; i++){
+		/*for(int i=0; i<state.stateOfFires.length; i++){
 			int num = state.stateOfFires[i];
 			if(num == Constants.BURNOUT)
 				stateScore += 0;
 			else
 				stateScore += num;
-		}
+		}*/
 		System.out.println("score "+stateScore);
 		try{
 			if(stateScore < 10){
@@ -664,8 +664,8 @@ public class LearningAlgorithm {
 		try{
 			if(withHuman && Main.saveToFile){
 				BufferedWriter episodeWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"episode.txt"), true));
-				episodeWriter.write(state.toStringFile()+", "+humanAction+", "+robotAction+", "
-						+nextState.toStringFile()+", "+reward+"\n");
+				episodeWriter.write(state.toString()+", "+humanAction+", "+robotAction+", "
+						+nextState.toString()+", "+reward+"\n");
 				episodeWriter.close();
 	        }
 		} catch(Exception e){

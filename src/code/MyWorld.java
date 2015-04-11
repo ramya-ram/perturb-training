@@ -1,6 +1,7 @@
 package code;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,40 +13,34 @@ public class MyWorld {
 	public String predefinedText;
 	public String textToDisplay;
 	
-	//prior probabilities for environment variables = wind, dryness
-	public static double[][] probObsGivenWind;
-	public static double[][] probObsGivenDryness;
-	
-	public int testWind = 0; 
-	public int testDryness = 0;
-	public int simulationWind = 0; //noisy version of test wind and dryness
-	public int simulationDryness = 0;
+	public Location goalLoc;
+	public List<Location> tokenLocs = Arrays.asList(new Location(3,3), new Location(2,4), new Location(8,8), new Location(6,7), new Location(7,2), new Location(1,8), new Location(2,8), new Location(3,8),
+			new Location(5,5), new Location(1,1), new Location(2,0));
+	public List<Location> pitLocs = Arrays.asList(new Location(2,3), new Location(3,4), new Location(5,6), new Location(6,6), new Location(9,1), new Location(8,9));
 	
 	public int sessionNum; //specifies which training or testing round it is
 	public boolean perturb; //specifies if this world is for perturbation or procedural training
 	public int typeOfWorld; //specifies if this world is for training or testing
 	
-	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum, int testWind, int testDryness){
+	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum, Location goalLoc){
 		this.typeOfWorld = typeOfWorld;
 		this.perturb = perturb;
 		this.sessionNum = sessionNum;
-		this.testWind = testWind;
-		this.testDryness = testDryness;
-		
+		this.goalLoc = goalLoc.clone();
+				
 		//initialize the mdp only once
 		if(mdp == null)
 			mdp = initializeMDP();
-		if(probObsGivenWind == null || probObsGivenDryness == null)
-			initPriorProbabilities();
 		
 		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
 	public static State getStateFromFile(String str){
-		int[] statesOfFires = new int[Constants.NUM_FIRES];
+		/*int[] statesOfFires = new int[Constants.NUM_FIRES];
 		for(int i=0; i<str.length(); i++)
 			statesOfFires[i] = str.charAt(i)-'0';
-		return new State(statesOfFires);
+		return new State(statesOfFires);*/
+		return null;
 	}
 	
 	/**
@@ -66,28 +61,26 @@ public class MyWorld {
 	 * Initializes set of states
 	 */
 	public void initStates() {
-		int statesPerFire = Constants.STATES_PER_FIRE;
-		for(int i=0; i<statesPerFire; i++){
-			for(int j=0; j<statesPerFire; j++){
-				for(int k=0; k<statesPerFire; k++){
-					for(int l=0; l<statesPerFire; l++){
-						for(int m=0; m<statesPerFire; m++){
-							int[] statesOfFire = {i,j,k,l,m};
-							State state = new State(statesOfFire);
-							states.add(state);
-						}
+		for(int row1 = 0; row1 < Constants.NUM_ROWS; row1++){
+			for(int col1 = 0; col1 < Constants.NUM_COLS; col1++){
+				Location humanLoc = new Location(row1, col1);
+				for(int row2 = 0; row2 < Constants.NUM_ROWS; row2++){
+					for(int col2 = 0; col2 < Constants.NUM_COLS; col2++){
+						Location robotLoc = new Location(row2, col2);
+						State state = new State(humanLoc, robotLoc);
+						states.add(state);
 					}
 				}
 			}
 		}
-		int numStates = (int) Math.pow(statesPerFire - 1, Constants.NUM_FIRES);
-		initStates = new State[numStates];
+		//int numStates = (int) Math.pow(statesPerFire - 1, Constants.NUM_FIRES);
+		initStates = new State[states.size()];
 		int count=0;
 		for(State state : states){
-			if(state.noItemsInState(Constants.BURNOUT)){
-				initStates[count] = state.clone();
-				count++;
-			}
+			//if(state.noItemsInState(Constants.BURNOUT)){
+			initStates[count] = state.clone();
+			count++;
+			//}
 		}
 		System.out.println("init states size "+count);
 	}
@@ -100,14 +93,18 @@ public class MyWorld {
 			@Override
 			public Set<Action> actions(State s) {
 				Set<Action> possibleActions = new HashSet<Action>();
-				if(isGoalState(s)){
+				if(s.robotLoc.equals(goalLoc)){
 					possibleActions.add(Action.WAIT);
 					return possibleActions;
 				}
-				for(int i=0; i<s.stateOfFires.length; i++){
-					if(s.stateOfFires[i] > Constants.NONE && s.stateOfFires[i] < Constants.BURNOUT)
-						possibleActions.add(Action.valueOf(Action.class, "PUT_OUT"+i));
-				}
+				if(s.robotLoc.row>0)
+					possibleActions.add(Action.UP);
+				if(s.robotLoc.row<Constants.NUM_ROWS-1)
+					possibleActions.add(Action.DOWN);
+				if(s.robotLoc.col>0)
+					possibleActions.add(Action.LEFT);
+				if(s.robotLoc.col<Constants.NUM_COLS-1)
+					possibleActions.add(Action.RIGHT);
 				return possibleActions;
 			}	
 		};
@@ -121,27 +118,30 @@ public class MyWorld {
 			@Override
 			public Set<Action> actions(State s) {
 				Set<Action> possibleActions = new HashSet<Action>();
-				if(isGoalState(s)){
+				if(s.humanLoc.equals(goalLoc)){
 					possibleActions.add(Action.WAIT);
 					return possibleActions;
 				}
-				for(int i=0; i<s.stateOfFires.length; i++){
-					if(s.stateOfFires[i] > Constants.NONE && s.stateOfFires[i] < Constants.BURNOUT)
-						possibleActions.add(Action.valueOf(Action.class, "PUT_OUT"+i));
-				}
+				if(s.humanLoc.row>0)
+					possibleActions.add(Action.UP);
+				if(s.humanLoc.row<Constants.NUM_ROWS-1)
+					possibleActions.add(Action.DOWN);
+				if(s.humanLoc.col>0)
+					possibleActions.add(Action.LEFT);
+				if(s.humanLoc.col<Constants.NUM_COLS-1)
+					possibleActions.add(Action.RIGHT);
 				return possibleActions;
 			}	
 		};
 	}
 	
-	public static boolean isGoalState(State state){
-		return state.allItemsInState(Constants.NONE, Constants.BURNOUT);
+	public boolean isGoalState(State state){
+		return state.humanLoc.equals(goalLoc) && state.robotLoc.equals(goalLoc);
 	}
 	
 	public State initialState(){
 		if(Main.currWithSimulatedHuman && typeOfWorld == Constants.TESTING){
-			int[] stateOfFires = {1,1,0,3,3};
-			return new State(stateOfFires);
+			return new State(new Location(5,0), new Location(0,5));
 		}
 		return initStates[Tools.rand.nextInt(initStates.length)];	
 	}
@@ -151,12 +151,23 @@ public class MyWorld {
 	 * Reward is given based on the intensities of fires, burnouts get high negative reward, even after the goal is reached 
 	 */
 	public double reward(State state, HumanRobotActionPair agentActions, State nextState){		
-		if(isGoalState(nextState))
+		/*if(isGoalState(nextState))
 			return -(100*nextState.getNumItemsInState(Constants.BURNOUT));
 		double reward = -10;
 		for(int i=0; i<nextState.stateOfFires.length; i++){
 			reward += -1*nextState.stateOfFires[i];
-		}
+		}*/
+		double reward = -1;
+		if(nextState.humanLoc.equals(nextState.robotLoc) && tokenLocs.contains(nextState.humanLoc))
+			reward += 10;
+		if(tokenLocs.contains(nextState.humanLoc))
+			reward += 3;
+		if(tokenLocs.contains(nextState.robotLoc))
+			reward += 3;
+		if(pitLocs.contains(nextState.humanLoc))
+			reward -= 10;
+		if(pitLocs.contains(nextState.robotLoc))
+			reward -= 10;
 		return reward;
 	}
 	
@@ -172,7 +183,7 @@ public class MyWorld {
 			textToDisplay = "";
 			System.out.println("USING PREDEFINED");
 			State nextState = getProcePredefinedNextState(state, agentActions).clone();
-			textToDisplay += "State after your actions: "+nextState.toStringSimple()+"\n";
+			textToDisplay += "State after your actions: "+nextState.toString()+"\n";
 			if(Main.gameView != null)
 				Main.gameView.setAnnouncements(textToDisplay);
 			
@@ -199,15 +210,15 @@ public class MyWorld {
 					if(str.charAt(0) == 'B'){
 						int fire = str.charAt(1)-48;
 						textToDisplay += getBurnoutMessage(fire)+"\n";
-						nextState = getNextStateAfterBurnout(nextState, fire);
+						//nextState = getNextStateAfterBurnout(nextState, fire);
 					} else if(str.charAt(0) == 'S'){
 						int spreadTo = str.charAt(2)-48;
 						textToDisplay += getSpreadMessage(str.charAt(1)-48, spreadTo)+"\n";
-						nextState = getNextStateAfterSpread(nextState, spreadTo);
+						//nextState = getNextStateAfterSpread(nextState, spreadTo);
 					}
 				}
 			}
-			textToDisplay += "Final state: "+nextState.toStringSimple();
+			textToDisplay += "Final state: "+nextState.toString();
 			if(Main.gameView != null)
 				Main.gameView.setAnnouncements(textToDisplay);
 			return nextState;
@@ -230,60 +241,19 @@ public class MyWorld {
 			return newState;
 
 		try{
-			int wind = 0;
-			int dryness = 0;
 			if(Main.currWithSimulatedHuman){
 				if(Constants.usePredefinedTestCases && typeOfWorld == Constants.TESTING){
 					newState = getPredefinedNextState(newState, agentActions);
 					return newState;
 				}
-				//wind = testWind;
-				//dryness = testDryness;
-			} //else {
-			//	wind = simulationWind;
-			//	dryness = simulationDryness;
-			//}
-			
-			wind = testWind;
-			dryness = testDryness;
+			}
 			
 			Action humanAction = agentActions.getHumanAction();
 			Action robotAction = agentActions.getRobotAction();
-			int humanFireIndex = -1;
-			int robotFireIndex = -1;
-			if(humanAction != Action.WAIT)
-				humanFireIndex = Integer.parseInt(humanAction.name().substring(7, 8));
-			if(robotAction != Action.WAIT)
-				robotFireIndex = Integer.parseInt(robotAction.name().substring(7, 8));
 			
-			//if computing pre-defined next state
-			if(Main.CURRENT_EXECUTION == Main.CREATE_PREDEFINED){
-				if(Main.proceTestCase != null){
-					newState = getProcePredefinedNextState(newState, agentActions).clone();
-					newState = getStateAfterWindDryness(newState, wind, dryness);
-					return newState;
-				} else {
-					newState = getStochasStateAfterActions(newState, humanFireIndex, robotFireIndex);
-					predefinedText += newState.toStringFile();
-					return newState;
-				}
-			}
+			newState.humanLoc = getNextStateLoc(newState.humanLoc, humanAction);
+			newState.robotLoc = getNextStateLoc(newState.robotLoc, robotAction);
 			
-			if(Main.currWithSimulatedHuman){
-				newState = getStochasStateAfterActions(newState, humanFireIndex, robotFireIndex);
-			} else {
-				newState = getStateAfterActions(newState, humanFireIndex, robotFireIndex);
-			}
-			
-			State beforeStochasticity = newState.clone();
-			if(Main.currWithSimulatedHuman)
-				textToDisplay += "State after your actions: "+beforeStochasticity.toStringSimple()+"\n";
-
-			newState = getStateAfterWindDryness(newState, wind, dryness);
-			
-			if(!beforeStochasticity.equals(newState) && Main.currWithSimulatedHuman){
-				textToDisplay += "Final state: "+newState.toStringSimple();
-			}
 			if(Main.currWithSimulatedHuman && Main.gameView != null)
 				Main.gameView.setAnnouncements(textToDisplay);
 		} catch(Exception e){
@@ -292,226 +262,57 @@ public class MyWorld {
 		return newState;
 	}
 	
-	/**
-	 * Adds in stochasticity into the environment
-	 * For example, if the human and robot work separately on different fires, 90% of the time the fires go down by 1 level, 10% the fires go down by 2
-	 * If the human and robot work together, 90% of the time the fire goes down by 3 levels, 10% the fire goes down by 2
-	 * This noisy version of getStateAfterActions() models a real environment with stochasticity while the robot simulates with an approximate deterministic model as in getStateAfterActions()
-	 */
-	public State getStochasStateAfterActions(State newState, int humanFireIndex, int robotFireIndex){
-		if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){
-			int randNum = Tools.rand.nextInt(100);
-			if(randNum < 90)
-				newState.stateOfFires[humanFireIndex]-=3;
-			else
-				newState.stateOfFires[humanFireIndex]-=2;
-			if(newState.stateOfFires[humanFireIndex] < 0)
-				newState.stateOfFires[humanFireIndex] = Constants.NONE;
-		} else {
-			if(humanFireIndex >= 0){
-				int randNum1 = Tools.rand.nextInt(100);
-				if(randNum1 < 90)
-					newState.stateOfFires[humanFireIndex]-=1;
-				else
-					newState.stateOfFires[humanFireIndex]-=2;
-				if(newState.stateOfFires[humanFireIndex] < 0)
-					newState.stateOfFires[humanFireIndex] = Constants.NONE;
-			}
-
-			if(robotFireIndex >= 0){
-				int randNum2 = Tools.rand.nextInt(100);
-				if(randNum2 < 90)
-					newState.stateOfFires[robotFireIndex]-=1;
-				else
-					newState.stateOfFires[robotFireIndex]-=2;
-				if(newState.stateOfFires[robotFireIndex] < 0)
-					newState.stateOfFires[robotFireIndex] = Constants.NONE;
-			}
-		}
-		return newState;
-	}
-	
-	/**
-	 * Deterministic version of the getStochasStateAfterActions() method
-	 * Used when the robot simulates on its own, as this is the approximate model of the environment
-	 * When working with the human in real live interactions, noise is added, as in getStochasStateAfterActions(), to model a real environment
-	 */
-	public State getStateAfterActions(State newState, int humanFireIndex, int robotFireIndex){
-		if(humanFireIndex != -1 && humanFireIndex == robotFireIndex){
-			newState.stateOfFires[humanFireIndex]-=3;
-			if(newState.stateOfFires[humanFireIndex] < 0)
-				newState.stateOfFires[humanFireIndex] = Constants.NONE;
-		} else {
-			if(humanFireIndex >= 0){
-				newState.stateOfFires[humanFireIndex]-=1;
-				if(newState.stateOfFires[humanFireIndex] < 0)
-					newState.stateOfFires[humanFireIndex] = Constants.NONE;
-			}
-			if(robotFireIndex >= 0){
-				newState.stateOfFires[robotFireIndex]-=1;
-				if(newState.stateOfFires[robotFireIndex] < 0)
-					newState.stateOfFires[robotFireIndex] = Constants.NONE;
-			}
-		}
-		return newState;
-	}
-	
-	/**
-	 * More stochasticity added based on wind and dryness in the environment
-	 * Wind causes fires to spread and dryness causes the building to burn down more quickly
-	 */
-	public State getStateAfterWindDryness(State newState, int wind, int dryness){
-		if(dryness > 0){
-			int highBurnoutPercent = dryness*10 + 10;
-			for(int i=0; i<newState.stateOfFires.length; i++){
-				if(newState.stateOfFires[i] == Constants.HIGHEST){
-					int randNum = Tools.rand.nextInt(100);
-					if(randNum < highBurnoutPercent){
-						newState.stateOfFires[i] = Constants.BURNOUT;
-						predefinedText+="B"+i+"#";
-						String text = getBurnoutMessage(i);
-						if(Main.currWithSimulatedHuman)
-							textToDisplay += text+"\n";
-					}
+	public Location getNextStateLoc(Location currLoc, Action action){
+		Location newLoc = currLoc.clone();
+		int randNum = Tools.rand.nextInt(100);
+		switch(action){
+			case UP:
+				if(randNum < 80) {
+					newLoc.row--;
+				} else if(randNum < 90) {
+					if(currLoc.col > 0)
+						newLoc.col--;
+				} else {
+					if(currLoc.col < Constants.NUM_COLS-1)
+						newLoc.col++;
 				}
-			}
-		}
-		
-		if(wind > 0){
-			int numSpreaded = 0;
-			int highBurnoutPercent = wind*10 + 10;
-			int mediumBurnoutPercent = highBurnoutPercent - 10;
-			int lowBurnoutPercent = mediumBurnoutPercent - 10;
-			
-			for(int i=0; i<newState.stateOfFires.length; i++){
-				int burnoutPercent = 0;
-				if(newState.stateOfFires[i] == Constants.HIGHEST-2)
-					burnoutPercent = lowBurnoutPercent;
-				else if(newState.stateOfFires[i] == Constants.HIGHEST-1)
-					burnoutPercent = mediumBurnoutPercent;
-				else if(newState.stateOfFires[i] == Constants.HIGHEST)
-					burnoutPercent = highBurnoutPercent;
-				if(burnoutPercent > 0){
-					if(checkIfValidFireLoc(i-1, newState.stateOfFires)){
-						int randNum = Tools.rand.nextInt(100);
-						if(randNum < burnoutPercent && numSpreaded <= 4){
-							newState.stateOfFires[i-1]++;
-							numSpreaded++;
-							predefinedText+="S"+i+(i-1)+"";
-							String text = getSpreadMessage(i, i-1);
-							if(Main.currWithSimulatedHuman)
-								textToDisplay += text+"\n";
-						}
-					}
-						
-					if(checkIfValidFireLoc(i+1, newState.stateOfFires)){
-						int randNum = Tools.rand.nextInt(100);
-						if(randNum < burnoutPercent && numSpreaded <= 4){
-							newState.stateOfFires[i+1]++;
-							numSpreaded++;
-							predefinedText+="S"+i+(i+1)+"";
-							String text = getSpreadMessage(i, i+1);
-							if(Main.currWithSimulatedHuman)
-								textToDisplay += text+"\n";
-						}
-					}
+				break;
+			case DOWN:
+				if(randNum < 80) {
+					newLoc.row++;
+				} else if(randNum < 90) {
+					if(currLoc.col > 0)
+						newLoc.col--;
+				} else {
+					if(currLoc.col < Constants.NUM_COLS-1)
+						newLoc.col++;
 				}
-			}
-		}
-		return newState;
-	}
-	
-	/**
-	 * Initialize the prior probabilities of wind and dryness occurring 
-	 * and the conditional probabilities of the observation being correct given the real values.
-	 */
-	public void initPriorProbabilities(){
-		probObsGivenWind = new double[10][10];
-		probObsGivenDryness = new double[10][10];
-		
-		for(int i=0; i<probObsGivenWind.length; i++){
-			for(int j=0; j<probObsGivenWind[i].length; j++){
-				if(i==j)
-					probObsGivenWind[i][j] = 0.6;
-				else if(Math.abs(i-j) == 1)
-					probObsGivenWind[i][j] = 0.2;
-			}
-		}
-		for(int j=0; j<probObsGivenWind[0].length; j++){
-			double sum = 0;
-			for(int i=0; i<probObsGivenWind.length; i++){
-				sum+=probObsGivenWind[i][j];
-			}
-			sum *= 100;
-			sum = Math.round(sum);
-			sum /= 100;
-			for(int i=0; i<probObsGivenWind.length; i++){
-				probObsGivenWind[i][j] /= sum;
-			}
-		}
-		
-		/*for(int i=0; i<probObsGivenWind.length; i++){
-			for(int j=0; j<probObsGivenWind[i].length; j++){
-				probObsGivenDryness[i][j] = probObsGivenWind[i][j];
-				System.out.print(probObsGivenDryness[i][j]+" ");
-			}
-			System.out.println();
-		}*/
-	}
-	
-	public void setSimulationWindDryness(int simulationWind, int simulationDryness){
-		this.simulationWind = simulationWind;
-		this.simulationDryness = simulationDryness;
-		
-		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
-	}
-	
-	/**
-	 * Given the actual testWind and testDryness in the real environment, here we calculate a noisy version of wind and dryness obtained from "sensors" that is used for simulation
-	 * Then in the real environment, the real values are used
-	 * This is used to make the point that the robot doesn't have an exact model of the real environment and so uses this "approximate" model for simulation
-	 */
-	/*public void calculateSimulationWindDryness(){
-		int randNumWind = Tools.rand.nextInt(100);
-		int randNumDryness = Tools.rand.nextInt(100);
-		double sum = 0;
-		int count = 0;
-		while(count < probObsGivenWind.length){
-			sum += probObsGivenWind[count][testWind]*100;
-			if(randNumWind <= sum)
 				break;
-			count++;
-		}
-		simulationWind = count;
-		
-		sum = 0;
-		count = 0;
-		while(count < probObsGivenDryness.length){
-			sum += probObsGivenDryness[count][testDryness]*100;
-			if(randNumDryness <= sum)
+			case LEFT:
+				if(randNum < 80) {
+					newLoc.col--;
+				} else if(randNum < 90) {
+					if(currLoc.row > 0)
+						newLoc.row--;
+				} else {
+					if(currLoc.row < Constants.NUM_ROWS-1)
+						newLoc.row++;
+				}
 				break;
-			count++;
+			case RIGHT:
+				if(randNum < 80) {
+					newLoc.col++;
+				} else if(randNum < 90) {
+					if(currLoc.row > 0)
+						newLoc.row--;
+				} else {
+					if(currLoc.row < Constants.NUM_ROWS-1)
+						newLoc.row++;
+				}
+				break;
+			case WAIT:
 		}
-		simulationDryness = count;
-		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
-	}*/
-	
-	/**
-	 * Makes appropriate changes to the state to reflect the fire burning down the building
-	 */
-	public State getNextStateAfterBurnout(State state, int fire){
-		State newState = state.clone();
-		newState.stateOfFires[fire] = Constants.BURNOUT;
-		return newState;
-	}
-	
-	/**
-	 * Makes appropriate changes to the state to reflect the fire spreading to the 'spreadTo' fire
-	 */
-	public State getNextStateAfterSpread(State state, int spreadTo){
-		State newState = state.clone();
-		newState.stateOfFires[spreadTo]++;
-		return newState;
+		return newLoc;
 	}
 	
 	/**
@@ -543,6 +344,6 @@ public class MyWorld {
 	}
 	
 	public boolean checkIfValidFireLoc(int index, int[] stateOfFires) {
-		return index >= 0 && index < Constants.NUM_FIRES && stateOfFires[index] < Constants.HIGHEST;
+		return index >= 0;// && index < Constants.NUM_FIRES && stateOfFires[index] < Constants.HIGHEST;
 	}
 }

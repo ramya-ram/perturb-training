@@ -122,9 +122,9 @@ public class MyServer {
     }
     
     public Action getAction(char c){
-    	int index = c - 'A';
-    	if(index >= 0 && index < Constants.NUM_FIRES)
-    		return Action.valueOf("PUT_OUT"+index);
+    	//int index = c - 'A';
+    	//if(index >= 0 && index < Constants.NUM_FIRES)
+    	//	return Action.valueOf("PUT_OUT"+index);
 		return Action.WAIT;
     }
     
@@ -145,7 +145,7 @@ public class MyServer {
     public Action getActionFromInput(String str){
     	str.toLowerCase();
     	Action action = null;
-    	if(str.contains("alpha"))
+    	/*if(str.contains("alpha"))
 			action = Action.PUT_OUT0;
 		else if(str.contains("bravo"))
 			action = Action.PUT_OUT1;
@@ -154,7 +154,7 @@ public class MyServer {
 		else if(str.contains("delta"))
 			action = Action.PUT_OUT3;
 		else if(str.contains("echo"))
-			action = Action.PUT_OUT4;
+			action = Action.PUT_OUT4;*/
     	return action;
     }
     

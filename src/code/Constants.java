@@ -21,34 +21,26 @@ public class Constants {
 	public static double THRESHOLD_REJECT = 2;
 	
 	//num of times to run
-	public static final int NUM_EPISODES = 200000;
-	public static final int NUM_EPISODES_TEST = 1500;
-	public static final int NUM_STEPS_PER_EPISODE = 20; 
+	public static final int NUM_EPISODES = 500000;
+	public static final int NUM_EPISODES_TEST = 3000;
+	public static final int NUM_STEPS_PER_EPISODE = 40;
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
 	public static boolean print = false;
 	public static int NUM_AVERAGING = 50;
 	
-	public static int STATES_PER_FIRE = 5;
-	public static int NUM_FIRES = 5;
-	public static int NONE = 0, HIGHEST = 3, BURNOUT = 4;
-	public static int indexOfFireInAction = 7; //PUT_OUT[0,1,2,3,4] -- the fire number is at the 7th index
+	public static int NUM_ROWS = 10;
+	public static int NUM_COLS = 10;
 	
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
+
+	public static Location[] trainingGoalLocs = {new Location(0,NUM_COLS-1), new Location(NUM_ROWS-1, 0), new Location(NUM_ROWS-1, NUM_COLS-1)};
+	public static Location[] testingGoalLocs = {new Location(2,NUM_COLS-2), new Location(NUM_ROWS-2, 2), new Location(NUM_ROWS-3, NUM_COLS-1)};
 	
-	public static int[] simulationWind_train =    {};//{0, 5, 0}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
-	public static int[] simulationDryness_train = {};//{0, 0, 5};
-	public static int[] testWind_train =    {0, 6, 0};
-	public static int[] testDryness_train = {0, 0, 6};
-	public static int[] simulationWind_test =    {};//{0, 1, 8}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
-	public static int[] simulationDryness_test = {};//{0, 8, 1};
-	public static int[] testWind_test =    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-	public static int[] testDryness_test = {0, 9, 8, 7, 6, 5, 4, 3, 2, 1};	
-	
-	public static final int NUM_TRAINING_SESSIONS = testWind_train.length;
-	public static final int NUM_TESTING_SESSIONS = testWind_test.length;
+	public static final int NUM_TRAINING_SESSIONS = trainingGoalLocs.length;
+	public static final int NUM_TESTING_SESSIONS = testingGoalLocs.length;
 
 	//file names where results are stored
 	public static String dataDir = "inputFiles\\";
@@ -61,10 +53,10 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
 	public static String simulationDir = "C:\\Extra\\";
-	public static String rewardProceQName = simulationDir+"PQ_3Policies_50Aver_NoNoise.csv";
-	public static String rewardPerturbQName = simulationDir+"BQ_3Policies_50Aver_NoNoise.csv";
-	public static String rewardHRPerturbName = simulationDir+"BH_3Policies_50Aver_NoNoise.csv";
-	public static String rewardPRQLName = simulationDir+"PRQL_3Policies_50Aver_NoNoise.csv";
+	public static String rewardProceQName = simulationDir+"PQ_grid.csv";
+	public static String rewardPerturbQName = simulationDir+"BQ_grid.csv";
+	public static String rewardHRPerturbName = simulationDir+"BH_grid.csv";
+	public static String rewardPRQLName = simulationDir+"PRQL_grid.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	

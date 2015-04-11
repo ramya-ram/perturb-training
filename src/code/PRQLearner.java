@@ -143,7 +143,7 @@ public class PRQLearner extends LearningAlgorithm {
 			double currProbPast = probPast*100;
 			long startTime = System.currentTimeMillis();
 			try{
-				while(!MyWorld.isGoalState(state) && count < numSteps){
+				while(!myWorld.isGoalState(state) && count < numSteps){
 					HumanRobotActionPair agentActions = null;
 					int randNum = Tools.rand.nextInt(100);
 					if(randNum < currProbPast){
@@ -171,7 +171,7 @@ public class PRQLearner extends LearningAlgorithm {
 					count++;
 					
 					if(!reachedGoalState){
-						if(MyWorld.isGoalState(state)){
+						if(myWorld.isGoalState(state)){
 							iterations = count;
 							reachedGoalState = true;
 						}
