@@ -1,7 +1,6 @@
 package code;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,19 +13,21 @@ public class MyWorld {
 	public String textToDisplay;
 	
 	public Location goalLoc;
-	public List<Location> tokenLocs = Arrays.asList(new Location(3,3), new Location(2,4), new Location(8,8), new Location(6,7), new Location(7,2), new Location(1,8), new Location(2,8), new Location(3,8),
-			new Location(5,5), new Location(1,1), new Location(2,0));
-	public List<Location> pitLocs = Arrays.asList(new Location(2,3), new Location(3,4), new Location(5,6), new Location(6,6), new Location(9,1), new Location(8,9));
+	
+	public List<Location> tokenLocs;
+	public List<Location> pitLocs;
 	
 	public int sessionNum; //specifies which training or testing round it is
 	public boolean perturb; //specifies if this world is for perturbation or procedural training
 	public int typeOfWorld; //specifies if this world is for training or testing
 	
-	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum, Location goalLoc){
+	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum, Location goalLoc, List<Location> tokenLocs, List<Location> pitLocs){
 		this.typeOfWorld = typeOfWorld;
 		this.perturb = perturb;
 		this.sessionNum = sessionNum;
 		this.goalLoc = goalLoc.clone();
+		this.tokenLocs = tokenLocs;
+		this.pitLocs = pitLocs;
 				
 		//initialize the mdp only once
 		if(mdp == null)
