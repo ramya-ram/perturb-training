@@ -25,8 +25,8 @@ public class Constants {
 	
 	//num of times to run
 	public static final int NUM_EPISODES = 800000;
-	public static final int NUM_EPISODES_TEST = 6000;
-	public static final int NUM_STEPS_PER_EPISODE = 25;
+	public static final int NUM_EPISODES_TEST = 3000;
+	public static final int NUM_STEPS_PER_EPISODE = 30;
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
@@ -86,10 +86,10 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
 	public static String simulationDir = "C:\\Extra\\";
-	public static String rewardProceQName = simulationDir+"PQ_grid_changingTokensPits_800000train_6000test_25steps.csv";
-	public static String rewardPerturbQName = simulationDir+"BQ_grid_changingTokensPits_800000train_6000test_25steps.csv";
-	public static String rewardHRPerturbName = simulationDir+"BH_grid_changingTokensPits_800000train_6000test_25steps.csv";
-	public static String rewardPRQLName = simulationDir+"PRQL_grid_changingTokensPits_800000train_6000test_25steps.csv";
+	public static String rewardProceQName = simulationDir+"PQ_grid_changingTokensPits_800000train_3000test_30steps.csv";
+	public static String rewardPerturbQName = simulationDir+"BQ_grid_changingTokensPits_800000train_3000test_30steps.csv";
+	public static String rewardHRPerturbName = simulationDir+"BH_grid_changingTokensPits_800000train_3000test_30steps.csv";
+	public static String rewardPRQLName = simulationDir+"PRQL_grid_changingTokensPits_800000train_3000test_30steps.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	
