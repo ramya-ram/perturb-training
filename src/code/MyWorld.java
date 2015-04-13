@@ -26,14 +26,29 @@ public class MyWorld {
 		this.perturb = perturb;
 		this.sessionNum = sessionNum;
 		this.goalLoc = goalLoc.clone();
-		this.tokenLocs = tokenLocs;
-		this.pitLocs = pitLocs;
-				
+		
+		this.tokenLocs = new ArrayList<Location>();
+		this.tokenLocs.addAll(tokenLocs);
+		this.pitLocs = new ArrayList<Location>();
+		this.pitLocs.addAll(pitLocs);
+		
 		//initialize the mdp only once
 		if(mdp == null)
 			mdp = initializeMDP();
 		
 		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
+	}
+	
+	public void resetLocs(){
+		this.tokenLocs = new ArrayList<Location>();
+		this.pitLocs = new ArrayList<Location>();
+		if(typeOfWorld == Constants.TRAINING){
+			tokenLocs.addAll(Constants.allTokenLocs.get(sessionNum-1));
+			pitLocs.addAll(Constants.allPitLocs.get(sessionNum-1));
+		} else if(typeOfWorld == Constants.TESTING){
+			tokenLocs.addAll(Constants.allTokenLocsTest.get(sessionNum-1));
+			pitLocs.addAll(Constants.allPitLocsTest.get(sessionNum-1));
+		}	
 	}
 	
 	public static State getStateFromFile(String str){
@@ -106,6 +121,7 @@ public class MyWorld {
 					possibleActions.add(Action.LEFT);
 				if(s.robotLoc.col<Constants.NUM_COLS-1)
 					possibleActions.add(Action.RIGHT);
+				//possibleActions.add(Action.WAIT);
 				return possibleActions;
 			}	
 		};
@@ -131,6 +147,7 @@ public class MyWorld {
 					possibleActions.add(Action.LEFT);
 				if(s.humanLoc.col<Constants.NUM_COLS-1)
 					possibleActions.add(Action.RIGHT);
+				//possibleActions.add(Action.WAIT);
 				return possibleActions;
 			}	
 		};
@@ -159,16 +176,22 @@ public class MyWorld {
 			reward += -1*nextState.stateOfFires[i];
 		}*/
 		double reward = -1;
-		if(nextState.humanLoc.equals(nextState.robotLoc) && tokenLocs.contains(nextState.humanLoc))
-			reward += 10;
-		if(tokenLocs.contains(nextState.humanLoc))
-			reward += 3;
-		if(tokenLocs.contains(nextState.robotLoc))
-			reward += 3;
+		if(nextState.humanLoc.equals(nextState.robotLoc) && tokenLocs.contains(nextState.humanLoc)){
+			reward += 5;
+			tokenLocs.remove(nextState.humanLoc);
+		}
+		if(tokenLocs.contains(nextState.humanLoc)){
+			reward += 1;
+			tokenLocs.remove(nextState.humanLoc);
+		}
+		if(tokenLocs.contains(nextState.robotLoc)){
+			reward += 1;
+			tokenLocs.remove(nextState.robotLoc);
+		}
 		if(pitLocs.contains(nextState.humanLoc))
-			reward -= 10;
+			reward -= 5;
 		if(pitLocs.contains(nextState.robotLoc))
-			reward -= 10;
+			reward -= 5;
 		return reward;
 	}
 	
