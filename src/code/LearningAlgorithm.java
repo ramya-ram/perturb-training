@@ -252,8 +252,8 @@ public class LearningAlgorithm {
 	
 	public String getPrintableFromAction(Action action){
 		if(action != Action.WAIT){
-			int fireIndex = Integer.parseInt(action.name().substring(7, 8));
-			return "extinguish "+MyWorld.convertToFireName(fireIndex);
+			//int fireIndex = Integer.parseInt(action.name().substring(7, 8));
+			return "extinguish ";//+MyWorld.convertToFireName(fireIndex);
 		}
 		return "have to wait this turn";
 	}
@@ -508,12 +508,12 @@ public class LearningAlgorithm {
 	 */
 	public void simulateWaitTime(State state) {
 		int stateScore = 0;
-		for(int i=0; i<state.stateOfFires.length; i++){
-			int num = state.stateOfFires[i];
-			if(num == Constants.BURNOUT)
+		for(int i=0; i<state.stateOfParts.length; i++){
+			//int num = state.stateOfParts[i];
+			/*if(num == Constants.BURNOUT)
 				stateScore += 0;
 			else
-				stateScore += num;
+				stateScore += num;*/
 		}
 		System.out.println("score "+stateScore);
 		try{

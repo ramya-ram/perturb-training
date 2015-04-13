@@ -30,26 +30,25 @@ public class Constants {
 	public static boolean print = false;
 	public static int NUM_AVERAGING = 50;
 	
-	public static int STATES_PER_FIRE = 5;
-	public static int NUM_FIRES = 5;
-	public static int NONE = 0, HIGHEST = 3, BURNOUT = 4;
-	public static int indexOfFireInAction = 7; //PUT_OUT[0,1,2,3,4] -- the fire number is at the 7th index
+	public static int STATES_PER_PART = 3;
+	public static int NUM_PARTS = 10;
+	public static int NONE = 0, PARTIAL = 1, COMPLETE = 2;
+	public static int indexOfPartInAction = 4; //PUT_[0,1,2,3,4] -- the part number is at the 4th index
 	
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
-	
-	public static int[] simulationWind_train =    {};//{0, 5, 0}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
-	public static int[] simulationDryness_train = {};//{0, 0, 5};
-	public static int[] testWind_train =    {0, 6, 0};
-	public static int[] testDryness_train = {0, 0, 6};
-	public static int[] simulationWind_test =    {};//{0, 1, 8}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
-	public static int[] simulationDryness_test = {};//{0, 8, 1};
-	public static int[] testWind_test =    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-	public static int[] testDryness_test = {0, 9, 8, 7, 6, 5, 4, 3, 2, 1};	
-	
-	public static final int NUM_TRAINING_SESSIONS = testWind_train.length;
-	public static final int NUM_TESTING_SESSIONS = testWind_test.length;
 
+	public static final int[][] trainingSeqs = {{3,4,2,5,1,6,7,8,9,0},
+												{1,6,7,8,9,0,3,4,2,5},
+												{3,4,2,8,9,0,5,1,6,7}};
+	
+	public static final int[][] testingSeqs = {{3,4,8,9,0,2,5,1,6,7},
+											   {8,9,0,3,4,2,5,1,6,7},
+											   {0,5,1,6,3,4,2,8,9,7}};
+	
+	public static final int NUM_TRAINING_SESSIONS = trainingSeqs.length;
+	public static final int NUM_TESTING_SESSIONS = testingSeqs.length;
+	
 	//file names where results are stored
 	public static String dataDir = "inputFiles\\";
 	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2.csv";

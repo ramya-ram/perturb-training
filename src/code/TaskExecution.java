@@ -167,8 +167,8 @@ public class TaskExecution {
 	 */
 	public void runPracticeSession(){
 		Main.saveToFile = false;
-		MyWorld practiceWorld1 = new MyWorld(Constants.PRACTICE, false, 1, 0, 0);
-		MyWorld practiceWorld2 = new MyWorld(Constants.PRACTICE, false, 2, 0, 0);
+		MyWorld practiceWorld1 = new MyWorld(Constants.PRACTICE, false, 1, null);
+		MyWorld practiceWorld2 = new MyWorld(Constants.PRACTICE, false, 2, null);
 		
 		//practice session	
 		QLearner practice1 = new QLearner(null, ExperimentCondition.PROCE_Q);
@@ -294,7 +294,7 @@ public class TaskExecution {
 				str+= "Testing Session ";
 		} else
 			str+= "Practice Session ";
-		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
+		str += world.sessionNum+" -- Observation: Wind = ";//+world.simulationWind+" Dryness= "+world.simulationDryness;
 		if(gameView != null)
 			gameView.setTitleAndRoundLabel(str, roundNum, color);
 	}

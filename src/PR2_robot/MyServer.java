@@ -123,7 +123,7 @@ public class MyServer {
     
     public Action getAction(char c){
     	int index = c - 'A';
-    	if(index >= 0 && index < Constants.NUM_FIRES)
+    	if(index >= 0 && index < Constants.NUM_PARTS)
     		return Action.valueOf("PUT_OUT"+index);
 		return Action.WAIT;
     }
