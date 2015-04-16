@@ -303,7 +303,7 @@ public class TaskExecution {
 	 * To be consistent across all participants, the initial state for each case was identical and is specified here
 	 */
 	public State initialState(MyWorld myWorld, int roundNum){
-		if(myWorld.typeOfWorld == Constants.PRACTICE){
+		/*if(myWorld.typeOfWorld == Constants.PRACTICE){
 			if(roundNum == 1){
 				int[] stateOfFires = {3,3,3,3,3};
 				return new State(stateOfFires);
@@ -369,7 +369,7 @@ public class TaskExecution {
 				int[] stateOfFires = {0,1,1,1,3};
 				return new State(stateOfFires);
 			} 
-		}
+		}*/
 		return null;
 	}
 }

@@ -21,9 +21,9 @@ public class Constants {
 	public static double THRESHOLD_REJECT = 2;
 	
 	//num of times to run
-	public static final int NUM_EPISODES = 200000;
-	public static final int NUM_EPISODES_TEST = 1500;
-	public static final int NUM_STEPS_PER_EPISODE = 20; 
+	public static final int NUM_EPISODES = 500000;
+	public static final int NUM_EPISODES_TEST = 2500;
+	public static final int NUM_STEPS_PER_EPISODE = 20;
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
@@ -31,20 +31,20 @@ public class Constants {
 	public static int NUM_AVERAGING = 50;
 	
 	public static int STATES_PER_PART = 3;
-	public static int NUM_PARTS = 10;
+	public static int NUM_PARTS = 9;
 	public static int NONE = 0, PARTIAL = 1, COMPLETE = 2;
 	public static int indexOfPartInAction = 4; //PUT_[0,1,2,3,4] -- the part number is at the 4th index
 	
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
 
-	public static final int[][] trainingSeqs = {{3,4,2,5,1,6,7,8,9,0},
-												{1,6,7,8,9,0,3,4,2,5},
-												{3,4,2,8,9,0,5,1,6,7}};
+	public static final int[][] trainingSeqs = {{0,1,2,3,4,5,6,7,8},
+												{4,5,0,3,6,7,1,2,8},
+												{8,0,1,2,3,4,5,6,7}};
 	
-	public static final int[][] testingSeqs = {{3,4,8,9,0,2,5,1,6,7},
-											   {8,9,0,3,4,2,5,1,6,7},
-											   {0,5,1,6,3,4,2,8,9,7}};
+	public static final int[][] testingSeqs = {{0,3,4,5,1,2,6,7,8},
+											   {8,4,5,6,7,0,1,2,3},
+											   {4,5,6,7,8,0,1,2,3}};
 	
 	public static final int NUM_TRAINING_SESSIONS = trainingSeqs.length;
 	public static final int NUM_TESTING_SESSIONS = testingSeqs.length;
@@ -60,10 +60,10 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
 	public static String simulationDir = "C:\\Extra\\";
-	public static String rewardProceQName = simulationDir+"PQ_3Policies_50Aver_NoNoise.csv";
-	public static String rewardPerturbQName = simulationDir+"BQ_3Policies_50Aver_NoNoise.csv";
-	public static String rewardHRPerturbName = simulationDir+"BH_3Policies_50Aver_NoNoise.csv";
-	public static String rewardPRQLName = simulationDir+"PRQL_3Policies_50Aver_NoNoise.csv";
+	public static String rewardProceQName = simulationDir+"PQ_assembly.csv";
+	public static String rewardPerturbQName = simulationDir+"BQ_assembly.csv";
+	public static String rewardHRPerturbName = simulationDir+"BH_assembly.csv";
+	public static String rewardPRQLName = simulationDir+"PRQL_assembly.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	

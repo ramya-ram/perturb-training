@@ -9,10 +9,12 @@ public class MyWorld {
 	public static MDP mdp;
 	public static List<State> states = new ArrayList<State>();
 	public static State[] initStates;
+	public static int[][] stochasticity;
 	public String predefinedText;
 	public String textToDisplay;
 	
 	public int[] seq;
+	public int lastCompletedIndex = -1;
 	
 	public int sessionNum; //specifies which training or testing round it is
 	public boolean perturb; //specifies if this world is for perturbation or procedural training
@@ -27,6 +29,26 @@ public class MyWorld {
 		//initialize the mdp only once
 		if(mdp == null)
 			mdp = initializeMDP();
+		
+		if(stochasticity == null){
+			stochasticity = new int[2][Constants.NUM_PARTS];
+			for(int i=0; i<stochasticity.length; i++){ //HUMAN stochasticity
+				if(i>=0 && i<=3)
+					stochasticity[0][i] = 80;
+				else if(i>=4 && i<=7)
+					stochasticity[0][i] = 70;
+				else if(i==8)
+					stochasticity[0][i] = 100;	
+			}
+			for(int i=0; i<stochasticity.length; i++){ //ROBOT stochasticity
+				if(i>=0 && i<=3)
+					stochasticity[1][i] = 80;
+				else if(i>=4 && i<=7)
+					stochasticity[1][i] = 100;
+				else if(i==8)
+					stochasticity[1][i] = 50;
+			}
+		}
 		
 		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
@@ -66,11 +88,9 @@ public class MyWorld {
 								for(int o=0; o<statesPerPart; o++){
 									for(int p=0; p<statesPerPart; p++){
 										for(int q=0; q<statesPerPart; q++){
-											for(int r=0; r<statesPerPart; r++){				
-												int[] statesOfFire = {i,j,k,l,m,n,o,p,q,r};
-												State state = new State(statesOfFire);
-												states.add(state);
-											}
+											int[] statesOfFire = {i,j,k,l,m,n,o,p,q};
+											State state = new State(statesOfFire);
+											states.add(state);
 										}
 									}
 								}
@@ -81,7 +101,7 @@ public class MyWorld {
 			}
 		}
 		initStates = new State[1];
-		initStates[0] = new State(new int[]{0,0,0,0,0,0,0,0,0,0});
+		initStates[0] = new State(new int[]{0,0,0,0,0,0,0,0,0});
 		System.out.println("init states size "+initStates.length);
 	}
 	
@@ -93,15 +113,15 @@ public class MyWorld {
 			@Override
 			public Set<Action> actions(State s) {
 				Set<Action> possibleActions = new HashSet<Action>();
-				//if(isGoalState(s)){
-				//	possibleActions.add(Action.WAIT);
-				//	return possibleActions;
-				//}
+				if(isGoalState(s)){
+					possibleActions.add(Action.WAIT);
+					return possibleActions;
+				}
 				for(int i=0; i<s.stateOfParts.length; i++){
 					if(s.stateOfParts[i] == Constants.NONE || s.stateOfParts[i] == Constants.PARTIAL)
 						possibleActions.add(Action.valueOf(Action.class, "PUT_"+i));
 				}
-				possibleActions.add(Action.WAIT);
+				//possibleActions.add(Action.WAIT);
 				return possibleActions;
 			}	
 		};
@@ -115,15 +135,15 @@ public class MyWorld {
 			@Override
 			public Set<Action> actions(State s) {
 				Set<Action> possibleActions = new HashSet<Action>();
-				//if(isGoalState(s)){
-				//	possibleActions.add(Action.WAIT);
-				//	return possibleActions;
-				//}
+				if(isGoalState(s)){
+					possibleActions.add(Action.WAIT);
+					return possibleActions;
+				}
 				for(int i=0; i<s.stateOfParts.length; i++){
 					if(s.stateOfParts[i] == Constants.NONE || s.stateOfParts[i] == Constants.PARTIAL)
 						possibleActions.add(Action.valueOf(Action.class, "PUT_"+i));
 				}
-				possibleActions.add(Action.WAIT);
+				//possibleActions.add(Action.WAIT);
 				return possibleActions;
 			}	
 		};
@@ -134,10 +154,10 @@ public class MyWorld {
 	}
 	
 	public State initialState(){
-		if(Main.currWithSimulatedHuman && typeOfWorld == Constants.TESTING){
-			int[] stateOfParts = {1,1,0,3,3};
-			return new State(stateOfParts);
-		}
+		//if(Main.currWithSimulatedHuman && typeOfWorld == Constants.TESTING){
+		//	int[] stateOfParts = {};
+		//	return new State(stateOfParts);
+		//}
 		return initStates[Tools.rand.nextInt(initStates.length)];	
 	}
 	
@@ -146,13 +166,39 @@ public class MyWorld {
 	 * Reward is given based on the intensities of fires, burnouts get high negative reward, even after the goal is reached 
 	 */
 	public double reward(State state, HumanRobotActionPair agentActions, State nextState){		
-		//if(isGoalState(nextState))
-		//	return -(100*nextState.getNumItemsInState(Constants.BURNOUT));
-		double reward = -10;
-		//for(int i=0; i<nextState.stateOfParts.length; i++){
-		//	reward += -1*nextState.stateOfParts[i];
-		//}
+		double reward = -1;
 		
+		int humanIndex = Integer.parseInt(agentActions.getHumanAction().name().substring(Constants.indexOfPartInAction, Constants.indexOfPartInAction+1));
+		int robotIndex = Integer.parseInt(agentActions.getRobotAction().name().substring(Constants.indexOfPartInAction, Constants.indexOfPartInAction+1));
+		
+		boolean humanComplete = nextState.stateOfParts[humanIndex] == Constants.COMPLETE;
+		boolean robotComplete = nextState.stateOfParts[robotIndex] == Constants.COMPLETE;
+		
+		if(!humanComplete)
+			humanIndex = -1;
+		if(!robotComplete)
+			robotIndex = -1;
+		
+		if(lastCompletedIndex >= Constants.NUM_PARTS-1)
+			return 0;
+		
+		reward += rewardForAction(humanIndex, robotIndex);
+		
+		return reward;
+	}
+	
+	public double rewardForAction(int humanIndex, int robotIndex){
+		double reward = 0;
+		if(humanIndex == seq[lastCompletedIndex+1] || robotIndex == seq[lastCompletedIndex+1]){
+			reward+=3;
+			lastCompletedIndex += 1;
+		}
+		if(lastCompletedIndex >= Constants.NUM_PARTS-1)
+			return 0;
+		if(humanIndex == seq[lastCompletedIndex+1] || robotIndex == seq[lastCompletedIndex+1]){
+			reward+=3;
+			lastCompletedIndex += 1;
+		}
 		return reward;
 	}
 	
@@ -260,32 +306,26 @@ public class MyWorld {
 	 */
 	public State getStateAfterActions(State newState, int humanIndex, int robotIndex){
 		if(humanIndex != -1 && humanIndex == robotIndex){
-			int randNum = Tools.rand.nextInt(100);
-			if(randNum < 90)
-				newState.stateOfParts[humanIndex]-=3;
-			else
-				newState.stateOfParts[humanIndex]-=2;
-			if(newState.stateOfParts[humanIndex] < 0)
-				newState.stateOfParts[humanIndex] = Constants.NONE;
+			newState.stateOfParts[humanIndex] = Constants.COMPLETE;
 		} else {
 			if(humanIndex >= 0){
 				int randNum1 = Tools.rand.nextInt(100);
-				if(randNum1 < 90)
-					newState.stateOfParts[humanIndex]-=1;
+				if(randNum1 < stochasticity[0][humanIndex])
+					newState.stateOfParts[humanIndex]+=2;
 				else
-					newState.stateOfParts[humanIndex]-=2;
-				if(newState.stateOfParts[humanIndex] < 0)
-					newState.stateOfParts[humanIndex] = Constants.NONE;
+					newState.stateOfParts[humanIndex]+=1;
+				if(newState.stateOfParts[humanIndex] > Constants.COMPLETE)
+					newState.stateOfParts[humanIndex] = Constants.COMPLETE;
 			}
 
 			if(robotIndex >= 0){
 				int randNum2 = Tools.rand.nextInt(100);
-				if(randNum2 < 90)
-					newState.stateOfParts[robotIndex]-=1;
+				if(randNum2 < stochasticity[1][robotIndex])
+					newState.stateOfParts[robotIndex]+=2;
 				else
-					newState.stateOfParts[robotIndex]-=2;
-				if(newState.stateOfParts[robotIndex] < 0)
-					newState.stateOfParts[robotIndex] = Constants.NONE;
+					newState.stateOfParts[robotIndex]+=1;
+				if(newState.stateOfParts[robotIndex] > Constants.COMPLETE)
+					newState.stateOfParts[robotIndex] = Constants.COMPLETE;
 			}
 		}
 		return newState;
