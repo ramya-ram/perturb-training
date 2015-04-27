@@ -40,7 +40,13 @@ public class TaskExecution {
 			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
 			List<Policy> trainedPolicies = trainedResult.getSecond();
-			runTestingPhase(trainedLearners, trainedPolicies);
+			if(condition == ExperimentCondition.PRQL) {
+				for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
+					runTestingPhase(trainedLearners, trainedPolicies, i);
+				}
+			} else {
+				runTestingPhase(trainedLearners, trainedPolicies, -1);
+			}
 		}
 		
 		else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN_TEST){
@@ -48,7 +54,7 @@ public class TaskExecution {
 			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
 			List<Policy> trainedPolicies = trainedResult.getSecond();
-			runTestingPhase(trainedLearners, trainedPolicies);
+			runTestingPhase(trainedLearners, trainedPolicies, -1);
 		}
 		
 		else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN){
@@ -64,7 +70,7 @@ public class TaskExecution {
 			System.out.println("read from training files");
 			Constants.MAX_TIME = 25;
 			//TODO: only running with qvalues read from file, no policies (so this cannot work for PRQL)
-			runTestingPhase(trainedLearners, null);
+			runTestingPhase(trainedLearners, null, -1);
 		}
 	}
 	
@@ -194,7 +200,6 @@ public class TaskExecution {
 		Main.saveToFile = true;
 		List<QValuesSet> learners = new ArrayList<QValuesSet>();
 		List<Policy> policies = new ArrayList<Policy>();
-		learners.add(new QValuesSet());
 		
 		//first training session -- same for procedural and perturbation
 		QLearner baseQLearner = new QLearner(null, ExperimentCondition.PROCE_Q);
@@ -205,26 +210,21 @@ public class TaskExecution {
 		setTitleLabel(trainWorld0, 2, colorsTraining[0]);
 		baseQLearner.run(trainWorld0, false);
 		baseQLearner.run(trainWorld0, true, initialState(trainWorld0, 2));
-		if(condition == ExperimentCondition.HR_PERTURB)
-			learners.add(baseQLearner.currQValues);
+		learners.add(baseQLearner.currQValues);
 		if(condition == ExperimentCondition.PRQL)
 			policies.add(baseQLearner.computePolicy());
-		//baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+0, Constants.print);
 		
 		if(condition == ExperimentCondition.HR_PERTURB || condition == ExperimentCondition.PRQL){
 			//perturbation training sessions
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
 				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.HR_PERTURB);
-				//setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false);
 				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+1));
-				//setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false);
 				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
-				if(condition == ExperimentCondition.HR_PERTURB)
-					learners.add(perturbLearner.currQValues);
-				else if(condition == ExperimentCondition.PRQL)
+				learners.add(perturbLearner.currQValues);
+				if(condition == ExperimentCondition.PRQL)
 					policies.add(perturbLearner.computePolicy());
 				//perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
 			}
@@ -232,13 +232,10 @@ public class TaskExecution {
 			//extra training sessions after base session
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
-				//setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				baseQLearner.run(trainWorld, false);
 				baseQLearner.run(trainWorld, true, initialState(trainWorld, i*2+1));
-				//setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				baseQLearner.run(trainWorld, false);
 				baseQLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
-				//baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
 			}
 		}
 		
@@ -250,38 +247,33 @@ public class TaskExecution {
 	 * Procedural uses Q-learning and is initialized with Q-values learned from training
 	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
 	 */
-	public void runTestingPhase(List<QValuesSet> trainedLearners, List<Policy> trainedPolicies){
+	public void runTestingPhase(List<QValuesSet> allLearners, List<Policy> allPolicies, int initialQValuesIndex){
+		System.out.println("allLearners size "+allLearners.size()+" allPolicies size "+allPolicies.size());
+		List<QValuesSet> learners = new ArrayList<QValuesSet>();
 		if(condition == ExperimentCondition.HR_PERTURB){
-			System.out.println("Learners size "+trainedLearners.size());
+			learners.addAll(allLearners);
+			System.out.println("Learners size "+learners.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
-				HRPerturbLearner perturbLearner = new HRPerturbLearner(testWorld, trainedLearners);
-				//setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
-				//perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				HRPerturbLearner perturbLearner = new HRPerturbLearner(testWorld, learners);
 				perturbLearner.runHRPerturb(false);
 				perturbLearner.runHRPerturb(true, initialState(testWorld, testWorld.sessionNum));
-				//perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 			}
 		} else if(condition == ExperimentCondition.PRQL){
-			System.out.println("Library size "+trainedPolicies.size()+" Learners size "+trainedLearners.size());
+			learners.add(allLearners.get(initialQValuesIndex));
+			System.out.println("Library size "+allPolicies.size()+" Learners size "+learners.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
-				PRQLearner learner = new PRQLearner(testWorld, trainedPolicies, trainedLearners.get(0));
-				//setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
-				//learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				PRQLearner learner = new PRQLearner(testWorld, allPolicies, learners.get(0));
 				learner.runPRQL(false);
 				learner.runPRQL(true, initialState(testWorld, testWorld.sessionNum));
-				//learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 			}
 		} else {
 			//Q-learning proce and perturb testing sessions
 			for(MyWorld testWorld : testingWorlds){
-				QLearner testQLearner = new QLearner(trainedLearners.get(0), condition); //both proce and perturb Q only have one Q-value function so it is directly transferred to the test case
-				//setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
-				//testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				QLearner testQLearner = new QLearner(allLearners.get(0), condition); //both proce and perturb Q only have one Q-value function so it is directly transferred to the test case
 				testQLearner.run(testWorld, false);
 				testQLearner.run(testWorld, true, initialState(testWorld, testWorld.sessionNum));
-				//testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 			}
 		}
 	}

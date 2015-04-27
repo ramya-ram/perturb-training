@@ -40,8 +40,8 @@ public class MyWorld {
 	}
 	
 	public void resetLocs(){
-		this.tokenLocs = new ArrayList<Location>();
-		this.pitLocs = new ArrayList<Location>();
+		tokenLocs.clear();
+		pitLocs.clear();
 		if(typeOfWorld == Constants.TRAINING){
 			tokenLocs.addAll(Constants.allTokenLocs.get(sessionNum-1));
 			pitLocs.addAll(Constants.allPitLocs.get(sessionNum-1));
