@@ -86,10 +86,10 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
 	public static String simulationDir = "C:\\Extra\\";
-	public static String rewardProceQName = simulationDir+"PQ_grid_NOTchangingTokensPits_800000train_3000test_30steps_ChooseBestInitialQValues.csv";
-	public static String rewardPerturbQName = simulationDir+"BQ_grid_NOTchangingTokensPits_800000train_3000test_30steps_ChooseBestInitialQValues.csv";
-	public static String rewardHRPerturbName = simulationDir+"BH_grid_NOTchangingTokensPits_800000train_3000test_30steps_ChooseBestInitialQValues.csv";
-	public static String rewardPRQLName = simulationDir+"PRQL_grid_NOTchangingTokensPits_800000train_3000test_30steps_ChooseBestInitialQValues.csv";
+	public static String rewardProceQName = simulationDir+"PQ_grid_changingTokensPits_800000train_3000test_30steps_ChooseBestInitialQValues.csv";
+	public static String rewardPerturbQName = simulationDir+"BQ_grid_changingTokensPits_800000train_3000test_30steps_ChooseBestInitialQValues.csv";
+	public static String rewardHRPerturbName = simulationDir+"BH_grid_changingTokensPits_800000train_3000test_30steps_ChooseBestInitialQValues.csv";
+	public static String rewardPRQLName = simulationDir+"PRQL_grid_changingTokensPits_800000train_3000test_30steps_ChooseBestInitialQValues.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	
