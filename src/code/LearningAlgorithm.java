@@ -43,7 +43,7 @@ public class LearningAlgorithm {
 	 * Runs one episode of the task
 	 */
 	public Tuple<Double, Integer, Long> run(boolean fullyGreedy, int maxSteps, State initialStateHuman){
-		myWorld.resetLocs();
+		myWorld.resetTokenLocs();
 
         double episodeReward = 0;
         int iterations = 0;

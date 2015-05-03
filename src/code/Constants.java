@@ -24,7 +24,7 @@ public class Constants {
 	public static double THRESHOLD_REJECT = 2;
 	
 	//num of times to run
-	public static final int NUM_EPISODES = 800000;
+	public static final int NUM_EPISODES = 500000;
 	public static final int NUM_EPISODES_TEST = 3000;
 	public static final int NUM_STEPS_PER_EPISODE = 30;
 	
@@ -39,7 +39,7 @@ public class Constants {
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
 
-	public static Location[] trainingGoalLocs = {new Location(0,NUM_COLS-1), new Location(NUM_ROWS-1, 0), new Location(NUM_ROWS-1, NUM_COLS-1)};
+	/*public static Location[] trainingGoalLocs = {new Location(0,NUM_COLS-1), new Location(NUM_ROWS-1, 0), new Location(NUM_ROWS-1, NUM_COLS-1)};
 	public static Location[] testingGoalLocs = {new Location(2,NUM_COLS-2), new Location(NUM_ROWS-2, 2), new Location(NUM_ROWS-3, NUM_COLS-1)};
 	
 	public static List<Location> tokenLocs1 = Arrays.asList(new Location(3,3), new Location(2,4), new Location(8,8), new Location(6,7), new Location(7,2), new Location(1,8), new Location(2,8), new Location(3,8),
@@ -71,9 +71,9 @@ public class Constants {
 	
 	public static List<List<Location>> allTokenLocsTest = Arrays.asList(tokenLocsTest1, tokenLocsTest2, tokenLocsTest3);
 	public static List<List<Location>> allPitLocsTest = Arrays.asList(pitLocsTest1, pitLocsTest2, pitLocsTest3);
-	
-	public static final int NUM_TRAINING_SESSIONS = trainingGoalLocs.length;
-	public static final int NUM_TESTING_SESSIONS = testingGoalLocs.length;
+	*/
+	public static final int NUM_TRAINING_SESSIONS = 3;
+	public static final int NUM_TESTING_SESSIONS = 3;
 
 	//file names where results are stored
 	public static String dataDir = "inputFiles\\";
@@ -86,10 +86,10 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
 	public static String simulationDir = "C:\\Extra\\";
-	public static String rewardProceQName = simulationDir+"PQ_grid_changingTokensPits_800000train_3000test_30steps_ChooseBestInitialQValues.csv";
-	public static String rewardPerturbQName = simulationDir+"BQ_grid_changingTokensPits_800000train_3000test_30steps_ChooseBestInitialQValues.csv";
-	public static String rewardHRPerturbName = simulationDir+"BH_grid_changingTokensPits_800000train_3000test_30steps_ChooseBestInitialQValues.csv";
-	public static String rewardPRQLName = simulationDir+"PRQL_grid_changingTokensPits_800000train_3000test_30steps_ChooseBestInitialQValues.csv";
+	public static String rewardProceQName = simulationDir+"PQ_grid_changingTokensPits_500000train_3000test_30steps_ChooseBestInitialQValues_RandomLocsGoal.csv";
+	public static String rewardPerturbQName = simulationDir+"BQ_grid_changingTokensPits_500000train_3000test_30steps_ChooseBestInitialQValues_RandomLocsGoal.csv";
+	public static String rewardHRPerturbName = simulationDir+"BH_grid_changingTokensPits_500000train_3000test_30steps_ChooseBestInitialQValues_RandomLocsGoal.csv";
+	public static String rewardPRQLName = simulationDir+"PRQL_grid_changingTokensPits_500000train_3000test_30steps_ChooseBestInitialQValues_RandomLocsGoal.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	

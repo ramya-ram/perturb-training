@@ -14,23 +14,28 @@ public class MyWorld {
 	
 	public Location goalLoc;
 	
-	public List<Location> tokenLocs;
-	public List<Location> pitLocs;
+	public List<Location> staticTokenLocs;
+	public List<Location> staticPitLocs;
+
+	public List<Location> currTokenLocs;
 	
 	public int sessionNum; //specifies which training or testing round it is
 	public boolean perturb; //specifies if this world is for perturbation or procedural training
 	public int typeOfWorld; //specifies if this world is for training or testing
 	
-	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum, Location goalLoc, List<Location> tokenLocs, List<Location> pitLocs){
+	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum){//, Location goalLoc, List<Location> tokenLocs, List<Location> pitLocs){
 		this.typeOfWorld = typeOfWorld;
 		this.perturb = perturb;
 		this.sessionNum = sessionNum;
-		this.goalLoc = goalLoc.clone();
+		//if(typeOfWorld == Constants.TRAINING)
+		//this.goalLoc = goalLoc.clone();
+		//else if(typeOfWorld == Constants.TESTING)
+			//this.goalLoc = new Location(Tools.rand.nextInt(Constants.NUM_ROWS), Tools.rand.nextInt(Constants.NUM_COLS));
 		
-		this.tokenLocs = new ArrayList<Location>();
-		this.tokenLocs.addAll(tokenLocs);
-		this.pitLocs = new ArrayList<Location>();
-		this.pitLocs.addAll(pitLocs);
+		//this.tokenLocs = new ArrayList<Location>();
+		//this.tokenLocs.addAll(tokenLocs);
+		//this.pitLocs = new ArrayList<Location>();
+		//this.pitLocs.addAll(pitLocs);
 		
 		//initialize the mdp only once
 		if(mdp == null)
@@ -39,16 +44,30 @@ public class MyWorld {
 		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
-	public void resetLocs(){
-		tokenLocs.clear();
-		pitLocs.clear();
-		if(typeOfWorld == Constants.TRAINING){
+	public void changeGoalLoc(){
+		this.goalLoc = new Location(Tools.rand.nextInt(Constants.NUM_ROWS), Tools.rand.nextInt(Constants.NUM_COLS));
+	}
+	
+	public void changeTokenPitLocs(){
+		this.staticTokenLocs = new ArrayList<Location>();
+		for(int i=0; i<12; i++)
+			this.staticTokenLocs.add(new Location(Tools.rand.nextInt(Constants.NUM_ROWS), Tools.rand.nextInt(Constants.NUM_COLS)));
+		this.staticPitLocs = new ArrayList<Location>();
+		for(int i=0; i<12; i++)
+			this.staticPitLocs.add(new Location(Tools.rand.nextInt(Constants.NUM_ROWS), Tools.rand.nextInt(Constants.NUM_COLS)));
+	}
+	
+	public void resetTokenLocs(){
+		currTokenLocs = new ArrayList<Location>();
+		currTokenLocs.addAll(staticTokenLocs);
+		//pitLocs.clear();
+		/*if(typeOfWorld == Constants.TRAINING){
 			tokenLocs.addAll(Constants.allTokenLocs.get(sessionNum-1));
 			pitLocs.addAll(Constants.allPitLocs.get(sessionNum-1));
 		} else if(typeOfWorld == Constants.TESTING){
 			tokenLocs.addAll(Constants.allTokenLocsTest.get(sessionNum-1));
 			pitLocs.addAll(Constants.allPitLocsTest.get(sessionNum-1));
-		}	
+		}*/	
 	}
 	
 	public static State getStateFromFile(String str){
@@ -159,7 +178,7 @@ public class MyWorld {
 	
 	public State initialState(){
 		if(Main.currWithSimulatedHuman && typeOfWorld == Constants.TESTING){
-			return new State(new Location(5,0), new Location(0,5));
+			return new State(new Location(Constants.NUM_ROWS-1,0), new Location(0,Constants.NUM_COLS-1));
 		}
 		return initStates[Tools.rand.nextInt(initStates.length)];	
 	}
@@ -175,22 +194,24 @@ public class MyWorld {
 		for(int i=0; i<nextState.stateOfFires.length; i++){
 			reward += -1*nextState.stateOfFires[i];
 		}*/
+		if(isGoalState(nextState))
+			return 50;
 		double reward = -1;
-		if(nextState.humanLoc.equals(nextState.robotLoc) && tokenLocs.contains(nextState.humanLoc)){
+		if(nextState.humanLoc.equals(nextState.robotLoc) && currTokenLocs.contains(nextState.humanLoc)){
 			reward += 5;
-			tokenLocs.remove(nextState.humanLoc);
+			currTokenLocs.remove(nextState.humanLoc);
 		}
-		if(tokenLocs.contains(nextState.humanLoc)){
+		if(currTokenLocs.contains(nextState.humanLoc)){
 			reward += 1;
-			tokenLocs.remove(nextState.humanLoc);
+			currTokenLocs.remove(nextState.humanLoc);
 		}
-		if(tokenLocs.contains(nextState.robotLoc)){
+		if(currTokenLocs.contains(nextState.robotLoc)){
 			reward += 1;
-			tokenLocs.remove(nextState.robotLoc);
+			currTokenLocs.remove(nextState.robotLoc);
 		}
-		if(pitLocs.contains(nextState.humanLoc))
+		if(staticPitLocs.contains(nextState.humanLoc))
 			reward -= 5;
-		if(pitLocs.contains(nextState.robotLoc))
+		if(staticPitLocs.contains(nextState.robotLoc))
 			reward -= 5;
 		return reward;
 	}

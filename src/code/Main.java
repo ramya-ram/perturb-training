@@ -41,24 +41,24 @@ public class Main {
 	public static void main(String[] args){	
 		
 		//construct training worlds for procedural and perturbation
-		List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
+		//List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
 		List<MyWorld> trainingWorldsPerturb = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TRAINING_SESSIONS; i++){
-			MyWorld proceWorld = new MyWorld(Constants.TRAINING, false, i, Constants.trainingGoalLocs[0], Constants.allTokenLocs.get(0), Constants.allPitLocs.get(0));
-			trainingWorldsProce.add(proceWorld);
-			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i, Constants.trainingGoalLocs[i-1], Constants.allTokenLocs.get(i-1), Constants.allPitLocs.get(i-1));
+			//MyWorld proceWorld = new MyWorld(Constants.TRAINING, false, i);//, Constants.trainingGoalLocs[0], Constants.allTokenLocs.get(0), Constants.allPitLocs.get(0));
+			//trainingWorldsProce.add(proceWorld);
+			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i);//, Constants.trainingGoalLocs[i-1], Constants.allTokenLocs.get(i-1), Constants.allPitLocs.get(i-1));
 			trainingWorldsPerturb.add(perturbWorld);
 		}
 		//construct testing worlds for both training
 		List<MyWorld> testingWorlds = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
-			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, Constants.testingGoalLocs[i-1], Constants.allTokenLocsTest.get(i-1), Constants.allPitLocsTest.get(i-1));
+			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i);//, Constants.testingGoalLocs[i-1], Constants.allTokenLocsTest.get(i-1), Constants.allPitLocsTest.get(i-1));
 			testingWorlds.add(testWorld);
 		}
 		
 		if(CURRENT_EXECUTION == CREATE_OFFLINE_QVALUES){
 			QLearner qLearnerProce = new QLearner(null, ExperimentCondition.PROCE_Q);
-			qLearnerProce.run(trainingWorldsProce.get(0), false /*withHuman*/);
+			//qLearnerProce.run(trainingWorldsProce.get(0), false /*withHuman*/);
 			qLearnerProce.saveOfflineLearning();
 			return;
 		}
@@ -87,12 +87,20 @@ public class Main {
 				for(int i=0; i<Constants.NUM_AVERAGING; i++){
 					//makes simulation wind and dryness a noisy version of the real one
 					System.out.println("*** "+i+" ***");
-					/*for(MyWorld trainWorld : trainingWorldsProce)
-						trainWorld.calculateSimulationWindDryness();
-					for(MyWorld trainWorld : trainingWorldsPerturb)
-						trainWorld.calculateSimulationWindDryness();
-					for(MyWorld testWorld : testingWorlds)
-						testWorld.calculateSimulationWindDryness();*/
+					//for(MyWorld trainWorld : trainingWorldsProce)
+					//	trainWorld.calculateSimulationWindDryness();
+					//for(MyWorld trainWorld : trainingWorldsPerturb)
+						//trainWorld.calculateSimulationWindDryness();
+					for(MyWorld trainWorld : trainingWorldsPerturb){
+						trainWorld.changeTokenPitLocs();
+						trainWorld.changeGoalLoc();
+						System.out.println("trainWorld goal loc = "+trainWorld.goalLoc);
+					}
+					for(MyWorld testWorld : testingWorlds){
+						testWorld.changeTokenPitLocs();
+						testWorld.changeGoalLoc();
+						System.out.println("testWorld goal loc = "+testWorld.goalLoc);
+					}
 					
 					/*//PROCEDURAL - Q-learning
 					TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
@@ -153,8 +161,8 @@ public class Main {
 
 				if(trainingType.equalsIgnoreCase("PQ")){
 					//PROCEDURAL - Q-learning
-					TaskExecution proceQ = new TaskExecution(gameView, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
-					proceQ.executeTask();
+					//TaskExecution proceQ = new TaskExecution(gameView, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
+					//proceQ.executeTask();
 				} else if(trainingType.equalsIgnoreCase("BQ")){
 					//PERTURBATION - Q-learning
 					TaskExecution perturbQ = new TaskExecution(gameView, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PERTURB_Q);
