@@ -68,6 +68,7 @@ public class PRQLearner extends LearningAlgorithm {
 		try{
 			//BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
 			double currTemp = Constants.TEMP;
+			double accumReward = 0;
 			for(int k=0; k<numEpisodes; k++){
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
 				double[] probForPolicies = getProbForPolicies(weights, currTemp);
@@ -103,6 +104,8 @@ public class PRQLearner extends LearningAlgorithm {
 					duration = tuple.getThird();
 				}
 				
+				accumReward += reward;
+				
 				/*if(myWorld.typeOfWorld == Constants.TESTING && k%100 == 0){
 					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName+"_"+myWorld.sessionNum+".csv"), true));
 					rewardWriter.write(""+reward+", ");
@@ -110,7 +113,7 @@ public class PRQLearner extends LearningAlgorithm {
 				}*/
 				
 				if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0){
-					Main.PRQLTotal[myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+					Main.PRQLTotal[myWorld.sessionNum-1][(k/Constants.INTERVAL)] += accumReward/(k+1);
 					//System.out.print(reward+", ");
 				}
 				
