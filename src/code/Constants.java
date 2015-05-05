@@ -22,8 +22,8 @@ public class Constants {
 	
 	//num of times to run
 	public static final int NUM_EPISODES = 200000;
-	public static final int NUM_EPISODES_TEST = 5000;
-	public static final int INTERVAL = 100;
+	public static final int NUM_EPISODES_TEST = 2000;
+	public static final int INTERVAL = 50;
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
 	public static boolean usePredefinedTestCases = false;
@@ -62,12 +62,12 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
 	public static String simulationDir = "C:\\Extra\\";
-	public static String rewardProceQName = simulationDir+"PQ_numIter.csv";
-	public static String rewardPerturbQName = simulationDir+"BQ_numIter.csv";
-	public static String rewardHRPerturbName = simulationDir+"BH_numIter.csv";
-	public static String rewardPRQLName = simulationDir+"PRQL_numIter.csv";
+	public static String rewardProceQName = simulationDir+"PQ_numIter_interval500_til100000.csv";
+	public static String rewardPerturbQName = simulationDir+"BQ_numIter_interval500_til100000.csv";
+	public static String rewardHRPerturbName = simulationDir+"BH_numIter_interval500_til100000.csv";
+	public static String rewardPRQLName = simulationDir+"PRQL_numIter_interval500_til100000.csv";
 	
-	public static String numIterName = simulationDir+"numIter";
+	public static String numIterName = simulationDir+"numIter_interval50_til2000.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	

@@ -104,9 +104,9 @@ public class HRPerturbLearner extends LearningAlgorithm {
 					rewardWriter.close();
 				}*/
 				
-				if(myWorld.typeOfWorld == Constants.TESTING && k%100 == 0){
-					Main.HRPerturbTotal[myWorld.sessionNum-1][(k/100)] += reward;
-					System.out.print(reward+", ");
+				if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0){
+					Main.HRPerturbTotal[myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+					//System.out.print(reward+", ");
 				}
 				
 				if(withHuman && Main.saveToFile){
@@ -122,7 +122,7 @@ public class HRPerturbLearner extends LearningAlgorithm {
 				currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;
 				currTemp = currTemp + Constants.DELTA_TEMP;
 			}
-			System.out.println();
+			//System.out.println();
 			long end = System.currentTimeMillis();
 			/*if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
 				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration"+Constants.NUM_EPISODES_TEST+".csv"), true));

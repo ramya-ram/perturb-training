@@ -109,9 +109,9 @@ public class PRQLearner extends LearningAlgorithm {
 					rewardWriter.close();
 				}*/
 				
-				if(myWorld.typeOfWorld == Constants.TESTING && k%100 == 0){
-					Main.PRQLTotal[myWorld.sessionNum-1][(k/100)] += reward;
-					System.out.print(reward+", ");
+				if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0){
+					Main.PRQLTotal[myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+					//System.out.print(reward+", ");
 				}
 				
 				if(withHuman && Main.saveToFile){
@@ -131,7 +131,7 @@ public class PRQLearner extends LearningAlgorithm {
 //				System.out.println("num of episodes chosen: ");
 //				Tools.printArray(numOfEpisodesChosen);
 			}
-			System.out.println();
+			//System.out.println();
 			//rewardWriter.close();
 			/*BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName+"_"+myWorld.sessionNum+".csv"), true));
 			rewardWriter.write("\n");

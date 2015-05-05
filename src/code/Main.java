@@ -116,20 +116,31 @@ public class Main {
 					TaskExecution PRQL = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
 					PRQL.executeTask();				
 				}
-				BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPerturbName), true));
-				BufferedWriter rewardPRQLWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
+				//BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPerturbName), true));
+				//BufferedWriter rewardPRQLWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
+				BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
+				
+				for(int i=0; i<HRPerturbTotal.length; i++){
+					for(int j=0; j<HRPerturbTotal[i].length; j++){
+						rewardWriter.write((HRPerturbTotal[i][j]/Constants.NUM_AVERAGING)+", ");
+						//rewardHRPerturbWriter.write((HRPerturbTotal[i][j]/Constants.NUM_AVERAGING)+", ");
+						//rewardPRQLWriter.write((PRQLTotal[i][j]/Constants.NUM_AVERAGING)+", ");
+					}
+					rewardWriter.write("\n");
+					//rewardPRQLWriter.write("\n");
+				}
+				
+				rewardWriter.write("\n\n");
 				
 				for(int i=0; i<PRQLTotal.length; i++){
 					for(int j=0; j<PRQLTotal[i].length; j++){
-						rewardHRPerturbWriter.write((HRPerturbTotal[i][j]/Constants.NUM_AVERAGING)+", ");
-						rewardPRQLWriter.write((PRQLTotal[i][j]/Constants.NUM_AVERAGING)+", ");
+						rewardWriter.write((PRQLTotal[i][j]/Constants.NUM_AVERAGING)+", ");
 					}
-					rewardHRPerturbWriter.write("\n");
-					rewardPRQLWriter.write("\n");
+					rewardWriter.write("\n");
 				}
 				
-				rewardHRPerturbWriter.close();
-				rewardPRQLWriter.close();
+				rewardWriter.close();
+				//rewardPRQLWriter.close();
 			} else {	
 				//sets simulation wind and dryness
 				for(MyWorld trainWorld : trainingWorldsProce)
