@@ -38,7 +38,12 @@ public class Main {
 	public static String[][][] perturb1TestCase;
 	public static String[][][] proceTestCase;
 	
+	public static double[][] PRQLTotal;
+	public static double[][] HRPerturbTotal;
+	
 	public static void main(String[] args){	
+		PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		HRPerturbTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 		
 		//construct training worlds for procedural and perturbation
 		List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
@@ -109,23 +114,22 @@ public class Main {
 					
 					//PERTURBATION - PRQL
 					TaskExecution PRQL = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
-					PRQL.executeTask();
-					
-					BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPerturbName), true));
-					//BufferedWriter rewardPerturbQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbQName), true));
-					//BufferedWriter rewardProceQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceQName), true));
-					BufferedWriter rewardPRQLWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
-					
-					rewardHRPerturbWriter.write("\n");
-					//rewardPerturbQWriter.write("\n");
-					//rewardProceQWriter.write("\n");
-					rewardPRQLWriter.write("\n");
-					
-					rewardHRPerturbWriter.close();
-					//rewardPerturbQWriter.close();
-					//rewardProceQWriter.close();
-					rewardPRQLWriter.close();
+					PRQL.executeTask();				
 				}
+				BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPerturbName), true));
+				BufferedWriter rewardPRQLWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
+				
+				for(int i=0; i<PRQLTotal.length; i++){
+					for(int j=0; j<PRQLTotal[i].length; j++){
+						rewardHRPerturbWriter.write((HRPerturbTotal[i][j]/Constants.NUM_AVERAGING)+", ");
+						rewardPRQLWriter.write((PRQLTotal[i][j]/Constants.NUM_AVERAGING)+", ");
+					}
+					rewardHRPerturbWriter.write("\n");
+					rewardPRQLWriter.write("\n");
+				}
+				
+				rewardHRPerturbWriter.close();
+				rewardPRQLWriter.close();
 			} else {	
 				//sets simulation wind and dryness
 				for(MyWorld trainWorld : trainingWorldsProce)

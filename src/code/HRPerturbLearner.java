@@ -98,10 +98,15 @@ public class HRPerturbLearner extends LearningAlgorithm {
 				iterations = tuple.getSecond();
 				duration = tuple.getThird();
 
-				if(myWorld.typeOfWorld == Constants.TESTING && k%100 == 0){
+				/*if(myWorld.typeOfWorld == Constants.TESTING && k%100 == 0){
 					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName+"_"+myWorld.sessionNum+".csv"), true));
 					rewardWriter.write(""+reward+", ");
 					rewardWriter.close();
+				}*/
+				
+				if(myWorld.typeOfWorld == Constants.TESTING && k%100 == 0){
+					Main.HRPerturbTotal[myWorld.sessionNum-1][(k/100)] += reward;
+					System.out.print(reward+", ");
 				}
 				
 				if(withHuman && Main.saveToFile){
@@ -117,7 +122,7 @@ public class HRPerturbLearner extends LearningAlgorithm {
 				currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;
 				currTemp = currTemp + Constants.DELTA_TEMP;
 			}
-			
+			System.out.println();
 			long end = System.currentTimeMillis();
 			/*if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
 				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration"+Constants.NUM_EPISODES_TEST+".csv"), true));
@@ -127,9 +132,9 @@ public class HRPerturbLearner extends LearningAlgorithm {
 			}*/
 			//mainWriter.close();
 			
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName+"_"+myWorld.sessionNum+".csv"), true));
+			/*BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName+"_"+myWorld.sessionNum+".csv"), true));
 			rewardWriter.write("\n");
-			rewardWriter.close();
+			rewardWriter.close();*/
 		} catch(Exception e){
 			e.printStackTrace();
 		}	
