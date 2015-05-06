@@ -128,8 +128,8 @@ public class PRQLearner extends LearningAlgorithm {
 //				System.out.println("num of episodes chosen: ");
 //				Tools.printArray(numOfEpisodesChosen);
 			}
-			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman)
-				rewardWriter.write("\n");
+			//if(myWorld.typeOfWorld == Constants.TESTING && !withHuman)
+			//	rewardWriter.write("\n");
 			rewardWriter.close();
 		} catch(Exception e){
 			e.printStackTrace();

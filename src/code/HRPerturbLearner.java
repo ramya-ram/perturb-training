@@ -120,8 +120,8 @@ public class HRPerturbLearner extends LearningAlgorithm {
 				currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;
 				currTemp = currTemp + Constants.DELTA_TEMP;
 			}
-			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman)
-				rewardWriter.write("\n");
+			//if(myWorld.typeOfWorld == Constants.TESTING && !withHuman)
+			//	rewardWriter.write("\n");
 			rewardWriter.close();
 			
 			long end = System.currentTimeMillis();
