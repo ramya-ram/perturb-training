@@ -135,15 +135,13 @@ public class PRQLearner extends LearningAlgorithm {
 		double[][] reward = new double[numEpisodes][numSteps+1];
 		double episodeReward = 0;
 		int iterations = 0;
-		int count = 0;
 		long duration = 0;
 		for(int k=0; k<numEpisodes; k++){
-			boolean reachedGoalState = false;
 			State state = myWorld.initialState().clone();
 			double currProbPast = probPast*100;
 			long startTime = System.currentTimeMillis();
 			try{
-				while(!MyWorld.isGoalState(state) && count < numSteps){
+				while(!MyWorld.isGoalState(state) && iterations < numSteps){
 					HumanRobotActionPair agentActions = null;
 					int randNum = Tools.rand.nextInt(100);
 					if(randNum < currProbPast){
@@ -161,28 +159,22 @@ public class PRQLearner extends LearningAlgorithm {
 					}  
 					
 					State nextState = myWorld.getNextState(state, agentActions);					                
-					reward[k][count] = myWorld.reward(state, agentActions, nextState);
-					episodeReward += reward[k][count];					
-					saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward[k][count]);
-					updateQValues(state, agentActions, nextState, reward[k][count]);
+					reward[k][iterations] = myWorld.reward(state, agentActions, nextState);
+					episodeReward += reward[k][iterations];					
+					saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward[k][iterations]);
+					updateQValues(state, agentActions, nextState, reward[k][iterations]);
 					
 					currProbPast = currProbPast*decayValue;
 					state = nextState.clone();
-					count++;
+					iterations++;
 					
-					if(!reachedGoalState){
+					if(withHuman && Main.gameView != null){
+						Main.gameView.setNextEnable(true);
+						Main.gameView.waitForNextClick();
 						if(MyWorld.isGoalState(state)){
-							iterations = count;
-							reachedGoalState = true;
+							Main.gameView.initTitleGUI("congrats");
 						}
-						if(withHuman && Main.gameView != null){
-							Main.gameView.setNextEnable(true);
-							Main.gameView.waitForNextClick();
-							if(reachedGoalState){
-								Main.gameView.initTitleGUI("congrats");
-							}
-						}
-	            	}
+					}
 				}
 			} catch(Exception e){
 				e.printStackTrace();

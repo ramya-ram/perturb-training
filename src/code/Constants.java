@@ -40,8 +40,8 @@ public class Constants {
 	
 	public static int[] simulationWind_train =    {};//{0, 5, 0}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
 	public static int[] simulationDryness_train = {};//{0, 0, 5};
-	public static int[] testWind_train =    {0, 6, 0};
-	public static int[] testDryness_train = {0, 0, 6};
+	public static int[] testWind_train =    {0, 5, 0};
+	public static int[] testDryness_train = {0, 0, 5};
 	public static int[] simulationWind_test =    {};//{0, 1, 8}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
 	public static int[] simulationDryness_test = {};//{0, 8, 1};
 	public static int[] testWind_test =    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -66,7 +66,6 @@ public class Constants {
 	public static String rewardHRPerturbName = simulationDir+"BH_3Policies_50Aver_NoNoise_ZeroPRQLStart_compareToQ.csv";
 	public static String rewardPRQLName = simulationDir+"PRQL_3Policies_50Aver_NoNoise_ZeroPRQLStart_compareToQ.csv";
 	public static String rewardQLearningName = simulationDir+"QLearning_3Policies_50Aver_NoNoise_ZeroPRQLStart_compareToQ.csv";
-
 	
 	public static String qvaluesDir = simulationDir;
 	
