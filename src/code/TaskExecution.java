@@ -226,9 +226,9 @@ public class TaskExecution {
 				//setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false);
 				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
-				if(condition == ExperimentCondition.HR_PERTURB)
-					learners.add(perturbLearner.currQValues);
-				else if(condition == ExperimentCondition.PRQL)
+				//if(condition == ExperimentCondition.HR_PERTURB)
+				learners.add(perturbLearner.currQValues);
+				if(condition == ExperimentCondition.PRQL)
 					policies.add(perturbLearner.computePolicy());
 				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
 			}
