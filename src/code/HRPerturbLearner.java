@@ -58,8 +58,9 @@ public class HRPerturbLearner extends LearningAlgorithm {
 		try{
 			//BufferedWriter mainWriter = new BufferedWriter(new FileWriter(new File(Constants.qvaluesDir+"mainWriter_HRPR_test_"+(myWorld.sessionNum-1)+".txt"), true));
 			//mainWriter.write("wind "+myWorld.testWind+" dryness "+myWorld.testDryness+"\n");
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPerturbName), true));
+			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
 			double currTemp = Constants.TEMP;
+			double accumReward = 0;
 			for(int k=0; k<numEpisodes; k++){
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
 				double[] probForPolicies = getProbForPolicies(qValuesList, currTemp);
@@ -98,21 +99,28 @@ public class HRPerturbLearner extends LearningAlgorithm {
 				reward = tuple.getFirst();
 				iterations = tuple.getSecond();
 				duration = tuple.getThird();
+				
+				accumReward += reward;
 
 				if(withHuman && Main.saveToFile){
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 						saveDataToFile(reward, iterations, duration);
 					else{
-						if(myWorld.typeOfWorld == Constants.TESTING)
-							rewardWriter.write(""+reward+", ");
+						//if(myWorld.typeOfWorld == Constants.TESTING)
+							//rewardWriter.write(""+reward+", ");
 					}
 				}
+				
+				if(myWorld.typeOfWorld == Constants.TESTING && !withHuman)
+					rewardWriter.write(""+reward+", ");
 	           
 				currQValues = qValuesList.get(policyNum);
 				currQValues.weight = (currQValues.weight*currQValues.numEpisodesChosen + reward)/(currQValues.numEpisodesChosen + 1);
 				currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;
 				currTemp = currTemp + Constants.DELTA_TEMP;
 			}
+			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman)
+				rewardWriter.write("\n");
 			rewardWriter.close();
 			
 			long end = System.currentTimeMillis();

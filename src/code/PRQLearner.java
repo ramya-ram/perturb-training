@@ -12,15 +12,15 @@ public class PRQLearner extends LearningAlgorithm {
 	public int[] numOfEpisodesChosen;
 	public List<Policy> library;
 	
-	public PRQLearner(MyWorld myWorld, List<Policy> library){//, QValuesSet qValuesSet){
+	public PRQLearner(MyWorld myWorld, List<Policy> library, QValuesSet qValuesSet){
 		this.myWorld = myWorld;
 		this.library = library;
 		timer = new Timer(1000, timerListener());
-		currQValues = new QValuesSet();
-//		if(qValuesSet != null) //transfer the previously learned q-values passed in as a parameter if not null
-//			currQValues = qValuesSet.clone();
-//		else //if there are no qvalues to transfer from previous tasks, use the ones from offline learning
-//			currQValues = new QValuesSet(Main.robotQValuesOffline, Main.jointQValuesOffline);
+		//currQValues = new QValuesSet();
+		if(qValuesSet != null) //transfer the previously learned q-values passed in as a parameter if not null
+			currQValues = qValuesSet.clone();
+		else //if there are no qvalues to transfer from previous tasks, use the ones from offline learning
+			currQValues = new QValuesSet(Main.robotQValuesOffline, Main.jointQValuesOffline);
 		
 		weights = new double[library.size()+1];
 		numOfEpisodesChosen = new int[library.size()+1];
@@ -66,8 +66,9 @@ public class PRQLearner extends LearningAlgorithm {
 //		System.out.println("num of episodes chosen: ");
 //		Tools.printArray(numOfEpisodesChosen);
 		try{
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
+			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
 			double currTemp = Constants.TEMP;
+			double accumReward = 0;
 			for(int k=0; k<numEpisodes; k++){
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
 				double[] probForPolicies = getProbForPolicies(weights, currTemp);
@@ -102,14 +103,20 @@ public class PRQLearner extends LearningAlgorithm {
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
 				}
+				
+				accumReward += reward;
+				
 				if(withHuman && Main.saveToFile){
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 						saveDataToFile(reward, iterations, duration);
 					else{
-						if(myWorld.typeOfWorld == Constants.TESTING)
-							rewardWriter.write(""+reward+", ");
+						//if(myWorld.typeOfWorld == Constants.TESTING)
+							//rewardWriter.write(""+reward+", ");
 					}
 				}
+				
+				if(myWorld.typeOfWorld == Constants.TESTING && !withHuman)
+					rewardWriter.write(""+reward+", ");
 	           
 				weights[policyNum] = (weights[policyNum]*numOfEpisodesChosen[policyNum] + reward)/(numOfEpisodesChosen[policyNum] + 1);
 				numOfEpisodesChosen[policyNum] = numOfEpisodesChosen[policyNum] + 1;
@@ -120,6 +127,8 @@ public class PRQLearner extends LearningAlgorithm {
 //				System.out.println("num of episodes chosen: ");
 //				Tools.printArray(numOfEpisodesChosen);
 			}
+			if(myWorld.typeOfWorld == Constants.TESTING && !withHuman)
+				rewardWriter.write("\n");
 			rewardWriter.close();
 		} catch(Exception e){
 			e.printStackTrace();

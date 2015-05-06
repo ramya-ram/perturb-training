@@ -263,7 +263,7 @@ public class TaskExecution {
 			System.out.println("Library size "+trainedPolicies.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
-				PRQLearner learner = new PRQLearner(testWorld, trainedPolicies);//, trainedLearners.get(0));
+				PRQLearner learner = new PRQLearner(testWorld, trainedPolicies, trainedLearners.get(0));
 				//setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
 				learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				learner.runPRQL(false);
