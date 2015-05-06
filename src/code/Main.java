@@ -38,7 +38,12 @@ public class Main {
 	public static String[][][] perturb1TestCase;
 	public static String[][][] proceTestCase;
 	
+	public static double[][] PRQLTotal;
+	public static double[][] HRPerturbTotal;
+	
 	public static void main(String[] args){	
+		PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		HRPerturbTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 		
 		//construct training worlds for procedural and perturbation
 		List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
@@ -107,9 +112,9 @@ public class Main {
 					TaskExecution HRPerturb = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.HR_PERTURB);
 					HRPerturb.executeTask();
 					
-					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
-					rewardWriter.write("\n\n");
-					rewardWriter.close();
+//					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
+//					rewardWriter.write("\n\n");
+//					rewardWriter.close();
 					
 					//PERTURBATION - PRQL
 					TaskExecution PRQL = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
@@ -124,6 +129,28 @@ public class Main {
 					//rewardHRPerturbWriter.close();
 					//rewardPRQLWriter.close();
 				}
+				BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
+				
+				for(int i=0; i<HRPerturbTotal.length; i++){
+					for(int j=0; j<HRPerturbTotal[i].length; j++){
+						rewardWriter.write((HRPerturbTotal[i][j]/Constants.NUM_AVERAGING)+", ");
+						//rewardHRPerturbWriter.write((HRPerturbTotal[i][j]/Constants.NUM_AVERAGING)+", ");
+						//rewardPRQLWriter.write((PRQLTotal[i][j]/Constants.NUM_AVERAGING)+", ");
+					}
+					rewardWriter.write("\n");
+					//rewardPRQLWriter.write("\n");
+				}
+				
+				rewardWriter.write("\n\n");
+				
+				for(int i=0; i<PRQLTotal.length; i++){
+					for(int j=0; j<PRQLTotal[i].length; j++){
+						rewardWriter.write((PRQLTotal[i][j]/Constants.NUM_AVERAGING)+", ");
+					}
+					rewardWriter.write("\n");
+				}
+				
+				rewardWriter.close();
 			} else {	
 				//sets simulation wind and dryness
 				for(MyWorld trainWorld : trainingWorldsProce)

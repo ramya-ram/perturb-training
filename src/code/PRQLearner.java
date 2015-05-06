@@ -12,15 +12,15 @@ public class PRQLearner extends LearningAlgorithm {
 	public int[] numOfEpisodesChosen;
 	public List<Policy> library;
 	
-	public PRQLearner(MyWorld myWorld, List<Policy> library, QValuesSet qValuesSet){
+	public PRQLearner(MyWorld myWorld, List<Policy> library){//, QValuesSet qValuesSet){
 		this.myWorld = myWorld;
 		this.library = library;
 		timer = new Timer(1000, timerListener());
-		//currQValues = new QValuesSet();
-		if(qValuesSet != null) //transfer the previously learned q-values passed in as a parameter if not null
-			currQValues = qValuesSet.clone();
-		else //if there are no qvalues to transfer from previous tasks, use the ones from offline learning
-			currQValues = new QValuesSet(Main.robotQValuesOffline, Main.jointQValuesOffline);
+		currQValues = new QValuesSet();
+//		if(qValuesSet != null) //transfer the previously learned q-values passed in as a parameter if not null
+//			currQValues = qValuesSet.clone();
+//		else //if there are no qvalues to transfer from previous tasks, use the ones from offline learning
+//			currQValues = new QValuesSet(Main.robotQValuesOffline, Main.jointQValuesOffline);
 		
 		weights = new double[library.size()+1];
 		numOfEpisodesChosen = new int[library.size()+1];
@@ -73,7 +73,7 @@ public class PRQLearner extends LearningAlgorithm {
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
 				double[] probForPolicies = getProbForPolicies(weights, currTemp);
 				int policyNum = 0;
-				if(withHuman){
+				if(withHuman || k%Constants.INTERVAL == 0){
 					policyNum = probForPolicies.length-1; //the new policy
 				} else {
 					int randNum = Tools.rand.nextInt(100);
@@ -115,8 +115,9 @@ public class PRQLearner extends LearningAlgorithm {
 					}
 				}
 				
-				if(myWorld.typeOfWorld == Constants.TESTING && !withHuman)
-					rewardWriter.write(""+reward+", ");
+				if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
+					Main.PRQLTotal[myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+					//rewardWriter.write(""+reward+", ");
 	           
 				weights[policyNum] = (weights[policyNum]*numOfEpisodesChosen[policyNum] + reward)/(numOfEpisodesChosen[policyNum] + 1);
 				numOfEpisodesChosen[policyNum] = numOfEpisodesChosen[policyNum] + 1;

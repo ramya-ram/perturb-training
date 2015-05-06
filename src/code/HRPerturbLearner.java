@@ -67,7 +67,7 @@ public class HRPerturbLearner extends LearningAlgorithm {
 				probForPolicies = getAccumulatedArray(probForPolicies);
 				
 				int policyNum = 0;
-				if(withHuman){
+				if(withHuman || k%Constants.INTERVAL == 0){
 					//if working with the human, choose the policy with the highest weight
 					double maxWeight = Integer.MIN_VALUE;
 					policyNum = -1;
@@ -111,8 +111,9 @@ public class HRPerturbLearner extends LearningAlgorithm {
 					}
 				}
 				
-				if(myWorld.typeOfWorld == Constants.TESTING && !withHuman)
-					rewardWriter.write(""+reward+", ");
+				if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
+					Main.HRPerturbTotal[myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+					//rewardWriter.write(""+reward+", ");
 	           
 				currQValues = qValuesList.get(policyNum);
 				currQValues.weight = (currQValues.weight*currQValues.numEpisodesChosen + reward)/(currQValues.numEpisodesChosen + 1);
