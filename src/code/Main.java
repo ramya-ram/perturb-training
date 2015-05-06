@@ -111,20 +111,28 @@ public class Main {
 					TaskExecution PRQL = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
 					PRQL.executeTask();
 					
+					//Standard QLearning
+					TaskExecution QLearning = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
+					QLearning.executeTask();
+					
 					BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPerturbName), true));
 					//BufferedWriter rewardPerturbQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbQName), true));
 					//BufferedWriter rewardProceQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceQName), true));
 					BufferedWriter rewardPRQLWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
+					BufferedWriter rewardQLearningWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardQLearningName), true));
+
 					
 					rewardHRPerturbWriter.write("\n");
 					//rewardPerturbQWriter.write("\n");
 					//rewardProceQWriter.write("\n");
 					rewardPRQLWriter.write("\n");
+					rewardQLearningWriter.write("\n");
 					
 					rewardHRPerturbWriter.close();
 					//rewardPerturbQWriter.close();
 					//rewardProceQWriter.close();
 					rewardPRQLWriter.close();
+					rewardQLearningWriter.close();
 				}
 			} else {	
 				//sets simulation wind and dryness
