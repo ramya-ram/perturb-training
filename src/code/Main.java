@@ -104,8 +104,8 @@ public class Main {
 					perturbQ.executeTask();*/
 					
 					//PERTURBATION - HRPR
-					TaskExecution HRPerturb = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.HR_PERTURB);
-					HRPerturb.executeTask();
+					TaskExecution AdaPT = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+					AdaPT.executeTask();
 					
 					//PERTURBATION - PRQL
 					TaskExecution PRQL = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
@@ -169,8 +169,8 @@ public class Main {
 					perturbQ.executeTask();
 				} else if(trainingType.equalsIgnoreCase("BH")){
 					//PERTURBATION
-					TaskExecution HRPerturb = new TaskExecution(gameView, trainingWorldsPerturb, testingWorlds, ExperimentCondition.HR_PERTURB);
-					HRPerturb.executeTask();
+					TaskExecution AdaPT = new TaskExecution(gameView, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+					AdaPT.executeTask();
 				}
 				Main.gameView.initTitleGUI("end");
 				Main.gameView.setTitleAndRoundLabel("", 0, Color.BLACK);

@@ -209,18 +209,18 @@ public class TaskExecution {
 			policies.add(baseQLearner.computePolicy());
 		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+0, Constants.print);
 		
-		if(condition == ExperimentCondition.HR_PERTURB || condition == ExperimentCondition.PRQL){
+		if(condition == ExperimentCondition.ADAPT || condition == ExperimentCondition.PRQL){
 			//perturbation training sessions
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
-				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.HR_PERTURB);
+				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.ADAPT);
 				//setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false);
 				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+1));
 				//setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false);
 				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
-				if(condition == ExperimentCondition.HR_PERTURB)
+				if(condition == ExperimentCondition.ADAPT)
 					learners.add(perturbLearner.currQValues);
 				else if(condition == ExperimentCondition.PRQL)
 					policies.add(perturbLearner.computePolicy());
@@ -249,10 +249,10 @@ public class TaskExecution {
 	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
 	 */
 	public void runTestingPhase(List<QValuesSet> trainedLearners, List<Policy> trainedPolicies){
-		if(condition == ExperimentCondition.HR_PERTURB){
+		if(condition == ExperimentCondition.ADAPT){
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
-				HRPerturbLearner perturbLearner = new HRPerturbLearner(testWorld, trainedLearners);
+				AdaPTLearner perturbLearner = new AdaPTLearner(testWorld, trainedLearners);
 				//setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
 				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				perturbLearner.runHRPerturb(false);

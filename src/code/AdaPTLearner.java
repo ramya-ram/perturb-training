@@ -13,8 +13,8 @@ import javax.swing.Timer;
  * Given a library of Q-value functions learned from the training sessions, the robot learns how to perform a new task it hasn't seen
  * Used in the testing session of the perturbation training condition using HR-Perturb
  */
-public class HRPerturbLearner extends LearningAlgorithm {
-	public HRPerturbLearner(MyWorld myWorld, List<QValuesSet> learners){
+public class AdaPTLearner extends LearningAlgorithm {
+	public AdaPTLearner(MyWorld myWorld, List<QValuesSet> learners){
 		this.myWorld = myWorld;
 		
 		qValuesList = new ArrayList<QValuesSet>();
