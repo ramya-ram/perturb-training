@@ -140,7 +140,7 @@ public class MyWorld {
 					possibleActions.add(Action.LEFT);
 				if(s.robotLoc.col<Constants.NUM_COLS-1)
 					possibleActions.add(Action.RIGHT);
-				possibleActions.add(Action.WAIT);
+				//possibleActions.add(Action.WAIT);
 				return possibleActions;
 			}	
 		};
@@ -166,7 +166,7 @@ public class MyWorld {
 					possibleActions.add(Action.LEFT);
 				if(s.humanLoc.col<Constants.NUM_COLS-1)
 					possibleActions.add(Action.RIGHT);
-				possibleActions.add(Action.WAIT);
+				//possibleActions.add(Action.WAIT);
 				return possibleActions;
 			}	
 		};

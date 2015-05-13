@@ -21,8 +21,8 @@ public class Constants {
 	public static double THRESHOLD_REJECT = 2;
 	
 	//num of times to run
-	public static final int NUM_EPISODES = 500000;
-	public static final int NUM_EPISODES_TEST = 3000;
+	public static final int NUM_EPISODES = 200000;
+	public static final int NUM_EPISODES_TEST = 1500;
 	public static final int NUM_STEPS_PER_EPISODE = 30;
 	
 	public static boolean usePredefinedTestCases = false;
@@ -55,9 +55,9 @@ public class Constants {
 	public static String simulationDir = "C:\\Extra\\";
 	public static String rewardProceQName = simulationDir+"PQ.csv";
 	public static String rewardPerturbQName = simulationDir+"BQ.csv";
-	public static String rewardHRPerturbName = simulationDir+"BH_navigation.csv";
-	public static String rewardPRQLName = simulationDir+"PRQL_navigation.csv";
-	public static String rewardQLearningName = simulationDir+"QLearning_navigation.csv";
+	public static String rewardHRPerturbName = simulationDir+"BH_navigation_noWait_200000train_1500test.csv";
+	public static String rewardPRQLName = simulationDir+"PRQL_navigation_noWait_200000train_1500test.csv";
+	public static String rewardQLearningName = simulationDir+"QLearning_navigation_noWait_200000train_1500test.csv";
 
 	
 	public static String qvaluesDir = simulationDir;
