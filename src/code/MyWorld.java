@@ -12,7 +12,7 @@ public class MyWorld {
 	public String predefinedText;
 	public String textToDisplay;
 	
-	public Location goalLoc;
+	//public Location goalLoc;
 	
 	public List<Location> staticTokenLocs;
 	public List<Location> staticPitLocs;
@@ -44,9 +44,9 @@ public class MyWorld {
 		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
-	public void changeGoalLoc(){
+	/*public void changeGoalLoc(){
 		this.goalLoc = new Location(Tools.rand.nextInt(Constants.NUM_ROWS), Tools.rand.nextInt(Constants.NUM_COLS));
-	}
+	}*/
 	
 	public void changeTokenPitLocs(){
 		this.staticTokenLocs = new ArrayList<Location>();
@@ -128,10 +128,10 @@ public class MyWorld {
 			@Override
 			public Set<Action> actions(State s) {
 				Set<Action> possibleActions = new HashSet<Action>();
-				if(s.robotLoc.equals(goalLoc)){
+				/*if(s.robotLoc.equals(goalLoc)){
 					possibleActions.add(Action.WAIT);
 					return possibleActions;
-				}
+				}*/
 				if(s.robotLoc.row>0)
 					possibleActions.add(Action.UP);
 				if(s.robotLoc.row<Constants.NUM_ROWS-1)
@@ -140,7 +140,7 @@ public class MyWorld {
 					possibleActions.add(Action.LEFT);
 				if(s.robotLoc.col<Constants.NUM_COLS-1)
 					possibleActions.add(Action.RIGHT);
-				//possibleActions.add(Action.WAIT);
+				possibleActions.add(Action.WAIT);
 				return possibleActions;
 			}	
 		};
@@ -154,10 +154,10 @@ public class MyWorld {
 			@Override
 			public Set<Action> actions(State s) {
 				Set<Action> possibleActions = new HashSet<Action>();
-				if(s.humanLoc.equals(goalLoc)){
+				/*if(s.humanLoc.equals(goalLoc)){
 					possibleActions.add(Action.WAIT);
 					return possibleActions;
-				}
+				}*/
 				if(s.humanLoc.row>0)
 					possibleActions.add(Action.UP);
 				if(s.humanLoc.row<Constants.NUM_ROWS-1)
@@ -166,14 +166,14 @@ public class MyWorld {
 					possibleActions.add(Action.LEFT);
 				if(s.humanLoc.col<Constants.NUM_COLS-1)
 					possibleActions.add(Action.RIGHT);
-				//possibleActions.add(Action.WAIT);
+				possibleActions.add(Action.WAIT);
 				return possibleActions;
 			}	
 		};
 	}
 	
 	public boolean isGoalState(State state){
-		return state.humanLoc.equals(goalLoc) && state.robotLoc.equals(goalLoc);
+		return currTokenLocs.isEmpty();//state.humanLoc.equals(goalLoc) && state.robotLoc.equals(goalLoc);
 	}
 	
 	public State initialState(){
@@ -194,8 +194,8 @@ public class MyWorld {
 		for(int i=0; i<nextState.stateOfFires.length; i++){
 			reward += -1*nextState.stateOfFires[i];
 		}*/
-		if(isGoalState(nextState))
-			return 50;
+		//if(isGoalState(nextState))
+			//return 50;
 		double reward = -1;
 		if(nextState.humanLoc.equals(nextState.robotLoc) && currTokenLocs.contains(nextState.humanLoc)){
 			reward += 5;

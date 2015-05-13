@@ -41,6 +41,7 @@ public class TaskExecution {
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
 			List<Policy> trainedPolicies = trainedResult.getSecond();
 			if(condition == ExperimentCondition.PRQL) {
+				runTestingPhase(trainedLearners, trainedPolicies, -1);
 				for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
 					runTestingPhase(trainedLearners, trainedPolicies, i);
 				}
@@ -260,7 +261,10 @@ public class TaskExecution {
 				perturbLearner.runHRPerturb(true, initialState(testWorld, testWorld.sessionNum));
 			}
 		} else if(condition == ExperimentCondition.PRQL){
-			learners.add(allLearners.get(initialQValuesIndex));
+			if(initialQValuesIndex >= 0)
+				learners.add(allLearners.get(initialQValuesIndex));
+			else
+				learners.add(new QValuesSet());
 			System.out.println("Library size "+allPolicies.size()+" Learners size "+learners.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);

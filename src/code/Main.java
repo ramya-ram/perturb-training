@@ -93,13 +93,13 @@ public class Main {
 						//trainWorld.calculateSimulationWindDryness();
 					for(MyWorld trainWorld : trainingWorldsPerturb){
 						trainWorld.changeTokenPitLocs();
-						trainWorld.changeGoalLoc();
-						System.out.println("trainWorld goal loc = "+trainWorld.goalLoc);
+						//trainWorld.changeGoalLoc();
+						//System.out.println("trainWorld goal loc = "+trainWorld.goalLoc);
 					}
 					for(MyWorld testWorld : testingWorlds){
 						testWorld.changeTokenPitLocs();
-						testWorld.changeGoalLoc();
-						System.out.println("testWorld goal loc = "+testWorld.goalLoc);
+						//testWorld.changeGoalLoc();
+						//System.out.println("testWorld goal loc = "+testWorld.goalLoc);
 					}
 					
 					/*//PROCEDURAL - Q-learning

@@ -1,8 +1,5 @@
 package code;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * A class specifying all constants and data file directories
  */
