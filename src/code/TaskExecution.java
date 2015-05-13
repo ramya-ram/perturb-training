@@ -229,7 +229,8 @@ public class TaskExecution {
 					policies.add(perturbLearner.computePolicy());
 				//perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
 			}
-		} else { //both perturb and proce Q-learning use one qlearner to learn all training tasks
+		//} else { //both perturb and proce Q-learning use one qlearner to learn all training tasks
+		} else if(condition == ExperimentCondition.PERTURB_Q || condition == ExperimentCondition.PROCE_Q){
 			//extra training sessions after base session
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
@@ -271,6 +272,14 @@ public class TaskExecution {
 				PRQLearner learner = new PRQLearner(testWorld, allPolicies, learners.get(0));
 				learner.runPRQL(false);
 				learner.runPRQL(true, initialState(testWorld, testWorld.sessionNum));
+			}
+			
+		} else if(condition == ExperimentCondition.Q_LEARNING){
+			for(int i=0; i<testingWorlds.size(); i++){
+				MyWorld testWorld = testingWorlds.get(i);
+				QLearner learner = new QLearner(new QValuesSet(), ExperimentCondition.Q_LEARNING);
+				learner.run(testWorld, false);
+				learner.run(testWorld, true, initialState(testWorld, i*2+1));
 			}
 		} else {
 			//Q-learning proce and perturb testing sessions

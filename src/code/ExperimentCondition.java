@@ -9,5 +9,5 @@ package code;
  * -PRQL: policy reuse in Q-learning (used for comparison with HR-Perturb to see if our algorithmic modifications to PRQL are helpful)
  */
 public enum ExperimentCondition {
-	HR_PERTURB, PROCE_Q, PERTURB_Q, PRQL
+	HR_PERTURB, PROCE_Q, PERTURB_Q, PRQL, Q_LEARNING
 }

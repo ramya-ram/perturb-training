@@ -67,6 +67,8 @@ public class QLearner extends LearningAlgorithm {
 			    				fileName = Constants.rewardPerturbQName;
 			    			else if(condition == ExperimentCondition.PROCE_Q)
 			    				fileName = Constants.rewardProceQName;
+			    			else if(condition == ExperimentCondition.Q_LEARNING)
+			    				fileName = Constants.rewardQLearningName;
 							BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
 
 							rewardWriter.write(""+tuple.getFirst()+", ");

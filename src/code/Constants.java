@@ -57,6 +57,8 @@ public class Constants {
 	public static String rewardPerturbQName = simulationDir+"BQ.csv";
 	public static String rewardHRPerturbName = simulationDir+"BH_navigation.csv";
 	public static String rewardPRQLName = simulationDir+"PRQL_navigation.csv";
+	public static String rewardQLearningName = simulationDir+"QLearning_navigation.csv";
+
 	
 	public static String qvaluesDir = simulationDir;
 	
