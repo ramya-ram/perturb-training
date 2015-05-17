@@ -16,8 +16,8 @@ public class MyWorld {
 	public Location goalLoc;
 	
 	public static List<Location> staticTokenLocs = Arrays.asList(
-			new Location(4,1), new Location(4,2), new Location(4,3), new Location(4,6), new Location(4,7), new Location(4,8), 
-			new Location(1,5), new Location(2,5), new Location(3,5), new Location(6,5), new Location(7,5), new Location(8,5));
+			new Location(4,1), new Location(4,2), new Location(4,3), new Location(5,6), new Location(5,7), new Location(5,8), 
+			new Location(1,5), new Location(2,5), new Location(3,5), new Location(6,4), new Location(7,4), new Location(8,4));
 	public static List<Location> staticPitLocs = Arrays.asList(
 			new Location(1,1), new Location(2,2), new Location(3,3), new Location(6,6), new Location(7,7), new Location(8,8), 
 			new Location(8,1), new Location(7,2), new Location(6,3), new Location(3,6), new Location(2,7), new Location(1,8));

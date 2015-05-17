@@ -55,9 +55,9 @@ public class Constants {
 	public static String simulationDir = "C:\\Extra\\";
 	public static String rewardProceQName = simulationDir+"PQ.csv";
 	public static String rewardPerturbQName = simulationDir+"BQ.csv";
-	public static String rewardHRPerturbName = simulationDir+"BH_tokensAndGoal_500000train_5000test_100TestLocs.csv";
-	public static String rewardPRQLName = simulationDir+"PRQL_tokensAndGoal_500000train_5000test_100TestLocs.csv";
-	public static String rewardQLearningName = simulationDir+"QLearning_tokensAndGoal_500000train_5000test_100TestLocs.csv";
+	public static String rewardHRPerturbName = simulationDir+"BH_tokensAndGoal_500000train_5000test_100TestLocs_changedTokenLocs.csv";
+	public static String rewardPRQLName = simulationDir+"PRQL_tokensAndGoal_500000train_5000test_100TestLocs_changedTokenLocs.csv";
+	public static String rewardQLearningName = simulationDir+"QLearning_tokensAndGoal_500000train_5000test_100TestLocs_changedTokenLocs.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	
