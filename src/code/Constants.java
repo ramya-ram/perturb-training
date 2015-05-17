@@ -22,13 +22,14 @@ public class Constants {
 	
 	//num of times to run
 	public static final int NUM_EPISODES = 500000;
-	public static final int NUM_EPISODES_TEST = 10000;
+	public static final int NUM_EPISODES_TEST = 500000;
 	public static final int NUM_STEPS_PER_EPISODE = 30;
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
 	public static boolean print = false;
-	public static int NUM_AVERAGING = 1;
+	public static final int INTERVAL = 5000;
+	public static int NUM_AVERAGING = 10;
 	
 	public static int NUM_ROWS = 10;
 	public static int NUM_COLS = 10;
@@ -58,6 +59,8 @@ public class Constants {
 	public static String rewardHRPerturbName = simulationDir+"BH_tokensAndGoal_500000train_10000test_100TestLocs_changedTokenLocs.csv";
 	public static String rewardPRQLName = simulationDir+"PRQL_tokensAndGoal_500000train_10000test_100TestLocs_changedTokenLocs.csv";
 	public static String rewardQLearningName = simulationDir+"QLearning_tokensAndGoal_500000train_10000test_100TestLocs_changedTokenLocs.csv";
+	
+	public static String numIterName = simulationDir+"numIter_reward_gridWorld_5000interval_til500000_10aver.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	
