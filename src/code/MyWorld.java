@@ -1,6 +1,7 @@
 package code;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,10 +13,14 @@ public class MyWorld {
 	public String predefinedText;
 	public String textToDisplay;
 	
-	//public Location goalLoc;
+	public Location goalLoc;
 	
-	public List<Location> staticTokenLocs;
-	public List<Location> staticPitLocs;
+	public static List<Location> staticTokenLocs = Arrays.asList(
+			new Location(4,1), new Location(4,2), new Location(4,3), new Location(4,6), new Location(4,7), new Location(4,8), 
+			new Location(1,5), new Location(2,5), new Location(3,5), new Location(6,5), new Location(7,5), new Location(8,5));
+	public static List<Location> staticPitLocs = Arrays.asList(
+			new Location(1,1), new Location(2,2), new Location(3,3), new Location(6,6), new Location(7,7), new Location(8,8), 
+			new Location(8,1), new Location(7,2), new Location(6,3), new Location(3,6), new Location(2,7), new Location(1,8));
 
 	public List<Location> currTokenLocs;
 	
@@ -23,10 +28,11 @@ public class MyWorld {
 	public boolean perturb; //specifies if this world is for perturbation or procedural training
 	public int typeOfWorld; //specifies if this world is for training or testing
 	
-	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum){//, Location goalLoc, List<Location> tokenLocs, List<Location> pitLocs){
+	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum, Location goalLoc){//, List<Location> tokenLocs, List<Location> pitLocs){
 		this.typeOfWorld = typeOfWorld;
 		this.perturb = perturb;
 		this.sessionNum = sessionNum;
+		this.goalLoc = goalLoc;
 		//if(typeOfWorld == Constants.TRAINING)
 		//this.goalLoc = goalLoc.clone();
 		//else if(typeOfWorld == Constants.TESTING)
@@ -44,18 +50,32 @@ public class MyWorld {
 		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
-	/*public void changeGoalLoc(){
-		this.goalLoc = new Location(Tools.rand.nextInt(Constants.NUM_ROWS), Tools.rand.nextInt(Constants.NUM_COLS));
-	}*/
+	public void printGrid(){
+		for(int i=0; i<Constants.NUM_ROWS; i++){
+			for(int j=0; j<Constants.NUM_COLS; j++){
+				if(staticTokenLocs.contains(new Location(i,j)))
+					System.out.print("O");
+				else if(staticPitLocs.contains(new Location(i,j)))
+					System.out.print("X");
+				else
+					System.out.print(" ");
+			}
+			System.out.println();
+		}
+	}
 	
-	public void changeTokenPitLocs(){
+	public void changeGoalLoc(){
+		this.goalLoc = new Location(Tools.rand.nextInt(Constants.NUM_ROWS), Tools.rand.nextInt(Constants.NUM_COLS));
+	}
+	
+	/*public void changeTokenPitLocs(){
 		this.staticTokenLocs = new ArrayList<Location>();
 		for(int i=0; i<12; i++)
 			this.staticTokenLocs.add(new Location(Tools.rand.nextInt(Constants.NUM_ROWS), Tools.rand.nextInt(Constants.NUM_COLS)));
 		this.staticPitLocs = new ArrayList<Location>();
 		for(int i=0; i<12; i++)
 			this.staticPitLocs.add(new Location(Tools.rand.nextInt(Constants.NUM_ROWS), Tools.rand.nextInt(Constants.NUM_COLS)));
-	}
+	}*/
 	
 	public void resetTokenLocs(){
 		currTokenLocs = new ArrayList<Location>();
@@ -128,10 +148,10 @@ public class MyWorld {
 			@Override
 			public Set<Action> actions(State s) {
 				Set<Action> possibleActions = new HashSet<Action>();
-				/*if(s.robotLoc.equals(goalLoc)){
+				if(s.robotLoc.equals(goalLoc)){
 					possibleActions.add(Action.WAIT);
 					return possibleActions;
-				}*/
+				}
 				if(s.robotLoc.row>0)
 					possibleActions.add(Action.UP);
 				if(s.robotLoc.row<Constants.NUM_ROWS-1)
@@ -154,10 +174,10 @@ public class MyWorld {
 			@Override
 			public Set<Action> actions(State s) {
 				Set<Action> possibleActions = new HashSet<Action>();
-				/*if(s.humanLoc.equals(goalLoc)){
+				if(s.humanLoc.equals(goalLoc)){
 					possibleActions.add(Action.WAIT);
 					return possibleActions;
-				}*/
+				}
 				if(s.humanLoc.row>0)
 					possibleActions.add(Action.UP);
 				if(s.humanLoc.row<Constants.NUM_ROWS-1)
@@ -173,12 +193,13 @@ public class MyWorld {
 	}
 	
 	public boolean isGoalState(State state){
-		return currTokenLocs.isEmpty();//state.humanLoc.equals(goalLoc) && state.robotLoc.equals(goalLoc);
+		//currTokenLocs.isEmpty();
+		return state.humanLoc.equals(goalLoc) && state.robotLoc.equals(goalLoc);
 	}
 	
 	public State initialState(){
 		if(Main.currWithSimulatedHuman && typeOfWorld == Constants.TESTING){
-			return new State(new Location(Constants.NUM_ROWS-1,0), new Location(0,Constants.NUM_COLS-1));
+			return new State(new Location(4, 0), new Location(4, Constants.NUM_COLS-1));
 		}
 		return initStates[Tools.rand.nextInt(initStates.length)];	
 	}
@@ -194,8 +215,8 @@ public class MyWorld {
 		for(int i=0; i<nextState.stateOfFires.length; i++){
 			reward += -1*nextState.stateOfFires[i];
 		}*/
-		//if(isGoalState(nextState))
-			//return 50;
+		if(isGoalState(nextState))
+			return 20;
 		double reward = -1;
 		if(nextState.humanLoc.equals(nextState.robotLoc) && currTokenLocs.contains(nextState.humanLoc)){
 			reward += 5;
