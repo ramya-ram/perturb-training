@@ -273,6 +273,13 @@ public class TaskExecution {
 				learner.runPRQL(false);
 				learner.runPRQL(true, initialState(testWorld, testWorld.sessionNum));
 			}
+			try{
+				BufferedWriter rewardPRQLWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
+				rewardPRQLWriter.write("\n");
+				rewardPRQLWriter.close();
+			} catch(Exception e){
+				e.printStackTrace();
+			}
 			
 		} else if(condition == ExperimentCondition.Q_LEARNING){
 			for(int i=0; i<testingWorlds.size(); i++){
