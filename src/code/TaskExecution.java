@@ -40,13 +40,19 @@ public class TaskExecution {
 			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
 			List<Policy> trainedPolicies = trainedResult.getSecond();
-			if(condition == ExperimentCondition.PRQL) {
-				runTestingPhase(trainedLearners, trainedPolicies, -1);
-				for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
-					runTestingPhase(trainedLearners, trainedPolicies, i);
+			for(MyWorld testWorld : testingWorlds){
+				testWorld.changeGoalLoc();
+			}
+			for(int num=0; num<Constants.NUM_AVERAGING; num++){
+				System.out.println("*** "+num+" ***");
+				if(condition == ExperimentCondition.PRQL) {
+					runTestingPhase(trainedLearners, trainedPolicies, -1);
+					for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
+						runTestingPhase(trainedLearners, trainedPolicies, i);
+					}
+				} else {
+					runTestingPhase(trainedLearners, trainedPolicies, -1);
 				}
-			} else {
-				runTestingPhase(trainedLearners, trainedPolicies, -1);
 			}
 		}
 		
@@ -273,13 +279,13 @@ public class TaskExecution {
 				learner.runPRQL(false);
 				learner.runPRQL(true, initialState(testWorld, testWorld.sessionNum));
 			}
-			try{
+			/*try{
 				BufferedWriter rewardPRQLWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
 				rewardPRQLWriter.write("\n");
 				rewardPRQLWriter.close();
 			} catch(Exception e){
 				e.printStackTrace();
-			}
+			}*/
 			
 		} else if(condition == ExperimentCondition.Q_LEARNING){
 			for(int i=0; i<testingWorlds.size(); i++){

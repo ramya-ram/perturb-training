@@ -91,9 +91,9 @@ public class Main {
 			saveToFile = true;
 						
 			if(CURRENT_EXECUTION == SIMULATION){
-				for(int i=0; i<Constants.NUM_AVERAGING; i++){
+				//for(int i=0; i<Constants.NUM_AVERAGING; i++){
 					//makes simulation wind and dryness a noisy version of the real one
-					System.out.println("*** "+i+" ***");
+					//System.out.println("*** "+i+" ***");
 					//for(MyWorld trainWorld : trainingWorldsProce)
 					//	trainWorld.calculateSimulationWindDryness();
 					//for(MyWorld trainWorld : trainingWorldsPerturb)
@@ -103,11 +103,11 @@ public class Main {
 						//trainWorld.changeGoalLoc();
 						//System.out.println("trainWorld goal loc = "+trainWorld.goalLoc);
 					//}
-					for(MyWorld testWorld : testingWorlds){
+					//for(MyWorld testWorld : testingWorlds){
 						//testWorld.changeTokenPitLocs();
-						testWorld.changeGoalLoc();
+						//testWorld.changeGoalLoc();
 						//System.out.println("testWorld goal loc = "+testWorld.goalLoc);
-					}
+					//}
 					
 					/*//PROCEDURAL - Q-learning
 					TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
@@ -135,8 +135,8 @@ public class Main {
 					rewardWriter.close();*/
 					
 					//Standard QLearning
-					TaskExecution QLearning = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
-					QLearning.executeTask();
+					//TaskExecution QLearning = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
+					//QLearning.executeTask();
 					
 					/*BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPerturbName), true));
 					//BufferedWriter rewardPerturbQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbQName), true));
@@ -155,7 +155,7 @@ public class Main {
 					//rewardProceQWriter.close();
 					rewardPRQLWriter.close();
 					rewardQLearningWriter.close();*/
-				}
+				//}
 				BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
 						
 				for(int i=0; i<HRPerturbTotal.length; i++){

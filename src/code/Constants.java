@@ -29,7 +29,7 @@ public class Constants {
 	public static boolean useOfflineValues = false;
 	public static boolean print = false;
 	public static final int INTERVAL = 5000;
-	public static int NUM_AVERAGING = 10;
+	public static int NUM_AVERAGING = 1;
 	
 	public static int NUM_ROWS = 10;
 	public static int NUM_COLS = 10;
@@ -41,7 +41,7 @@ public class Constants {
 	/*public static Location[] testingGoalLocs = {new Location(2,NUM_COLS-2), new Location(NUM_ROWS-2, 2), new Location(NUM_ROWS-3, NUM_COLS-1)};
 	*/
 	public static final int NUM_TRAINING_SESSIONS = 4;
-	public static final int NUM_TESTING_SESSIONS = 100;
+	public static final int NUM_TESTING_SESSIONS = 1;
 
 	//file names where results are stored
 	public static String dataDir = "inputFiles\\";
@@ -60,7 +60,7 @@ public class Constants {
 	public static String rewardPRQLName = simulationDir+"PRQL_tokensAndGoal_500000train_10000test_100TestLocs_changedTokenLocs.csv";
 	public static String rewardQLearningName = simulationDir+"QLearning_tokensAndGoal_500000train_10000test_100TestLocs_changedTokenLocs.csv";
 	
-	public static String numIterName = simulationDir+"numIter_reward_gridWorld_5000interval_til500000_10aver.csv";
+	public static String numIterName = simulationDir+"numIter_reward_gridWorld_5000interval_til500000_trainingOnce.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	
