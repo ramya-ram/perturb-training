@@ -301,7 +301,7 @@ public class TaskExecution {
 				str+= "Testing Session ";
 		} else
 			str+= "Practice Session ";
-		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness= "+world.simulationDryness;
+		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness = "+world.simulationDryness;
 		if(gameView != null)
 			gameView.setTitleAndRoundLabel(str, roundNum, color);
 	}

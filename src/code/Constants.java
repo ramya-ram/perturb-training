@@ -38,12 +38,12 @@ public class Constants {
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
 	
-	public static int[] simulationWind_train =    {};//{0, 5, 0}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
-	public static int[] simulationDryness_train = {};//{0, 0, 5};
+	public static int[] simulationWind_train =    {0, 5, 0}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
+	public static int[] simulationDryness_train = {0, 0, 5};
 	public static int[] testWind_train =    {0, 5, 0};
 	public static int[] testDryness_train = {0, 0, 5};
-	public static int[] simulationWind_test =    {};//{0, 1, 8}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
-	public static int[] simulationDryness_test = {};//{0, 8, 1};
+	public static int[] simulationWind_test =    {0, 1, 8}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
+	public static int[] simulationDryness_test = {0, 8, 1};
 	public static int[] testWind_test =    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 	public static int[] testDryness_test = {0, 9, 8, 7, 6, 5, 4, 3, 2, 1};	
 	
