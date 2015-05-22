@@ -51,17 +51,17 @@ public class Main {
 		for(int i=1; i<=Constants.NUM_TRAINING_SESSIONS; i++){
 			//MyWorld proceWorld = new MyWorld(Constants.TRAINING, false, i);//, Constants.trainingGoalLocs[0], Constants.allTokenLocs.get(0), Constants.allPitLocs.get(0));
 			//trainingWorldsProce.add(proceWorld);
-			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i, Constants.trainingGoalLocs[i-1]);//, Constants.trainingGoalLocs[i-1], Constants.allTokenLocs.get(i-1), Constants.allPitLocs.get(i-1));
+			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i);//, Constants.trainingGoalLocs[i-1], Constants.allTokenLocs.get(i-1), Constants.allPitLocs.get(i-1));
 			trainingWorldsPerturb.add(perturbWorld);
 		}
 		//construct testing worlds for both training
 		List<MyWorld> testingWorlds = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
-			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, null);//, Constants.testingGoalLocs[i-1], Constants.allTokenLocsTest.get(i-1), Constants.allPitLocsTest.get(i-1));
+			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i);//, Constants.testingGoalLocs[i-1], Constants.allTokenLocsTest.get(i-1), Constants.allPitLocsTest.get(i-1));
 			testingWorlds.add(testWorld);
 		}
 		
-		trainingWorldsPerturb.get(0).printGrid();
+		//trainingWorldsPerturb.get(0).printGrid();
 		
 		if(CURRENT_EXECUTION == CREATE_OFFLINE_QVALUES){
 			QLearner qLearnerProce = new QLearner(null, ExperimentCondition.PROCE_Q);

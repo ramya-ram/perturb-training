@@ -31,8 +31,11 @@ public class Constants {
 	public static final int INTERVAL = 1000;
 	public static int NUM_AVERAGING = 50;
 	
-	public static int NUM_ROWS = 10;
-	public static int NUM_COLS = 10;
+	public static int NUM_ROWS = 3;
+	public static int NUM_COLS = 3;
+	
+	public static int NUM_ITEMS = 3;
+	public static int NUM_LOCS_OBSTACLE = NUM_COLS;
 	
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
@@ -56,11 +59,11 @@ public class Constants {
 	public static String simulationDir = "C:\\Extra\\";
 	public static String rewardProceQName = simulationDir+"PQ.csv";
 	public static String rewardPerturbQName = simulationDir+"BQ.csv";
-	public static String rewardHRPerturbName = simulationDir+"BH_tokensAndGoal_500000train_10000test_100TestLocs_changedTokenLocs.csv";
-	public static String rewardPRQLName = simulationDir+"PRQL_tokensAndGoal_500000train_10000test_100TestLocs_changedTokenLocs.csv";
-	public static String rewardQLearningName = simulationDir+"QLearning_tokensAndGoal_500000train_10000test_100TestLocs_changedTokenLocs.csv";
+	public static String rewardHRPerturbName = simulationDir+"BH_delivery_500000train_10000test.csv";
+	public static String rewardPRQLName = simulationDir+"PRQL_delivery_500000train_10000test.csv";
+	public static String rewardQLearningName = simulationDir+"QLearning_delivery_500000train_10000test.csv";
 	
-	public static String numIterName = simulationDir+"numIter_reward_gridWorld_1000interval_til500000_50aver.csv";
+	public static String numIterName = simulationDir+"numIter_reward_delivery_1000interval_til500000_50aver.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	

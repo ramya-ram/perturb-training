@@ -41,7 +41,7 @@ public class TaskExecution {
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
 			List<Policy> trainedPolicies = trainedResult.getSecond();
 			for(MyWorld testWorld : testingWorlds){
-				testWorld.changeGoalLoc();
+				//testWorld.changeGoalLoc();
 			}
 			for(int num=0; num<Constants.NUM_AVERAGING; num++){
 				System.out.println("*** "+num+" ***");
