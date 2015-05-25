@@ -16,6 +16,9 @@ public class MyWorld {
 	public static List<Location> startLocs = Arrays.asList(new Location(0,0), new Location(1,0), new Location(2,0));
 	public static List<Location> endLocs = Arrays.asList(new Location(0,2), new Location(1,2), new Location(2,2));
 	
+	public int[] queueItems;
+	public int obstacleRow;
+	
 	public int sessionNum; //specifies which training or testing round it is
 	public boolean perturb; //specifies if this world is for perturbation or procedural training
 	public int typeOfWorld; //specifies if this world is for training or testing
@@ -24,6 +27,8 @@ public class MyWorld {
 		this.typeOfWorld = typeOfWorld;
 		this.perturb = perturb;
 		this.sessionNum = sessionNum;
+		
+		queueItems = new int[Constants.NUM_ITEMS];
 		//if(typeOfWorld == Constants.TRAINING)
 		//this.goalLoc = goalLoc.clone();
 		//else if(typeOfWorld == Constants.TESTING)
@@ -84,11 +89,11 @@ public class MyWorld {
 						Location robotLoc = new Location(row2, col2);
 						for(int humanItem = -1; humanItem < Constants.NUM_ITEMS; humanItem++){
 							for(int robotItem = -1; robotItem < Constants.NUM_ITEMS; robotItem++){
-								for(int obsRow = 0; obsRow < Constants.NUM_ROWS; obsRow++){
-									Location obsLoc = new Location(obsRow, 1); //obstacle only stays in the middle column, goes up and down this column
-									State state = new State(humanLoc, robotLoc, humanItem, robotItem, obsLoc);
+								//for(int obsRow = 0; obsRow < Constants.NUM_ROWS; obsRow++){
+									//Location obsLoc = new Location(obsRow, 1); //obstacle only stays in the middle column, goes up and down this column
+									State state = new State(humanLoc, robotLoc, humanItem, robotItem);//, obsRow);
 									states.add(state);
-								}
+								//}
 							}
 						}
 					}
@@ -174,10 +179,10 @@ public class MyWorld {
 	}
 	
 	public State initialState(){
-		if(Main.currWithSimulatedHuman && typeOfWorld == Constants.TESTING){
-			return new State(new Location(0, 0), new Location(Constants.NUM_ROWS-1, 0), -1, -1, new Location(1,1));
-		}
-		return initStates[Tools.rand.nextInt(initStates.length)];	
+		//if(Main.currWithSimulatedHuman && typeOfWorld == Constants.TESTING){
+			return new State(new Location(0, 0), new Location(Constants.NUM_ROWS-1, 0), -1, -1);//, 1);
+		//}
+		//return initStates[Tools.rand.nextInt(initStates.length)];	
 	}
 	
 	/**
@@ -189,14 +194,14 @@ public class MyWorld {
 		Action humanAction = agentActions.getHumanAction();
 		Action robotAction = agentActions.getRobotAction();
 		if(humanAction == Action.DROP_OFF){
-			reward += getDropOffReward(state.humanLoc.row);
+			reward += getDropOffReward(queueItems[nextState.humanLoc.row]);
 		}
 		if(robotAction == Action.DROP_OFF){
-			reward += getDropOffReward(state.robotLoc.row);
+			reward += getDropOffReward(queueItems[nextState.robotLoc.row]);
 		}
-		if(nextState.humanLoc.equals(nextState.obstacle))
+		if(nextState.humanLoc.equals(new Location(obstacleRow, Constants.OBSTACLE_COL)))
 			reward += -5;
-		if(nextState.robotLoc.equals(nextState.obstacle))
+		if(nextState.robotLoc.equals(new Location(obstacleRow, Constants.OBSTACLE_COL)))
 			reward += -5;
 		return reward;
 	}
@@ -290,15 +295,45 @@ public class MyWorld {
 					return newState;
 				}
 			}*/
+			int randNum0 = Tools.rand.nextInt(100);
+			System.out.println("randNum0 "+randNum0);
+			if(randNum0 < 100)
+				queueItems[0] = 0;
+			//else
+			//	queueItems[0] = 1;
+			
+			int randNum1 = Tools.rand.nextInt(100);
+			System.out.println("randNum1 "+randNum1);
+			if(randNum1 < 50)
+				queueItems[1] = 0;
+			else
+				queueItems[1] = 1;
+			
+			int randNum2 = Tools.rand.nextInt(100);
+			System.out.println("randNum2 "+randNum2);
+			if(randNum2 < 50)
+				queueItems[2] = 1;
+			else
+				queueItems[2] = 2;
+			
+			System.out.print("Queue: ");
+			for(int i=0; i<queueItems.length; i++){
+				System.out.print(queueItems[i]+", ");
+			}
+			System.out.println();
+			
+			obstacleRow++;
+			if(obstacleRow >= Constants.NUM_ROWS)
+				obstacleRow = 0;
 			
 			Action humanAction = agentActions.getHumanAction();
 			Action robotAction = agentActions.getRobotAction();
 			
 			if(humanAction == Action.PICK_UP){
-				newState.humanItem = newState.humanLoc.row;
+				newState.humanItem = queueItems[newState.humanLoc.row];
 			}
 			if(robotAction == Action.PICK_UP){
-				newState.robotItem = newState.robotLoc.row;
+				newState.robotItem = queueItems[newState.robotLoc.row];
 			}
 			if(humanAction == Action.DROP_OFF){
 				newState.humanItem = -1;

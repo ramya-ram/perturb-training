@@ -41,7 +41,9 @@ public class Main {
 	public static double[][] PRQLTotal;
 	public static double[][] HRPerturbTotal;
 	
-	public static void main(String[] args){	
+	public static void main(String[] args){
+		System.out.println(new State(new Location(2,2), new Location(2,2), 2, 2).getId());
+		
 		PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 		HRPerturbTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 		
