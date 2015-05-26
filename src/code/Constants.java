@@ -42,10 +42,7 @@ public class Constants {
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
 
-	public static Location[] trainingGoalLocs = {new Location(0,0), new Location(NUM_ROWS-1, 0), new Location(0,NUM_COLS-1), new Location(NUM_ROWS-1, NUM_COLS-1)};
-	/*public static Location[] testingGoalLocs = {new Location(2,NUM_COLS-2), new Location(NUM_ROWS-2, 2), new Location(NUM_ROWS-3, NUM_COLS-1)};
-	*/
-	public static final int NUM_TRAINING_SESSIONS = 4;
+	public static final int NUM_TRAINING_SESSIONS = 3;
 	public static final int NUM_TESTING_SESSIONS = 1;
 
 	//file names where results are stored
@@ -65,7 +62,7 @@ public class Constants {
 	public static String rewardPRQLName = simulationDir+"PRQL_delivery_500000train_10000test.csv";
 	public static String rewardQLearningName = simulationDir+"QLearning_delivery_500000train_10000test.csv";
 	
-	public static String numIterName = simulationDir+"numIter_reward_delivery_100interval_til50000_20aver.csv";
+	public static String numIterName = simulationDir+"numIter_reward_deliverywithPerturbs_100interval_til50000_20aver.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	

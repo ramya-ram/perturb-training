@@ -40,16 +40,16 @@ public class TaskExecution {
 			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
 			List<Policy> trainedPolicies = trainedResult.getSecond();
-			for(MyWorld testWorld : testingWorlds){
+			//for(MyWorld testWorld : testingWorlds){
 				//testWorld.changeGoalLoc();
-			}
+			//}
 			for(int num=0; num<Constants.NUM_AVERAGING; num++){
 				System.out.println("*** "+num+" ***");
 				if(condition == ExperimentCondition.PRQL) {
 					runTestingPhase(trainedLearners, trainedPolicies, -1);
-					for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
-						runTestingPhase(trainedLearners, trainedPolicies, i);
-					}
+					//for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
+					//	runTestingPhase(trainedLearners, trainedPolicies, i);
+					//}
 				} else {
 					runTestingPhase(trainedLearners, trainedPolicies, -1);
 				}

@@ -29,21 +29,10 @@ public class MyWorld {
 		this.sessionNum = sessionNum;
 		
 		queueItems = new int[Constants.NUM_ITEMS];
-		//if(typeOfWorld == Constants.TRAINING)
-		//this.goalLoc = goalLoc.clone();
-		//else if(typeOfWorld == Constants.TESTING)
-			//this.goalLoc = new Location(Tools.rand.nextInt(Constants.NUM_ROWS), Tools.rand.nextInt(Constants.NUM_COLS));
-		
-		//this.tokenLocs = new ArrayList<Location>();
-		//this.tokenLocs.addAll(tokenLocs);
-		//this.pitLocs = new ArrayList<Location>();
-		//this.pitLocs.addAll(pitLocs);
 		
 		//initialize the mdp only once
 		if(mdp == null)
 			mdp = initializeMDP();
-		
-		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
 	/*public void printGrid(){
@@ -185,40 +174,6 @@ public class MyWorld {
 		//return initStates[Tools.rand.nextInt(initStates.length)];	
 	}
 	
-	/**
-	 * Computes reward for being in this state
-	 * Reward is given based on the intensities of fires, burnouts get high negative reward, even after the goal is reached 
-	 */
-	public double reward(State state, HumanRobotActionPair agentActions, State nextState){		
-		double reward = -1;
-		Action humanAction = agentActions.getHumanAction();
-		Action robotAction = agentActions.getRobotAction();
-		if(humanAction == Action.DROP_OFF){
-			reward += getDropOffReward(queueItems[nextState.humanLoc.row]);
-		}
-		if(robotAction == Action.DROP_OFF){
-			reward += getDropOffReward(queueItems[nextState.robotLoc.row]);
-		}
-		if(nextState.humanLoc.equals(new Location(obstacleRow, Constants.OBSTACLE_COL)))
-			reward += -5;
-		if(nextState.robotLoc.equals(new Location(obstacleRow, Constants.OBSTACLE_COL)))
-			reward += -5;
-		return reward;
-	}
-	
-	public double getDropOffReward(int row){
-		switch(row){
-			case 0:
-				return 1;
-			case 1:
-				return 3;
-			case 2:
-				return 5;
-			default:
-				return 0;
-		}
-	}
-	
 	public State getProcePredefinedNextState(State state, HumanRobotActionPair agentActions) {
 		return getStateFromFile(Main.proceTestCase[state.getId()][agentActions.getHumanAction().ordinal()][agentActions.getRobotAction().ordinal()]);
 	}
@@ -277,6 +232,42 @@ public class MyWorld {
 	}
 	
 	/**
+	 * Computes reward for being in this state
+	 * Reward is given based on the intensities of fires, burnouts get high negative reward, even after the goal is reached 
+	 */
+	public double reward(State state, HumanRobotActionPair agentActions, State nextState){		
+		double reward = -1;
+		Action humanAction = agentActions.getHumanAction();
+		Action robotAction = agentActions.getRobotAction();
+		if(humanAction == Action.DROP_OFF){
+			reward += getDropOffReward(queueItems[nextState.humanLoc.row]);
+		}
+		if(robotAction == Action.DROP_OFF){
+			reward += getDropOffReward(queueItems[nextState.robotLoc.row]);
+		}
+		if(nextState.humanLoc.equals(new Location(obstacleRow, Constants.OBSTACLE_COL)))
+			reward += -5;
+		if(nextState.robotLoc.equals(new Location(obstacleRow, Constants.OBSTACLE_COL)))
+			reward += -5;
+		return reward;
+	}
+	
+	public double getDropOffReward(int row){
+		int[][] trainingReward = {{1,3,5},
+								  {1,3,5},
+								  {3,3,3}};
+		int[][] testingReward = {{1,5,10},
+				 				 {10,5,1},
+				 				 {10,5,10}};
+		if(typeOfWorld == Constants.TRAINING)
+			return trainingReward[sessionNum-1][row];
+		else if(typeOfWorld == Constants.TESTING)
+			return testingReward[sessionNum-1][row];
+		else
+			return 0;
+	}
+	
+	/**
 	 * Determines the next state and prints appropriate messages to SocketTest
 	 * There can be stochasticity through spreading and burnout of fires
 	 */
@@ -289,38 +280,38 @@ public class MyWorld {
 			return newState;
 
 		try{
-			/*if(Main.currWithSimulatedHuman){
-				if(Constants.usePredefinedTestCases && typeOfWorld == Constants.TESTING){
-					newState = getPredefinedNextState(newState, agentActions);
-					return newState;
-				}
-			}*/
-			int randNum0 = Tools.rand.nextInt(100);
-			System.out.println("randNum0 "+randNum0);
-			if(randNum0 < 100)
-				queueItems[0] = 0;
-			//else
-			//	queueItems[0] = 1;
+			int[][][] trainingTransitions = {{{100,0,0}, {0,100,0}, {0,0,100}},
+					  					   {{100,0,0}, {50,50,0}, {0,50,50}},
+					  					   {{100,0,0}, {0,100,0}, {0,0,100}}};
 			
-			int randNum1 = Tools.rand.nextInt(100);
-			System.out.println("randNum1 "+randNum1);
-			if(randNum1 < 50)
-				queueItems[1] = 0;
-			else
-				queueItems[1] = 1;
+			int[][][] testingTransitions = {{{70,30,0}, {30,70,0}, {0,50,50}},
+					   						{{33,33,33}, {0,50,50}, {0,0,100}},
+					   						{{50,50,0}, {50,50,50}, {0,50,50}}};
 			
-			int randNum2 = Tools.rand.nextInt(100);
-			System.out.println("randNum2 "+randNum2);
-			if(randNum2 < 50)
-				queueItems[2] = 1;
-			else
-				queueItems[2] = 2;
+			trainingTransitions = createProbArray(trainingTransitions);
+			testingTransitions = createProbArray(testingTransitions);			
 			
-			System.out.print("Queue: ");
+			int[][][] currTransitions = null;
+			if(typeOfWorld == Constants.TRAINING){
+				currTransitions = trainingTransitions;
+			} else if(typeOfWorld == Constants.TESTING){
+				currTransitions = testingTransitions;
+			}
+			for(int i=0; i<Constants.NUM_ROWS; i++){
+				int randNum = Tools.rand.nextInt(100);
+				if(randNum < currTransitions[sessionNum-1][0][i])
+					queueItems[i] = 0;
+				if(randNum < currTransitions[sessionNum-1][1][i])
+					queueItems[i] = 1;
+				if(randNum < currTransitions[sessionNum-1][2][i])
+					queueItems[i] = 2;
+			}
+			
+			/*System.out.print("Queue: ");
 			for(int i=0; i<queueItems.length; i++){
 				System.out.print(queueItems[i]+", ");
 			}
-			System.out.println();
+			System.out.println();*/
 			
 			obstacleRow++;
 			if(obstacleRow >= Constants.NUM_ROWS)
@@ -351,6 +342,21 @@ public class MyWorld {
 			e.printStackTrace();
 		}
 		return newState;
+	}
+	
+	public int[][][] createProbArray(int[][][] transitions){
+		for(int i=0; i<transitions.length; i++){
+			for(int j=0; j<transitions[i].length; j++){
+				int sum = 0;
+				for(int k=0; k<transitions[i][j].length; k++){
+					sum = sum + transitions[i][j][k];
+					transitions[i][j][k] = sum;
+					if(k == transitions[i][j].length-1)
+						transitions[i][j][k] = 100;
+				}
+			}
+		}
+		return transitions;
 	}
 	
 	public Location getNextStateLoc(Location currLoc, Action action){
