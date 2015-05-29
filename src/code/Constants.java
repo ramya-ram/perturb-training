@@ -23,7 +23,7 @@ public class Constants {
 	//num of times to run
 	public static final int NUM_EPISODES = 500000;
 	public static final int NUM_EPISODES_TEST = 50000;
-	public static final int NUM_STEPS_PER_EPISODE = 30;
+	public static final int NUM_STEPS_PER_EPISODE = 100;
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
@@ -44,6 +44,13 @@ public class Constants {
 
 	public static final int NUM_TRAINING_SESSIONS = 3;
 	public static final int NUM_TESTING_SESSIONS = 1;
+	
+	public static int[][] trainingGoalItems = {{0,3,3},
+										{3,3,0},
+										{3,0,3}};
+	public static int[][] testingGoalItems = {{2,1,4},
+									   {2,2,2},
+									   {3,4,1}};
 
 	//file names where results are stored
 	public static String dataDir = "inputFiles\\";
@@ -62,7 +69,7 @@ public class Constants {
 	public static String rewardPRQLName = simulationDir+"PRQL_delivery_500000train_10000test.csv";
 	public static String rewardQLearningName = simulationDir+"QLearning_delivery_500000train_10000test.csv";
 	
-	public static String numIterName = simulationDir+"numIter_reward_deliverywithPerturbs_100interval_til50000_20aver.csv";
+	public static String numIterName = simulationDir+"numIter_reward_deliverywithPerturbs_changingGoalState_100interval_til50000_20aver.csv";
 	
 	public static String qvaluesDir = simulationDir;
 	

@@ -43,7 +43,7 @@ public class LearningAlgorithm {
 	 * Runs one episode of the task
 	 */
 	public Tuple<Double, Integer, Long> run(boolean fullyGreedy, int maxSteps, State initialStateHuman){
-		//myWorld.resetTokenLocs();
+		myWorld.resetGoalItems();
 
         double episodeReward = 0;
         int iterations = 0;
@@ -91,6 +91,7 @@ public class LearningAlgorithm {
 						Main.gameView.initTitleGUI("roundUp");
 				}
 	        }
+	        //System.out.println("isGoalState "+myWorld.isGoalState(state)+" iterations "+iterations);
         } catch(Exception e){
         	e.printStackTrace();
         }

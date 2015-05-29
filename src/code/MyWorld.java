@@ -19,20 +19,30 @@ public class MyWorld {
 	public int[] queueItems;
 	public int obstacleRow;
 	
+	public int[] staticGoalItems;
+	public int[] currItemsLeft;
+	
 	public int sessionNum; //specifies which training or testing round it is
 	public boolean perturb; //specifies if this world is for perturbation or procedural training
 	public int typeOfWorld; //specifies if this world is for training or testing
 	
-	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum){
+	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum, int[] staticGoalItems){
 		this.typeOfWorld = typeOfWorld;
 		this.perturb = perturb;
 		this.sessionNum = sessionNum;
+		this.staticGoalItems = staticGoalItems;
 		
 		queueItems = new int[Constants.NUM_ITEMS];
 		
 		//initialize the mdp only once
 		if(mdp == null)
 			mdp = initializeMDP();
+	}
+	
+	public void resetGoalItems(){
+		currItemsLeft = new int[staticGoalItems.length];
+		for(int i=0; i<currItemsLeft.length; i++)
+			currItemsLeft[i] = staticGoalItems[i];
 	}
 	
 	/*public void printGrid(){
@@ -113,18 +123,23 @@ public class MyWorld {
 				//	possibleActions.add(Action.WAIT);
 				//	return possibleActions;
 				//}
-				if(s.robotLoc.row>0)
-					possibleActions.add(Action.UP);
-				if(s.robotLoc.row<Constants.NUM_ROWS-1)
-					possibleActions.add(Action.DOWN);
-				if(s.robotLoc.col>0)
-					possibleActions.add(Action.LEFT);
-				if(s.robotLoc.col<Constants.NUM_COLS-1)
-					possibleActions.add(Action.RIGHT);
-				if(startLocs.contains(s.robotLoc) && s.robotItem == -1)
-					possibleActions.add(Action.PICK_UP);
 				if(endLocs.contains(s.robotLoc) && s.robotItem == s.robotLoc.row)
 					possibleActions.add(Action.DROP_OFF);
+				else {
+					if(startLocs.contains(s.robotLoc) && s.robotItem == -1){
+						int currentItem = queueItems[s.robotLoc.row];
+						if(currItemsLeft[currentItem]>0)
+							possibleActions.add(Action.PICK_UP);
+					}
+					if(s.robotLoc.row>0)
+						possibleActions.add(Action.UP);
+					if(s.robotLoc.row<Constants.NUM_ROWS-1)
+						possibleActions.add(Action.DOWN);
+					if(s.robotLoc.col>0)
+						possibleActions.add(Action.LEFT);
+					if(s.robotLoc.col<Constants.NUM_COLS-1)
+						possibleActions.add(Action.RIGHT);
+				}
 				//possibleActions.add(Action.WAIT);
 				return possibleActions;
 			}	
@@ -143,18 +158,23 @@ public class MyWorld {
 				//	possibleActions.add(Action.WAIT);
 				//	return possibleActions;
 				//}
-				if(s.humanLoc.row>0)
-					possibleActions.add(Action.UP);
-				if(s.humanLoc.row<Constants.NUM_ROWS-1)
-					possibleActions.add(Action.DOWN);
-				if(s.humanLoc.col>0)
-					possibleActions.add(Action.LEFT);
-				if(s.humanLoc.col<Constants.NUM_COLS-1)
-					possibleActions.add(Action.RIGHT);
-				if(startLocs.contains(s.humanLoc) && s.humanItem == -1)
-					possibleActions.add(Action.PICK_UP);
 				if(endLocs.contains(s.humanLoc) && s.humanItem == s.humanLoc.row)
 					possibleActions.add(Action.DROP_OFF);
+				else{
+					if(startLocs.contains(s.humanLoc) && s.humanItem == -1){
+						int currentItem = queueItems[s.humanLoc.row];
+						if(currItemsLeft[currentItem]>0)
+							possibleActions.add(Action.PICK_UP);
+					}
+					if(s.humanLoc.row>0)
+						possibleActions.add(Action.UP);
+					if(s.humanLoc.row<Constants.NUM_ROWS-1)
+						possibleActions.add(Action.DOWN);
+					if(s.humanLoc.col>0)
+						possibleActions.add(Action.LEFT);
+					if(s.humanLoc.col<Constants.NUM_COLS-1)
+						possibleActions.add(Action.RIGHT);
+				}
 				//possibleActions.add(Action.WAIT);
 				return possibleActions;
 			}	
@@ -164,7 +184,12 @@ public class MyWorld {
 	public boolean isGoalState(State state){
 		//currTokenLocs.isEmpty();
 		//return state.humanLoc.equals(goalLoc) && state.robotLoc.equals(goalLoc);
-		return false;
+		//return false;
+		for(int i=0; i<currItemsLeft.length; i++){
+			if(currItemsLeft[i] > 0)
+				return false;
+		}
+		return true;
 	}
 	
 	public State initialState(){
@@ -240,23 +265,23 @@ public class MyWorld {
 		Action humanAction = agentActions.getHumanAction();
 		Action robotAction = agentActions.getRobotAction();
 		if(humanAction == Action.DROP_OFF){
-			reward += getDropOffReward(queueItems[nextState.humanLoc.row]);
+			reward += getDropOffReward(queueItems[state.humanLoc.row]);
 		}
 		if(robotAction == Action.DROP_OFF){
-			reward += getDropOffReward(queueItems[nextState.robotLoc.row]);
+			reward += getDropOffReward(queueItems[state.robotLoc.row]);
 		}
-		if(nextState.humanLoc.equals(new Location(obstacleRow, Constants.OBSTACLE_COL)))
+		if(state.humanLoc.equals(new Location(obstacleRow, Constants.OBSTACLE_COL)))
 			reward += -5;
-		if(nextState.robotLoc.equals(new Location(obstacleRow, Constants.OBSTACLE_COL)))
+		if(state.robotLoc.equals(new Location(obstacleRow, Constants.OBSTACLE_COL)))
 			reward += -5;
 		return reward;
 	}
 	
 	public double getDropOffReward(int row){
-		int[][] trainingReward = {{1,3,5},
+		/*int[][] trainingReward = {{1,3,5},
 								  {1,3,5},
 								  {3,3,3}};
-		int[][] testingReward = {{1,5,10},
+		int[][] testingReward = {{8,8,10},
 				 				 {10,5,1},
 				 				 {10,5,10}};
 		if(typeOfWorld == Constants.TRAINING)
@@ -264,7 +289,9 @@ public class MyWorld {
 		else if(typeOfWorld == Constants.TESTING)
 			return testingReward[sessionNum-1][row];
 		else
-			return 0;
+			return 0;*/
+		int[] reward = {1,5,10};
+		return reward[row];
 	}
 	
 	/**
@@ -280,7 +307,7 @@ public class MyWorld {
 			return newState;
 
 		try{
-			int[][][] trainingTransitions = {{{100,0,0}, {0,100,0}, {0,0,100}},
+			/*int[][][] trainingTransitions = {{{100,0,0}, {0,100,0}, {0,0,100}},
 					  					   {{100,0,0}, {50,50,0}, {0,50,50}},
 					  					   {{100,0,0}, {0,100,0}, {0,0,100}}};
 			
@@ -305,17 +332,13 @@ public class MyWorld {
 					queueItems[i] = 1;
 				if(randNum < currTransitions[sessionNum-1][2][i])
 					queueItems[i] = 2;
-			}
+			}*/
 			
 			/*System.out.print("Queue: ");
 			for(int i=0; i<queueItems.length; i++){
 				System.out.print(queueItems[i]+", ");
 			}
 			System.out.println();*/
-			
-			obstacleRow++;
-			if(obstacleRow >= Constants.NUM_ROWS)
-				obstacleRow = 0;
 			
 			Action humanAction = agentActions.getHumanAction();
 			Action robotAction = agentActions.getRobotAction();
@@ -324,17 +347,47 @@ public class MyWorld {
 				newState.humanItem = queueItems[newState.humanLoc.row];
 			}
 			if(robotAction == Action.PICK_UP){
+				/*int item = queueItems[newState.robotLoc.row];
+				int randNum = Tools.rand.nextInt(100);
+				if(item == 2){
+					if(randNum < 50)
+						newState.robotItem = item;
+				} else {
+					newState.robotItem = item;
+				}*/
 				newState.robotItem = queueItems[newState.robotLoc.row];
 			}
 			if(humanAction == Action.DROP_OFF){
+				currItemsLeft[newState.humanItem]--;
 				newState.humanItem = -1;
 			}
 			if(robotAction == Action.DROP_OFF){
+				currItemsLeft[newState.robotItem]--;
 				newState.robotItem = -1;
 			}
 			
 			newState.humanLoc = getNextStateLoc(newState.humanLoc, humanAction);
 			newState.robotLoc = getNextStateLoc(newState.robotLoc, robotAction);
+			
+			int randNum0 = Tools.rand.nextInt(100);
+			int randNum1 = Tools.rand.nextInt(100);
+			int randNum2 = Tools.rand.nextInt(100);
+			if(randNum0 < 100)
+				queueItems[0] = 0;
+							
+			if(randNum1 < 50)
+				queueItems[1] = 0;
+			else
+				queueItems[1] = 1;
+			
+			if(randNum2 < 50)
+				queueItems[2] = 1;
+			else
+				queueItems[2] = 2;	
+			
+			obstacleRow++;
+			if(obstacleRow >= Constants.NUM_ROWS)
+				obstacleRow = 0;
 			
 			if(Main.currWithSimulatedHuman && Main.gameView != null)
 				Main.gameView.setAnnouncements(textToDisplay);
