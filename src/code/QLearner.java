@@ -36,7 +36,6 @@ public class QLearner extends LearningAlgorithm {
 		this.withHuman = withHuman;
 		Main.currWithSimulatedHuman = withHuman;
 		
-    	long start = System.currentTimeMillis();		
 		int numEpisodes = Constants.NUM_EPISODES;
 		if(myWorld.typeOfWorld == Constants.TESTING){
 			currCommunicator = Constants.ROBOT; //robot initiates
@@ -46,7 +45,6 @@ public class QLearner extends LearningAlgorithm {
 			numEpisodes = 1;
 		
 		resetCommunicationCounts();	
-		//System.out.println("testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness);
 		
 		if(withHuman && Main.gameView != null){
 			Main.gameView.setStartRoundEnable(true);
@@ -77,13 +75,6 @@ public class QLearner extends LearningAlgorithm {
 					}
 				}
 	        }
-			long end = System.currentTimeMillis();
-			/*if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
-				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration"+Constants.NUM_EPISODES_TEST+".csv"), true));
-				System.out.println("qlearner duration "+(end-start));
-				writer.write((end-start)+"\n");
-				writer.close();
-			}*/
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -97,14 +88,12 @@ public class QLearner extends LearningAlgorithm {
 			BufferedWriter jointWriter = new BufferedWriter(new FileWriter(new File(Constants.jointQValuesFile), true));
 			BufferedWriter robotWriter = new BufferedWriter(new FileWriter(new File(Constants.robotQValuesFile), true));
 	
-	    	int num=0;
 	    	for(int i=0; i<MyWorld.states.size(); i++){
 				State state = MyWorld.states.get(i);
 				for(Action robotAction : Action.values()){
 					double robotValue = currQValues.robotQValues[state.getId()][robotAction.ordinal()];
 					robotWriter.write(robotValue+",");
 					for(Action humanAction : Action.values()){
-						num++;
 						double jointValue = currQValues.jointQValues[state.getId()][humanAction.ordinal()][robotAction.ordinal()];
 						jointWriter.write(jointValue+",");
 					}

@@ -37,8 +37,6 @@ public class MyWorld {
 			mdp = initializeMDP();
 		if(probObsGivenWind == null || probObsGivenDryness == null)
 			initPriorProbabilities();
-		
-		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
 	
 	public static State getStateFromFile(String str){
@@ -452,52 +450,12 @@ public class MyWorld {
 				probObsGivenWind[i][j] /= sum;
 			}
 		}
-		
-		/*for(int i=0; i<probObsGivenWind.length; i++){
-			for(int j=0; j<probObsGivenWind[i].length; j++){
-				probObsGivenDryness[i][j] = probObsGivenWind[i][j];
-				System.out.print(probObsGivenDryness[i][j]+" ");
-			}
-			System.out.println();
-		}*/
 	}
 	
 	public void setSimulationWindDryness(int simulationWind, int simulationDryness){
 		this.simulationWind = simulationWind;
 		this.simulationDryness = simulationDryness;
-		
-		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
 	}
-	
-	/**
-	 * Given the actual testWind and testDryness in the real environment, here we calculate a noisy version of wind and dryness obtained from "sensors" that is used for simulation
-	 * Then in the real environment, the real values are used
-	 * This is used to make the point that the robot doesn't have an exact model of the real environment and so uses this "approximate" model for simulation
-	 */
-	/*public void calculateSimulationWindDryness(){
-		int randNumWind = Tools.rand.nextInt(100);
-		int randNumDryness = Tools.rand.nextInt(100);
-		double sum = 0;
-		int count = 0;
-		while(count < probObsGivenWind.length){
-			sum += probObsGivenWind[count][testWind]*100;
-			if(randNumWind <= sum)
-				break;
-			count++;
-		}
-		simulationWind = count;
-		
-		sum = 0;
-		count = 0;
-		while(count < probObsGivenDryness.length){
-			sum += probObsGivenDryness[count][testDryness]*100;
-			if(randNumDryness <= sum)
-				break;
-			count++;
-		}
-		simulationDryness = count;
-		//System.out.println("testWind="+testWind+" testDryness="+testDryness+" simulationWind="+simulationWind+" simulationDryness="+simulationDryness);
-	}*/
 	
 	/**
 	 * Makes appropriate changes to the state to reflect the fire burning down the building

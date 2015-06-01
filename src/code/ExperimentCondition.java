@@ -3,10 +3,10 @@ package code;
 /**
  * An enum specifying the current experimental condition:
  * 
- * -HR_PERTURB: perturbation training using HR-Perturb
+ * -ADAPT: perturbation training using ADAPT
  * -PROCE_Q: procedural training using Q-learning
  * -PERTURB_Q: perturbation training using Q-learning
- * -PRQL: policy reuse in Q-learning (used for comparison with HR-Perturb to see if our algorithmic modifications to PRQL are helpful)
+ * -PRQL: policy reuse in Q-learning (used for comparison with AdaPT to see if our algorithmic modifications to PRQL are helpful)
  */
 public enum ExperimentCondition {
 	ADAPT, PROCE_Q, PERTURB_Q, PRQL, Q_LEARNING

@@ -37,7 +37,6 @@ public class AdaPTLearner extends LearningAlgorithm {
 		this.withHuman = withHuman;
 		Main.currWithSimulatedHuman = withHuman;
 		
-		long start = System.currentTimeMillis();		
 		int numEpisodes = Constants.NUM_EPISODES;
 		if(myWorld.typeOfWorld == Constants.TESTING){
 			currCommunicator = Constants.ROBOT; //robot initiates
@@ -47,7 +46,6 @@ public class AdaPTLearner extends LearningAlgorithm {
 			numEpisodes = 1;
 		
 		resetCommunicationCounts();		
-		//System.out.println("testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness);
 		
 		if(withHuman && Main.gameView != null){
 			Main.gameView.setStartRoundEnable(true);
@@ -56,8 +54,6 @@ public class AdaPTLearner extends LearningAlgorithm {
 
 		//starting policy reuse algorithm
 		try{
-			//BufferedWriter mainWriter = new BufferedWriter(new FileWriter(new File(Constants.qvaluesDir+"mainWriter_HRPR_test_"+(myWorld.sessionNum-1)+".txt"), true));
-			//mainWriter.write("wind "+myWorld.testWind+" dryness "+myWorld.testDryness+"\n");
 			String fileName = "";
 			if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS)
 				fileName = Constants.numIterName;
@@ -80,10 +76,7 @@ public class AdaPTLearner extends LearningAlgorithm {
 							maxWeight = qValuesList.get(i).weight;
 							policyNum = i;
 						}
-						//mainWriter.write(i+" "+qValuesList.get(i).weight+"\n");
 					}
-					//mainWriter.write("finally using "+policyNum+"\n");
-					//System.out.println("working with human, best policy = "+policyNum);
 				} else {
 					int randNum = Tools.rand.nextInt(100);
 					while(randNum>probForPolicies[policyNum]){
@@ -124,15 +117,6 @@ public class AdaPTLearner extends LearningAlgorithm {
 				currTemp = currTemp + Constants.DELTA_TEMP;
 			}
 			rewardWriter.close();
-			
-			long end = System.currentTimeMillis();
-			/*if(myWorld.typeOfWorld == Constants.TESTING && !withHuman){
-				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+"duration"+Constants.NUM_EPISODES_TEST+".csv"), true));
-				System.out.println("HR-Perturb duration "+(end-start));
-				writer.write((end-start)+"\n");
-				writer.close();
-			}*/
-			//mainWriter.close();
 		} catch(Exception e){
 			e.printStackTrace();
 		}	

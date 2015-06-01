@@ -71,9 +71,6 @@ public class LearningAlgorithm {
 	            saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward);     
 	            updateQValues(state, agentActions, nextState, reward);
 	            
-	            //if(myWorld.typeOfWorld == Constants.TESTING && Main.currWithSimulatedHuman)
-	            	//System.out.println(state.toStringFile()+" "+agentActions+" "+nextState.toStringFile()+" = "+reward);
-	            
 	            state = nextState.clone();
 	            if(Main.arduino != null && Main.currWithSimulatedHuman)
 	            	Main.arduino.sendString(state.getArduinoString());
@@ -92,8 +89,6 @@ public class LearningAlgorithm {
         } catch(Exception e){
         	e.printStackTrace();
         }
-        //if(myWorld.typeOfWorld == Constants.TESTING && Main.currWithSimulatedHuman)
-        //	System.out.println("EPISODE REWARD "+episodeReward);
         long endTime = System.currentTimeMillis();
         return new Tuple<Double,Integer,Long>(episodeReward, iterations, (endTime - startTime));
 	}
@@ -518,11 +513,11 @@ public class LearningAlgorithm {
 		System.out.println("score "+stateScore);
 		try{
 			if(stateScore < 10){
-				int shortRandomTime = 6; //Main.rand.nextInt(3)+5;
+				int shortRandomTime = 6;
 				System.out.println(shortRandomTime*1000);
 				Thread.sleep(shortRandomTime*1000);
 			} else {
-				int longRandomTime = 8; //Main.rand.nextInt(5)+8;
+				int longRandomTime = 8;
 				System.out.println(longRandomTime*1000);
 				Thread.sleep(longRandomTime*1000);
 			}

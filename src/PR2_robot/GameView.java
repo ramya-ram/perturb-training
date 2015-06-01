@@ -76,7 +76,6 @@ public class GameView extends JFrame {
     	topPanel.setPreferredSize(new Dimension(120,150));
     	
     	titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 40));
-        //titleLabel.setForeground(Color.BLUE);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         topPanel.add(titleLabel);
     	
@@ -200,7 +199,7 @@ public class GameView extends JFrame {
         JScrollPane scrollPaneAnnouncements = new JScrollPane(announcements);
         scrollPaneAnnouncements.setPreferredSize(new Dimension(1800,150));
         scrollPaneAnnouncements.setBorder(null);
-        bottomPanel.add(scrollPaneAnnouncements, BorderLayout.NORTH);//, BorderLayout.SOUTH);
+        bottomPanel.add(scrollPaneAnnouncements, BorderLayout.NORTH);
         
         JPanel leftGlue = new JPanel();
         leftGlue.setPreferredSize(new Dimension(50,100));

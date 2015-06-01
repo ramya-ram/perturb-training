@@ -52,19 +52,12 @@ public class PRQLearner extends LearningAlgorithm {
 			numEpisodes = 1;
 		
 		resetCommunicationCounts();
-		
-		//System.out.println("myWorld typeOfWorld "+myWorld.typeOfWorld+" sessionNum "+myWorld.sessionNum+" simulationWind="+myWorld.simulationWind+" simulationDryness="+myWorld.simulationDryness+" testWind="+myWorld.testWind+" testDryness="+myWorld.testDryness);
-		
+				
 		if(withHuman && Main.gameView != null){
 			Main.gameView.setStartRoundEnable(true);
 			Main.gameView.waitForStartRoundClick();
 		}
 		
-		//starting policy reuse algorithm
-//		System.out.println("weights: ");
-//		Tools.printArray(weights);
-//		System.out.println("num of episodes chosen: ");
-//		Tools.printArray(numOfEpisodesChosen);
 		try{
 			String fileName = "";
 			if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS)
@@ -92,16 +85,14 @@ public class PRQLearner extends LearningAlgorithm {
 				double reward = 0;
 				int iterations = 0;
 				long duration = 0;
-				if(isPastPolicy(library, policyNum)){
-					//System.out.println("using policy num "+policyNum);
+				if(isPastPolicy(library, policyNum)){ //using past policy
 					Policy currPolicy = library.get(policyNum);
 					Tuple<Double, Integer, Long> tuple = piReuse(currPolicy, 1, Constants.NUM_STEPS_PER_EPISODE, 
 							Constants.PAST_PROB, Constants.DECAY_VALUE);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
-				} else {
-					//System.out.println("using curr policy");
+				} else { //using new policy being learned
 					Tuple<Double, Integer, Long> tuple = runFullyGreedy(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
@@ -125,11 +116,6 @@ public class PRQLearner extends LearningAlgorithm {
 				weights[policyNum] = (weights[policyNum]*numOfEpisodesChosen[policyNum] + reward)/(numOfEpisodesChosen[policyNum] + 1);
 				numOfEpisodesChosen[policyNum] = numOfEpisodesChosen[policyNum] + 1;
 				currTemp = currTemp + Constants.DELTA_TEMP;
-				
-//				System.out.println("weights: ");
-//				Tools.printArray(weights);
-//				System.out.println("num of episodes chosen: ");
-//				Tools.printArray(numOfEpisodesChosen);
 			}
 			rewardWriter.close();
 		} catch(Exception e){
@@ -156,16 +142,15 @@ public class PRQLearner extends LearningAlgorithm {
 					HumanRobotActionPair agentActions = null;
 					int randNum = Tools.rand.nextInt(100);
 					if(randNum < currProbPast){
-						//if(withHuman && !reachedGoalState && Main.CURRENT_EXECUTION != Main.SIMULATION){
-		        		//	agentActions = getAgentActionsCommWithHuman(state, pastPolicy.action(state.getId()).getRobotAction());
-						//}
-		        		//else
+						if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION)
+		        			agentActions = getAgentActionsCommWithHuman(state);
+		        		else
 		        			agentActions = pastPolicy.action(state.getId());
 					} 
 					if(randNum >= currProbPast || agentActions == null){
-		        		//if(withHuman && !reachedGoalState && Main.CURRENT_EXECUTION != Main.SIMULATION)
-		        		//	agentActions = getAgentActionsCommWithHuman(state, null);
-		        		//else
+		        		if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION)
+		        			agentActions = getAgentActionsCommWithHuman(state);
+		        		else
 		        			agentActions = getAgentActionsSimulation(state);
 					}  
 					
