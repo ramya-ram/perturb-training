@@ -257,7 +257,7 @@ public class MyWorld {
 				robotFireIndex = Integer.parseInt(robotAction.name().substring(7, 8));
 			
 			//if computing pre-defined next state
-			if(Main.CURRENT_EXECUTION == Main.CREATE_PREDEFINED){
+			if(Main.SUB_EXECUTION == Main.CREATE_PREDEFINED){
 				if(Main.proceTestCase != null){
 					newState = getProcePredefinedNextState(newState, agentActions).clone();
 					newState = getStateAfterWindDryness(newState, wind, dryness);

@@ -708,4 +708,23 @@ public class LearningAlgorithm {
 		  }
 		};
 	}
+	
+	public void sampleTransitionFunc(){
+		String type = "";
+		if(myWorld.typeOfWorld == Constants.TRAINING)
+			type = "train";
+		else if(myWorld.typeOfWorld == Constants.TESTING)
+			type = "test";
+		try{
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+type+"world_"+myWorld.sessionNum+".csv")));
+			for(State state : MyWorld.states){
+				HumanRobotActionPair agentActions = getGreedyJointAction(state).getFirst();
+				State nextState = myWorld.getNextState(state, agentActions);
+				writer.write(state.getId()+","+agentActions.getId()+","+nextState.getId()+"\n");
+			}
+			writer.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

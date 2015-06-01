@@ -24,6 +24,10 @@ public class HumanRobotActionPair {
 		return 3;
 	}
 	
+	public int getId(){
+		return humanAction.ordinal() + Action.values().length*robotAction.ordinal();
+	}
+	
 	public boolean equals(Object Obj){
 		HumanRobotActionPair sap = (HumanRobotActionPair)Obj;
 		if(humanAction != sap.humanAction)

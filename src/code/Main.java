@@ -14,15 +14,19 @@ import PR2_robot.GameView;
 import PR2_robot.MyServer;
 
 public class Main {
+	//USE AS VALUES FOR CURRENT_EXECUTION (Runs experiments), SUB_EXECUTION = NULL when using any of these
 	public static int SIMULATION = 0, //use for running simulation runs on the computer
 			SIMULATION_HUMAN_TRAIN_TEST = 1, //use for human experiments where participants work with the simulation environment for training and testing
 			SIMULATION_HUMAN_TRAIN = 2, //use for human experiments where participants work with the simulation environment only for training
-			ROBOT_HUMAN_TEST = 3, //use for human experiments where participants work with the robot in testing after training in simulation
-			
-			CREATE_PREDEFINED = 4, //use for creating predefined test cases for human subject experiments (given a state and joint action, the next state will always be the same across participants)
-			CREATE_OFFLINE_QVALUES = 5; //use for running offline deterministic simulations and having these values saved to a file so that the robot starts with base knowledge when working with a human
+			ROBOT_HUMAN_TEST = 3; //use for human experiments where participants work with the robot in testing after training in simulation
+
+	//USE AS VALUES FOR SUB_EXECUTION (Runs sub tasks) -- When using the sub executions, SET CURRENT_EXECUTION = SIMULATION;
+	public static int CREATE_PREDEFINED = 4; //use for creating predefined test cases for human subject experiments (given a state and joint action, the next state will always be the same across participants)
+	public static int CREATE_OFFLINE_QVALUES = 5; //use for running offline deterministic simulations and having these values saved to a file so that the robot starts with base knowledge when working with a human
+	public static int GENERATE_RBM_DATA = 6; //generate tuples from transition function to feed to RBM
 	
 	public static int CURRENT_EXECUTION = SIMULATION; //set CURRENT_EXECUTION to one of the above depending on which option you want to run
+	public static int SUB_EXECUTION = GENERATE_RBM_DATA;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -56,14 +60,32 @@ public class Main {
 			testingWorlds.add(testWorld);
 		}
 		
-		if(CURRENT_EXECUTION == CREATE_OFFLINE_QVALUES){
+		if(SUB_EXECUTION == GENERATE_RBM_DATA){
+			for(MyWorld trainWorld : trainingWorldsPerturb){
+				QLearner learner = new QLearner(null, ExperimentCondition.ADAPT);
+				learner.run(trainWorld, false /*withHuman*/);
+				learner.run(trainWorld, true);
+				learner.run(trainWorld, false /*withHuman*/);
+				learner.run(trainWorld, true);
+				learner.sampleTransitionFunc();
+			}
+			for(MyWorld testWorld : testingWorlds){
+				QLearner learner = new QLearner(null, ExperimentCondition.ADAPT);
+				learner.run(testWorld, false /*withHuman*/);
+				learner.run(testWorld, true);
+				learner.sampleTransitionFunc();
+			}
+			return;
+		}
+		
+		if(SUB_EXECUTION == CREATE_OFFLINE_QVALUES){
 			QLearner qLearnerProce = new QLearner(null, ExperimentCondition.PROCE_Q);
 			qLearnerProce.run(trainingWorldsProce.get(0), false /*withHuman*/);
 			qLearnerProce.saveOfflineLearning();
 			return;
 		}
 		
-		if(CURRENT_EXECUTION == CREATE_PREDEFINED){
+		if(SUB_EXECUTION == CREATE_PREDEFINED){
 			Main.currWithSimulatedHuman = true; //so that it uses test wind and test dryness
 			//0th index is the practice testing session
 			writePredefinedTestCase(testingWorlds.get(1), Constants.predefinedProceFileName);
