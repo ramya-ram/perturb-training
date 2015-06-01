@@ -179,7 +179,7 @@ public class LearningAlgorithm {
 	public void numOfNonZeroQValues(State state, String fileName, boolean writeToFile){
 		if(writeToFile){
 			try{
-				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.qvaluesDir+fileName+".txt")));
+				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+fileName+".txt")));
 				if(qValuesList != null){
 					for(QValuesSet set : qValuesList){
 						writeQValuesToFile(writer, state, set);

@@ -66,13 +66,18 @@ public class PRQLearner extends LearningAlgorithm {
 //		System.out.println("num of episodes chosen: ");
 //		Tools.printArray(numOfEpisodesChosen);
 		try{
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
+			String fileName = "";
+			if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS)
+				fileName = Constants.numIterName;
+			else
+				fileName = Constants.rewardPRQLName;
+			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
 			double currTemp = Constants.TEMP;
 			for(int k=0; k<numEpisodes; k++){
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
 				double[] probForPolicies = getProbForPolicies(weights, currTemp);
 				int policyNum = 0;
-				if(withHuman){
+				if(withHuman || (Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS && k%Constants.INTERVAL == 0)){
 					policyNum = probForPolicies.length-1; //the new policy
 				} else {
 					int randNum = Tools.rand.nextInt(100);
@@ -102,12 +107,18 @@ public class PRQLearner extends LearningAlgorithm {
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
 				}
-				if(withHuman && Main.saveToFile){
-					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
-						saveDataToFile(reward, iterations, duration);
-					else{
-						if(myWorld.typeOfWorld == Constants.TESTING)
-							rewardWriter.write(""+reward+", ");
+				
+				if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
+					if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
+						Main.PRQLTotal[myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+				} else {
+					if(withHuman && Main.saveToFile){
+						if(Main.CURRENT_EXECUTION != Main.SIMULATION)
+							saveDataToFile(reward, iterations, duration);
+						else{
+							if(myWorld.typeOfWorld == Constants.TESTING)
+								rewardWriter.write(""+reward+", ");
+						}
 					}
 				}
 	           

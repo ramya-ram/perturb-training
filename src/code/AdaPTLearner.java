@@ -58,7 +58,12 @@ public class AdaPTLearner extends LearningAlgorithm {
 		try{
 			//BufferedWriter mainWriter = new BufferedWriter(new FileWriter(new File(Constants.qvaluesDir+"mainWriter_HRPR_test_"+(myWorld.sessionNum-1)+".txt"), true));
 			//mainWriter.write("wind "+myWorld.testWind+" dryness "+myWorld.testDryness+"\n");
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPerturbName), true));
+			String fileName = "";
+			if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS)
+				fileName = Constants.numIterName;
+			else
+				fileName = Constants.rewardAdaPTName;
+			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
 			double currTemp = Constants.TEMP;
 			for(int k=0; k<numEpisodes; k++){
 				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
@@ -66,7 +71,7 @@ public class AdaPTLearner extends LearningAlgorithm {
 				probForPolicies = getAccumulatedArray(probForPolicies);
 				
 				int policyNum = 0;
-				if(withHuman){
+				if(withHuman || (Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS && k%Constants.INTERVAL == 0)){
 					//if working with the human, choose the policy with the highest weight
 					double maxWeight = Integer.MIN_VALUE;
 					policyNum = -1;
@@ -99,15 +104,20 @@ public class AdaPTLearner extends LearningAlgorithm {
 				iterations = tuple.getSecond();
 				duration = tuple.getThird();
 
-				if(withHuman && Main.saveToFile){
-					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
-						saveDataToFile(reward, iterations, duration);
-					else{
-						if(myWorld.typeOfWorld == Constants.TESTING)
-							rewardWriter.write(""+reward+", ");
+				if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
+					if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
+						Main.AdaPTTotal[myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+				} else {
+					if(withHuman && Main.saveToFile){
+						if(Main.CURRENT_EXECUTION != Main.SIMULATION)
+							saveDataToFile(reward, iterations, duration);
+						else{
+							if(myWorld.typeOfWorld == Constants.TESTING)
+								rewardWriter.write(""+reward+", ");
+						}
 					}
 				}
-	           
+				
 				currQValues = qValuesList.get(policyNum);
 				currQValues.weight = (currQValues.weight*currQValues.numEpisodesChosen + reward)/(currQValues.numEpisodesChosen + 1);
 				currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;

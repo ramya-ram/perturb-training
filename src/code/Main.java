@@ -24,9 +24,10 @@ public class Main {
 	public static int CREATE_PREDEFINED = 4; //use for creating predefined test cases for human subject experiments (given a state and joint action, the next state will always be the same across participants)
 	public static int CREATE_OFFLINE_QVALUES = 5; //use for running offline deterministic simulations and having these values saved to a file so that the robot starts with base knowledge when working with a human
 	public static int GENERATE_RBM_DATA = 6; //generate tuples from transition function to feed to RBM
+	public static int REWARD_OVER_ITERS = 7; //evaluates reward received over the number of iterations over time
 	
 	public static int CURRENT_EXECUTION = SIMULATION; //set CURRENT_EXECUTION to one of the above depending on which option you want to run
-	public static int SUB_EXECUTION = GENERATE_RBM_DATA;
+	public static int SUB_EXECUTION = REWARD_OVER_ITERS;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -42,7 +43,12 @@ public class Main {
 	public static String[][][] perturb1TestCase;
 	public static String[][][] proceTestCase;
 	
+	public static double[][] PRQLTotal;
+	public static double[][] AdaPTTotal;
+	
 	public static void main(String[] args){	
+		PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		AdaPTTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 		
 		//construct training worlds for procedural and perturbation
 		List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
@@ -106,55 +112,64 @@ public class Main {
 			saveToFile = true;
 						
 			if(CURRENT_EXECUTION == SIMULATION){
-				for(int i=0; i<Constants.NUM_AVERAGING; i++){
-					//makes simulation wind and dryness a noisy version of the real one
-					System.out.println("*** "+i+" ***");
-					/*for(MyWorld trainWorld : trainingWorldsProce)
-						trainWorld.calculateSimulationWindDryness();
-					for(MyWorld trainWorld : trainingWorldsPerturb)
-						trainWorld.calculateSimulationWindDryness();
-					for(MyWorld testWorld : testingWorlds)
-						testWorld.calculateSimulationWindDryness();*/
+				if(SUB_EXECUTION == REWARD_OVER_ITERS){
+					for(int i=0; i<Constants.NUM_AVERAGING; i++){
+						System.out.println("*** "+i+" ***");
+						//PERTURBATION - AdaPT
+						TaskExecution AdaPT = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+						AdaPT.executeTask();
+						
+						//PERTURBATION - PRQL
+						TaskExecution PRQL = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
+						PRQL.executeTask();
+					}
+					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
 					
-					/*//PROCEDURAL - Q-learning
-					TaskExecution proceQ = new TaskExecution(null, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
-					proceQ.executeTask();
-					//TODO: make sure the human sessions are run for only 1 episode
+					for(int i=0; i<AdaPTTotal.length; i++){
+						for(int j=0; j<AdaPTTotal[i].length; j++){
+							rewardWriter.write((AdaPTTotal[i][j]/Constants.NUM_AVERAGING)+", ");
+						}
+						rewardWriter.write("\n");
+					}
+					rewardWriter.write("\n\n");
 					
-					//PERTURBATION - Q-learning
-					TaskExecution perturbQ = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PERTURB_Q);
-					perturbQ.executeTask();*/
-					
-					//PERTURBATION - HRPR
-					TaskExecution AdaPT = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
-					AdaPT.executeTask();
-					
-					//PERTURBATION - PRQL
-					TaskExecution PRQL = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
-					PRQL.executeTask();
-					
-					//Standard QLearning
-					TaskExecution QLearning = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
-					QLearning.executeTask();
-					
-					BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardHRPerturbName), true));
-					//BufferedWriter rewardPerturbQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPerturbQName), true));
-					//BufferedWriter rewardProceQWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardProceQName), true));
-					BufferedWriter rewardPRQLWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
-					BufferedWriter rewardQLearningWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardQLearningName), true));
-
-					
-					rewardHRPerturbWriter.write("\n");
-					//rewardPerturbQWriter.write("\n");
-					//rewardProceQWriter.write("\n");
-					rewardPRQLWriter.write("\n");
-					rewardQLearningWriter.write("\n");
-					
-					rewardHRPerturbWriter.close();
-					//rewardPerturbQWriter.close();
-					//rewardProceQWriter.close();
-					rewardPRQLWriter.close();
-					rewardQLearningWriter.close();
+					for(int i=0; i<PRQLTotal.length; i++){
+						for(int j=0; j<PRQLTotal[i].length; j++){
+							rewardWriter.write((PRQLTotal[i][j]/Constants.NUM_AVERAGING)+", ");
+						}
+						rewardWriter.write("\n");
+					}	
+					rewardWriter.close();
+					return;
+				} else {
+					for(int i=0; i<Constants.NUM_AVERAGING; i++){
+						//makes simulation wind and dryness a noisy version of the real one
+						System.out.println("*** "+i+" ***");
+															
+						//PERTURBATION - AdaPT
+						TaskExecution AdaPT = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+						AdaPT.executeTask();
+						
+						//PERTURBATION - PRQL
+						TaskExecution PRQL = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
+						PRQL.executeTask();
+						
+						//Standard QLearning
+						TaskExecution QLearning = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
+						QLearning.executeTask();
+						
+						BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardAdaPTName), true));
+						BufferedWriter rewardPRQLWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
+						BufferedWriter rewardQLearningWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardQLearningName), true));
+	
+						rewardHRPerturbWriter.write("\n");
+						rewardPRQLWriter.write("\n");
+						rewardQLearningWriter.write("\n");
+						
+						rewardHRPerturbWriter.close();
+						rewardPRQLWriter.close();
+						rewardQLearningWriter.close();
+					}
 				}
 			} else {	
 				//sets simulation wind and dryness
