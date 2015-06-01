@@ -14,7 +14,7 @@ import PR2_robot.GameView;
 import PR2_robot.MyServer;
 
 public class Main {
-	//USE AS VALUES FOR CURRENT_EXECUTION (Runs experiments), SUB_EXECUTION = NULL when using any of these
+	//USE AS VALUES FOR CURRENT_EXECUTION (Runs experiments), SUB_EXECUTION = -1 when using any of these
 	public static int SIMULATION = 0, //use for running simulation runs on the computer
 			SIMULATION_HUMAN_TRAIN_TEST = 1, //use for human experiments where participants work with the simulation environment for training and testing
 			SIMULATION_HUMAN_TRAIN = 2, //use for human experiments where participants work with the simulation environment only for training
@@ -26,8 +26,8 @@ public class Main {
 	public static int GENERATE_RBM_DATA = 6; //generate tuples from transition function to feed to RBM
 	public static int REWARD_OVER_ITERS = 7; //evaluates reward received over the number of iterations over time
 	
-	public static int CURRENT_EXECUTION = SIMULATION; //set CURRENT_EXECUTION to one of the above depending on which option you want to run
-	public static int SUB_EXECUTION = REWARD_OVER_ITERS;
+	public static int CURRENT_EXECUTION = SIMULATION_HUMAN_TRAIN; //set CURRENT_EXECUTION to one of the above depending on which option you want to run
+	public static int SUB_EXECUTION = -1;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -50,19 +50,39 @@ public class Main {
 		PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 		AdaPTTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 		
+		int[] trainWind = null;
+		int[] trainDryness = null;
+		int[] testWind = null;
+		int[] testDryness = null;
+		
+		if(CURRENT_EXECUTION == SIMULATION){
+			trainWind = Constants.testWind_training_simulation;
+			trainDryness = Constants.testDryness_training_simulation;
+			testWind = Constants.testWind_testing_simulation;
+			testDryness = Constants.testDryness_testing_simulation;
+		} else {
+			trainWind = Constants.testWind_training;
+			trainDryness = Constants.testDryness_training;
+			testWind = Constants.testWind_testing;
+			testDryness = Constants.testDryness_testing;
+		}
+		
+		Constants.NUM_TRAINING_SESSIONS = trainWind.length;
+		Constants.NUM_TESTING_SESSIONS = testWind.length;
+		
 		//construct training worlds for procedural and perturbation
 		List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
 		List<MyWorld> trainingWorldsPerturb = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TRAINING_SESSIONS; i++){
-			MyWorld proceWorld = new MyWorld(Constants.TRAINING, false, i, Constants.testWind_train[0], Constants.testDryness_train[0]);
+			MyWorld proceWorld = new MyWorld(Constants.TRAINING, false, i, trainWind[0], trainDryness[0]);
 			trainingWorldsProce.add(proceWorld);
-			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i, Constants.testWind_train[i-1], Constants.testDryness_train[i-1]);
+			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i, trainWind[i-1], trainDryness[i-1]);
 			trainingWorldsPerturb.add(perturbWorld);
 		}
 		//construct testing worlds for both training
 		List<MyWorld> testingWorlds = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
-			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, Constants.testWind_test[i-1], Constants.testDryness_test[i-1]);
+			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, testWind[i-1], testDryness[i-1]);
 			testingWorlds.add(testWorld);
 		}
 		
@@ -174,11 +194,11 @@ public class Main {
 			} else {	
 				//sets simulation wind and dryness
 				for(MyWorld trainWorld : trainingWorldsProce)
-					trainWorld.setSimulationWindDryness(Constants.simulationWind_train[0], Constants.simulationDryness_train[0]);
+					trainWorld.setSimulationWindDryness(Constants.simulationWind_training[0], Constants.simulationDryness_training[0]);
 				for(MyWorld trainWorld : trainingWorldsPerturb)
-					trainWorld.setSimulationWindDryness(Constants.simulationWind_train[trainWorld.sessionNum-1], Constants.simulationDryness_train[trainWorld.sessionNum-1]);
+					trainWorld.setSimulationWindDryness(Constants.simulationWind_training[trainWorld.sessionNum-1], Constants.simulationDryness_training[trainWorld.sessionNum-1]);
 				for(MyWorld testWorld : testingWorlds)
-					testWorld.setSimulationWindDryness(Constants.simulationWind_test[testWorld.sessionNum-1], Constants.simulationDryness_test[testWorld.sessionNum-1]);
+					testWorld.setSimulationWindDryness(Constants.simulationWind_testing[testWorld.sessionNum-1], Constants.simulationDryness_testing[testWorld.sessionNum-1]);
 				
 				gameView = new GameView(CURRENT_EXECUTION);
 				if(CURRENT_EXECUTION == ROBOT_HUMAN_TEST){

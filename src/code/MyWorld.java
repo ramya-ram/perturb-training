@@ -232,21 +232,24 @@ public class MyWorld {
 		try{
 			int wind = 0;
 			int dryness = 0;
-			if(Main.currWithSimulatedHuman){
-				if(Constants.usePredefinedTestCases && typeOfWorld == Constants.TESTING){
-					newState = getPredefinedNextState(newState, agentActions);
-					return newState;
+			
+			if(Main.CURRENT_EXECUTION == Main.SIMULATION){
+				wind = testWind;
+				dryness = testDryness;
+			} else {
+				if(Main.currWithSimulatedHuman){
+					if(Constants.usePredefinedTestCases && typeOfWorld == Constants.TESTING){
+						newState = getPredefinedNextState(newState, agentActions);
+						return newState;
+					}
+					wind = testWind;
+					dryness = testDryness;
+				} else {
+					wind = simulationWind;
+					dryness = simulationDryness;
 				}
-				//wind = testWind;
-				//dryness = testDryness;
-			} //else {
-			//	wind = simulationWind;
-			//	dryness = simulationDryness;
-			//}
-			
-			wind = testWind;
-			dryness = testDryness;
-			
+			}
+				
 			Action humanAction = agentActions.getHumanAction();
 			Action robotAction = agentActions.getRobotAction();
 			int humanFireIndex = -1;

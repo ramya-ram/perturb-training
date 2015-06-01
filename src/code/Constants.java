@@ -39,17 +39,24 @@ public class Constants {
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
 	
-	public static int[] simulationWind_train =    {0, 5, 0}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
-	public static int[] simulationDryness_train = {0, 0, 5};
-	public static int[] testWind_train =    {0, 5, 0};
-	public static int[] testDryness_train = {0, 0, 5};
-	public static int[] simulationWind_test =    {0, 1, 8}; //only used for human experiments (in simulation, the noisy simulation values are sampled probabilistically)
-	public static int[] simulationDryness_test = {0, 8, 1};
-	public static int[] testWind_test =    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-	public static int[] testDryness_test = {0, 9, 8, 7, 6, 5, 4, 3, 2, 1};	
+	//used for human subject experiments
+	public static int[] simulationWind_training =    {0, 5, 0}; //robot simulates with an approximate model during experiments
+	public static int[] simulationDryness_training = {0, 0, 5};
+	public static int[] testWind_training =    {0, 6, 0}; //these are the 'actual' values in the experiment when the robot works with the person
+	public static int[] testDryness_training = {0, 0, 6};
+	public static int[] simulationWind_testing =    {0, 1, 8};
+	public static int[] simulationDryness_testing = {0, 8, 1};
+	public static int[] testWind_testing =    {0, 2, 9};
+	public static int[] testDryness_testing = {0, 9, 2};
 	
-	public static final int NUM_TRAINING_SESSIONS = testWind_train.length;
-	public static final int NUM_TESTING_SESSIONS = testWind_test.length;
+	//used for simulation
+	public static int[] testWind_training_simulation =    {0, 5, 0};
+	public static int[] testDryness_training_simulation = {0, 0, 5};
+	public static int[] testWind_testing_simulation =    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+	public static int[] testDryness_testing_simulation = {0, 9, 8, 7, 6, 5, 4, 3, 2, 1};	
+	
+	public static int NUM_TRAINING_SESSIONS = -1;
+	public static int NUM_TESTING_SESSIONS = -1;
 
 	//file names where results are stored
 	public static String dataDir = "inputFiles\\";
