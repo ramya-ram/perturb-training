@@ -14,20 +14,18 @@ import PR2_robot.GameView;
 import PR2_robot.MyServer;
 
 public class Main {
-	//USE AS VALUES FOR CURRENT_EXECUTION (Runs experiments), SUB_EXECUTION = -1 when using any of these
-	public static int SIMULATION = 0, //use for running simulation runs on the computer
+	public static int 
+			SIMULATION = 0, //use for running simulation runs on the computer (compares AdaPT, PRQL with different priors, and Q-learning from scratch given limited simulation time)
 			SIMULATION_HUMAN_TRAIN_TEST = 1, //use for human experiments where participants work with the simulation environment for training and testing
 			SIMULATION_HUMAN_TRAIN = 2, //use for human experiments where participants work with the simulation environment only for training
-			ROBOT_HUMAN_TEST = 3; //use for human experiments where participants work with the robot in testing after training in simulation
-
-	//USE AS VALUES FOR SUB_EXECUTION (Runs sub tasks) -- When using the sub executions, SET CURRENT_EXECUTION = SIMULATION;
-	public static int CREATE_PREDEFINED = 4; //use for creating predefined test cases for human subject experiments (given a state and joint action, the next state will always be the same across participants)
-	public static int CREATE_OFFLINE_QVALUES = 5; //use for running offline deterministic simulations and having these values saved to a file so that the robot starts with base knowledge when working with a human
-	public static int GENERATE_RBM_DATA = 6; //generate tuples from transition function to feed to RBM
-	public static int REWARD_OVER_ITERS = 7; //evaluates reward received over the number of iterations over time
+			ROBOT_HUMAN_TEST = 3, //use for human experiments where participants work with the robot in testing after training in simulation
+			CREATE_PREDEFINED = 4, //use for creating predefined test cases for human subject experiments (given a state and joint action, the next state will always be the same across participants)
+			CREATE_OFFLINE_QVALUES = 5, //use for running offline deterministic simulations and having these values saved to a file so that the robot starts with base knowledge when working with a human
+	        GENERATE_RBM_DATA = 6, //generate tuples from transition function to feed to a Restricted Boltzmann Machine (RBM)
+	        REWARD_OVER_ITERS = 7; //evaluates reward received over the number of iterations over time (evaluates AdaPT and PRQL at specified intervals until some number of iterations)
 	
-	public static int CURRENT_EXECUTION = SIMULATION; //set CURRENT_EXECUTION to one of the above depending on which option you want to run
-	public static int SUB_EXECUTION = -1;
+	//choose one of the above options
+	public static int INPUT = SIMULATION;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -45,8 +43,22 @@ public class Main {
 	
 	public static double[][] PRQLTotal;
 	public static double[][] AdaPTTotal;
+
+	public static int CURRENT_EXECUTION = -1;
+	public static int SUB_EXECUTION = -1;
 	
 	public static void main(String[] args){	
+		if(INPUT == SIMULATION_HUMAN_TRAIN_TEST || INPUT == SIMULATION_HUMAN_TRAIN || INPUT == ROBOT_HUMAN_TEST){
+			CURRENT_EXECUTION = INPUT;
+			SUB_EXECUTION = -1;
+		} else if(INPUT == SIMULATION){
+			CURRENT_EXECUTION = SIMULATION;
+			SUB_EXECUTION = -1;
+		} else {
+			CURRENT_EXECUTION = SIMULATION;
+			SUB_EXECUTION = INPUT;
+		}
+		
 		int[] trainWind = null;
 		int[] trainDryness = null;
 		int[] testWind = null;

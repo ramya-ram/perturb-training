@@ -23,8 +23,8 @@ public class Constants {
 	//num of times to run
 	public static final int NUM_EPISODES = 200000;
 	public static final int NUM_EPISODES_TEST = 1500;
-	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	public static final int INTERVAL = 50;
+	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
