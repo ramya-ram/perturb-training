@@ -35,15 +35,17 @@ public class TaskExecution {
 	/**
 	 * Run training and testing phases, according to which option is being run
 	 */
-	public void executeTask(){		
+	public void executeTask(){
 		if(Main.CURRENT_EXECUTION == Main.SIMULATION){
 			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
 			List<Policy> trainedPolicies = trainedResult.getSecond();
 			if(condition == ExperimentCondition.PRQL) {
 				runTestingPhase(trainedLearners, trainedPolicies, -1);
-				for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
-					runTestingPhase(trainedLearners, trainedPolicies, i);
+				if(Main.SUB_EXECUTION == -1){ //Only run PRQL with different priors when SUB_EXECUTION == -1, not when SUB_EXECUTION == REWARD_OVER_ITERS 
+					for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
+						runTestingPhase(trainedLearners, trainedPolicies, i);
+					}
 				}
 			} else {
 				runTestingPhase(trainedLearners, trainedPolicies, -1);
