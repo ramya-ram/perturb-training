@@ -44,10 +44,10 @@ public class Constants {
 	public static int[] simulationDryness_training = {0, 0, 5};
 	public static int[] testWind_training =    {0, 6, 0}; //these are the 'actual' values in the experiment when the robot works with the person
 	public static int[] testDryness_training = {0, 0, 6};
-	public static int[] simulationWind_testing =    {0, 1, 8};
-	public static int[] simulationDryness_testing = {0, 8, 1};
-	public static int[] testWind_testing =    {0, 2, 9};
-	public static int[] testDryness_testing = {0, 9, 2};
+	public static int[] simulationWind_testing =    {0, 0, 1, 8};
+	public static int[] simulationDryness_testing = {0, 0, 8, 1};
+	public static int[] testWind_testing =    {0, 0, 2, 9};
+	public static int[] testDryness_testing = {0, 0, 9, 2};
 	
 	//used for simulation
 	public static int[] testWind_training_simulation =    {0, 5, 0};

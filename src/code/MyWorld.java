@@ -175,7 +175,7 @@ public class MyWorld {
 				Main.gameView.setAnnouncements(textToDisplay);
 			
 			if(sessionNum == 1 && sessionNum == 2){ //base task
-				return nextState;  //TODO: change if 1st test task is not procedural (no wind/dryness)
+				return nextState;  //TODO: change if 1st and 2nd test task are not base tasks (no wind/dryness)
 			} else {		
 				String text = "";
 				if(typeOfWorld == Constants.TESTING){
