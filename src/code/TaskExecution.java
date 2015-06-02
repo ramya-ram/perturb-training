@@ -21,8 +21,8 @@ public class TaskExecution {
 	public List<MyWorld> testingWorlds;
 	public ExperimentCondition condition;
 	
-	public Color[] colorsTraining = {Color.BLUE, new Color(107, 142, 35), new Color(148,0,211)};
-	public Color[] colorsTesting = {new Color(178,34,34), new Color(148,0,211), Color.BLUE, new Color(148,0,211)};
+	public Color[] colorsTraining = {Color.BLUE, new Color(107, 142, 35), new Color(148,0,211), Color.BLUE, new Color(107, 142, 35), new Color(148,0,211), Color.BLUE, new Color(107, 142, 35), new Color(148,0,211), Color.BLUE};
+	public Color[] colorsTesting = {new Color(178,34,34), new Color(148,0,211), Color.BLUE, new Color(148,0,211), new Color(178,34,34), new Color(148,0,211), Color.BLUE, new Color(148,0,211), new Color(178,34,34), new Color(148,0,211)};
 	
 	public TaskExecution(GameView gameView, List<MyWorld> trainingWorlds, List<MyWorld> testingWorlds, ExperimentCondition condition){
 		this.gameView = gameView;
@@ -40,7 +40,14 @@ public class TaskExecution {
 			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
 			List<Policy> trainedPolicies = trainedResult.getSecond();
-			runTestingPhase(trainedLearners, trainedPolicies);
+			if(condition == ExperimentCondition.PRQL) {
+				runTestingPhase(trainedLearners, trainedPolicies, -1);
+				for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
+					runTestingPhase(trainedLearners, trainedPolicies, i);
+				}
+			} else {
+				runTestingPhase(trainedLearners, trainedPolicies, -1);
+			}
 		}
 		
 		else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN_TEST){
@@ -48,7 +55,7 @@ public class TaskExecution {
 			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
 			List<Policy> trainedPolicies = trainedResult.getSecond();
-			runTestingPhase(trainedLearners, trainedPolicies);
+			runTestingPhase(trainedLearners, trainedPolicies, -1);
 		}
 		
 		else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN){
@@ -62,7 +69,7 @@ public class TaskExecution {
 			List<QValuesSet> trainedLearners = readTrainingFromFile();
 			System.out.println("read from training files");
 			Constants.MAX_TIME = 25;
-			runTestingPhase(trainedLearners, null);
+			runTestingPhase(trainedLearners, null, -1);
 		}
 	}
 	
@@ -218,9 +225,8 @@ public class TaskExecution {
 				setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
 				perturbLearner.run(trainWorld, false);
 				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
-				if(condition == ExperimentCondition.ADAPT)
-					learners.add(perturbLearner.currQValues);
-				else if(condition == ExperimentCondition.PRQL)
+				learners.add(perturbLearner.currQValues);
+				if(condition == ExperimentCondition.PRQL)
 					policies.add(perturbLearner.computePolicy());
 				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
 			}
@@ -246,11 +252,15 @@ public class TaskExecution {
 	 * Procedural uses Q-learning and is initialized with Q-values learned from training
 	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
 	 */
-	public void runTestingPhase(List<QValuesSet> trainedLearners, List<Policy> trainedPolicies){
+	public void runTestingPhase(List<QValuesSet> allLearners, List<Policy> allPolicies, int initialQValuesIndex){
+		System.out.println("allLearners size "+allLearners.size()+" allPolicies size "+allPolicies.size());
+		List<QValuesSet> learners = new ArrayList<QValuesSet>();
 		if(condition == ExperimentCondition.ADAPT){
+			learners.addAll(allLearners);
+			System.out.println("Learners size "+learners.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
-				AdaPTLearner perturbLearner = new AdaPTLearner(testWorld, trainedLearners);
+				AdaPTLearner perturbLearner = new AdaPTLearner(testWorld, learners);
 				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
 				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				perturbLearner.runHRPerturb(false);
@@ -258,10 +268,14 @@ public class TaskExecution {
 				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 			}
 		} else if(condition == ExperimentCondition.PRQL){
-			System.out.println("Library size "+trainedPolicies.size());
+			if(initialQValuesIndex >= 0)
+				learners.add(allLearners.get(initialQValuesIndex));
+			else
+				learners.add(new QValuesSet());
+			System.out.println("Library size "+allPolicies.size()+" Learners size "+learners.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
-				PRQLearner learner = new PRQLearner(testWorld, trainedPolicies);//, trainedLearners.get(0));
+				PRQLearner learner = new PRQLearner(testWorld, allPolicies, learners.get(0));
 				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
 				learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				learner.runPRQL(false);
@@ -278,7 +292,7 @@ public class TaskExecution {
 		} else {
 			//Q-learning proce and perturb testing sessions
 			for(MyWorld testWorld : testingWorlds){
-				QLearner testQLearner = new QLearner(trainedLearners.get(0), condition); //both proce and perturb Q only have one Q-value function so it is directly transferred to the test case
+				QLearner testQLearner = new QLearner(allLearners.get(0), condition); //both proce and perturb Q only have one Q-value function so it is directly transferred to the test case
 				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
 				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
 				testQLearner.run(testWorld, false);

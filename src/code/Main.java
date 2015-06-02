@@ -26,7 +26,7 @@ public class Main {
 	public static int GENERATE_RBM_DATA = 6; //generate tuples from transition function to feed to RBM
 	public static int REWARD_OVER_ITERS = 7; //evaluates reward received over the number of iterations over time
 	
-	public static int CURRENT_EXECUTION = SIMULATION_HUMAN_TRAIN; //set CURRENT_EXECUTION to one of the above depending on which option you want to run
+	public static int CURRENT_EXECUTION = SIMULATION; //set CURRENT_EXECUTION to one of the above depending on which option you want to run
 	public static int SUB_EXECUTION = -1;
 	
 	public static boolean currWithSimulatedHuman = false;
@@ -47,9 +47,6 @@ public class Main {
 	public static double[][] AdaPTTotal;
 	
 	public static void main(String[] args){	
-		PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
-		AdaPTTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
-		
 		int[] trainWind = null;
 		int[] trainDryness = null;
 		int[] testWind = null;
@@ -69,6 +66,9 @@ public class Main {
 		
 		Constants.NUM_TRAINING_SESSIONS = trainWind.length;
 		Constants.NUM_TESTING_SESSIONS = testWind.length;
+		
+		PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		AdaPTTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 		
 		//construct training worlds for procedural and perturbation
 		List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
