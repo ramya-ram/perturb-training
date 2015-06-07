@@ -23,6 +23,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import code.State;
+import code.MyWorld;
 	
 /**
  * Java swing GUI of fire extinguishing game
@@ -39,8 +40,8 @@ public class GameView extends JFrame {
 	private String fileBase = "data\\";
 	private String fireIntensityFile = fileBase+"fireIntensity";
 	private String fireNameFile = fileBase+"fireName";
-	private ImageIcon[] intensityImages;
-	private JPanel stateView;
+	public ImageIcon[] intensityImages;
+	public JPanel stateView;
 	private JButton nextButton;
 	private boolean nextClicked;
 	private JButton startRound;
@@ -157,7 +158,7 @@ public class GameView extends JFrame {
         centerPanel.add(firesLabel);
         
         stateView = new JPanel();
-        updateState(new State(new int[]{0,0,0,0,0}));    
+        MyWorld.updateState(new State());    
         centerPanel.add(stateView);
         
         JPanel fireNamesPanel = new JPanel();
@@ -308,20 +309,6 @@ public class GameView extends JFrame {
     		timeLabel.setText("Time Left: ");
     	else
     		timeLabel.setText("Time Left: "+timeLeft);	
-    }
-    
-    /**
-     * Updates the images of the 5 fires after each time step to reflect each fire's intensity level
-     */
-    public void updateState(State state) {
-    	stateView.removeAll();
-        for(int i=0; i < state.stateOfFires.length; i++){
-        	JLabel label = new JLabel();
-        	label.setIcon(intensityImages[state.stateOfFires[i]]);    
-        	stateView.add(label);
-        }
-        stateView.revalidate();
-        stateView.setBackground(Color.WHITE);
     }
     
     public void setAnnouncements(String text){

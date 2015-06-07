@@ -21,42 +21,26 @@ public class Constants {
 	public static double THRESHOLD_REJECT = 2;
 	
 	//num of times to run
-	public static final int NUM_EPISODES = 200000;
-	public static final int NUM_EPISODES_TEST = 1500;
-	public static final int INTERVAL = 50;
-	public static final int NUM_STEPS_PER_EPISODE = 20; 
+	public static final int NUM_EPISODES = 500000;
+	public static final int NUM_EPISODES_TEST = 5000;
+	public static final int INTERVAL = 1000;
+	public static final int NUM_STEPS_PER_EPISODE = 30;
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
 	public static boolean print = false;
-	public static int NUM_AVERAGING = 50;
+	public static int NUM_AVERAGING = 1;
 	
-	public static int STATES_PER_FIRE = 5;
-	public static int NUM_FIRES = 5;
-	public static int NONE = 0, HIGHEST = 3, BURNOUT = 4;
-	public static int indexOfFireInAction = 7; //PUT_OUT[0,1,2,3,4] -- the fire number is at the 7th index
+	public static int NUM_ROWS = 10;
+	public static int NUM_COLS = 10;
 	
 	public static int HUMAN = 0, ROBOT = 1;
 	public static int TRAINING = 0, TESTING = 1, PRACTICE = 2; //typeOfWorld
-	
-	public static int NUM_TRAINING_SESSIONS = -1;
-	public static int NUM_TESTING_SESSIONS = -1;
-	
-	//used for human subject experiments
-	public static int[] simulationWind_training =    {0, 5, 0}; //robot simulates with an approximate model during experiments
-	public static int[] simulationDryness_training = {0, 0, 5};
-	public static int[] testWind_training =    {0, 6, 0}; //these are the 'actual' values in the experiment when the robot works with the person
-	public static int[] testDryness_training = {0, 0, 6};
-	public static int[] simulationWind_testing =    {0, 0, 1, 8};
-	public static int[] simulationDryness_testing = {0, 0, 8, 1};
-	public static int[] testWind_testing =    {0, 0, 2, 9};
-	public static int[] testDryness_testing = {0, 0, 9, 2};
-	
-	//used for simulation
-	public static int[] testWind_training_simulation =    {0, 5, 0};
-	public static int[] testDryness_training_simulation = {0, 0, 5};
-	public static int[] testWind_testing_simulation =    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-	public static int[] testDryness_testing_simulation = {0, 9, 8, 7, 6, 5, 4, 3, 2, 1};	
+
+	public static Location[] trainingGoalLocs = {new Location(0,0), new Location(NUM_ROWS-1, 0), new Location(0,NUM_COLS-1), new Location(NUM_ROWS-1, NUM_COLS-1)};
+
+	public static final int NUM_TRAINING_SESSIONS = 4;
+	public static final int NUM_TESTING_SESSIONS = 1;
 
 	//file names where results are stored
 	public static String dataDir = "inputFiles\\";
@@ -68,7 +52,7 @@ public class Constants {
 	
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
-	public static String DOMAIN_NAME = "fire";
+	public static String DOMAIN_NAME = "gridWorld";
 	
 	public static String simulationDir = "C:\\Extra\\";
 	public static String rewardProceQName = simulationDir+"PQ.csv";
@@ -78,6 +62,6 @@ public class Constants {
 	public static String rewardQLearningName = simulationDir+"QLearning_"+DOMAIN_NAME+".csv";
 	
 	public static String numIterName = simulationDir+"numIter_"+DOMAIN_NAME+".csv";
-		
+	
 	public static String trainedQValuesDir = "C:\\Users\\julie\\Dropbox (MIT)\\trainingQValues\\";
 }

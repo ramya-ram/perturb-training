@@ -17,15 +17,17 @@ import PR2_robot.GameView;
  */
 public class TaskExecution {
 	public GameView gameView;
+	public List<MyWorld> practiceWorlds;
 	public List<MyWorld> trainingWorlds;
 	public List<MyWorld> testingWorlds;
 	public ExperimentCondition condition;
 	
-	public Color[] colorsTraining = {Color.BLUE, new Color(107, 142, 35), new Color(148,0,211), Color.BLUE, new Color(107, 142, 35), new Color(148,0,211), Color.BLUE, new Color(107, 142, 35), new Color(148,0,211), Color.BLUE};
-	public Color[] colorsTesting = {new Color(178,34,34), new Color(148,0,211), Color.BLUE, new Color(148,0,211), new Color(178,34,34), new Color(148,0,211), Color.BLUE, new Color(148,0,211), new Color(178,34,34), new Color(148,0,211)};
+	public Color[] colorsTraining = {Color.BLUE, new Color(107, 142, 35), new Color(148,0,211)};
+	public Color[] colorsTesting = {new Color(178,34,34), new Color(148,0,211), Color.BLUE, new Color(148,0,211)};
 	
-	public TaskExecution(GameView gameView, List<MyWorld> trainingWorlds, List<MyWorld> testingWorlds, ExperimentCondition condition){
+	public TaskExecution(GameView gameView, List<MyWorld> practiceWorlds, List<MyWorld> trainingWorlds, List<MyWorld> testingWorlds, ExperimentCondition condition){
 		this.gameView = gameView;
+		this.practiceWorlds = practiceWorlds;
 		this.trainingWorlds = trainingWorlds;
 		this.testingWorlds = testingWorlds;
 		this.condition = condition;
@@ -174,19 +176,17 @@ public class TaskExecution {
 	 */
 	public void runPracticeSession(){
 		Main.saveToFile = false;
-		MyWorld practiceWorld1 = new MyWorld(Constants.PRACTICE, false, 1, 0, 0);
-		MyWorld practiceWorld2 = new MyWorld(Constants.PRACTICE, false, 2, 0, 0);
-		
+			
 		//practice session	
 		QLearner practice1 = new QLearner(null, ExperimentCondition.PROCE_Q);
 		QLearner practice2 = new QLearner(null, ExperimentCondition.PROCE_Q);
 		
 		try{
-			setTitleLabel(practiceWorld1, 1, Color.BLACK);
-			practice1.run(practiceWorld1, true, initialState(practiceWorld1, 1));
+			practiceWorlds.get(0).setTitleLabel(1, null, -1);
+			practice1.run(practiceWorlds.get(0), true, practiceWorlds.get(0).initialState(1));
 			Constants.MAX_TIME = 10;
-			setTitleLabel(practiceWorld2, 2, Color.BLACK);
-			practice2.run(practiceWorld2, true, initialState(practiceWorld2, 2));
+			practiceWorlds.get(1).setTitleLabel(2, null, -1);
+			practice2.run(practiceWorlds.get(1), true, practiceWorlds.get(1).initialState(2));
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -205,44 +205,41 @@ public class TaskExecution {
 		//first training session -- same for procedural and perturbation
 		QLearner baseQLearner = new QLearner(null, ExperimentCondition.PROCE_Q);
 		MyWorld trainWorld0 = trainingWorlds.get(0);
-		setTitleLabel(trainWorld0, 1, colorsTraining[0]);
+		trainWorld0.setTitleLabel(1, colorsTraining, 0);
 		baseQLearner.run(trainWorld0, false /*withHuman*/);
-		baseQLearner.run(trainWorld0, true, initialState(trainWorld0, 1));
-		setTitleLabel(trainWorld0, 2, colorsTraining[0]);
+		baseQLearner.run(trainWorld0, true, trainWorld0.initialState(1));
+		trainWorld0.setTitleLabel(2, colorsTraining, 0);
 		baseQLearner.run(trainWorld0, false);
-		baseQLearner.run(trainWorld0, true, initialState(trainWorld0, 2));
+		baseQLearner.run(trainWorld0, true, trainWorld0.initialState(2));
 		learners.add(baseQLearner.currQValues);
 		if(condition == ExperimentCondition.PRQL)
 			policies.add(baseQLearner.computePolicy());
-		baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+0, Constants.print);
 		
 		if(condition == ExperimentCondition.ADAPT || condition == ExperimentCondition.PRQL){
 			//perturbation training sessions
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
 				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.ADAPT);
-				setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
+				trainWorld.setTitleLabel(1, colorsTraining, trainingWorlds.get(i).sessionNum-1);
 				perturbLearner.run(trainWorld, false);
-				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+1));
-				setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
+				perturbLearner.run(trainWorld, true, trainWorld.initialState(i*2+1));
+				trainWorld.setTitleLabel(2, colorsTraining, trainingWorlds.get(i).sessionNum-1);
 				perturbLearner.run(trainWorld, false);
-				perturbLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
+				perturbLearner.run(trainWorld, true, trainWorld.initialState(i*2+2));
 				learners.add(perturbLearner.currQValues);
 				if(condition == ExperimentCondition.PRQL)
 					policies.add(perturbLearner.computePolicy());
-				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
 			}
 		} else if(condition == ExperimentCondition.PERTURB_Q || condition == ExperimentCondition.PROCE_Q){ //both perturb and proce Q-learning use one qlearner to learn all training tasks
 			//extra training sessions after base session
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
-				setTitleLabel(trainWorld, 1, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
+				trainWorld.setTitleLabel(1, colorsTraining, trainingWorlds.get(i).sessionNum-1);
 				baseQLearner.run(trainWorld, false);
-				baseQLearner.run(trainWorld, true, initialState(trainWorld, i*2+1));
-				setTitleLabel(trainWorld, 2, colorsTraining[trainingWorlds.get(i).sessionNum-1]);
+				baseQLearner.run(trainWorld, true, trainWorld.initialState(i*2+1));
+				trainWorld.setTitleLabel(2, colorsTraining, trainingWorlds.get(i).sessionNum-1);
 				baseQLearner.run(trainWorld, false);
-				baseQLearner.run(trainWorld, true, initialState(trainWorld, i*2+2));
-				baseQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), condition+"_"+i, Constants.print);
+				baseQLearner.run(trainWorld, true, trainWorld.initialState(i*2+2));
 			}
 		}
 		
@@ -263,11 +260,9 @@ public class TaskExecution {
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
 				AdaPTLearner perturbLearner = new AdaPTLearner(testWorld, learners);
-				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
-				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
 				perturbLearner.runHRPerturb(false);
-				perturbLearner.runHRPerturb(true, initialState(testWorld, testWorld.sessionNum));
-				perturbLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				perturbLearner.runHRPerturb(true, testWorld.initialState(testWorld.sessionNum));
 			}
 		} else if(condition == ExperimentCondition.PRQL){
 			if(initialQValuesIndex >= 0)
@@ -278,119 +273,25 @@ public class TaskExecution {
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
 				PRQLearner learner = new PRQLearner(testWorld, allPolicies, learners.get(0));
-				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
-				learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
 				learner.runPRQL(false);
-				learner.runPRQL(true, initialState(testWorld, testWorld.sessionNum));
-				learner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				learner.runPRQL(true, testWorld.initialState(testWorld.sessionNum));
 			}
 		} else if(condition == ExperimentCondition.Q_LEARNING){
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
 				QLearner learner = new QLearner(new QValuesSet(), ExperimentCondition.Q_LEARNING);
 				learner.run(testWorld, false);
-				learner.run(testWorld, true, initialState(testWorld, i*2+1));
+				learner.run(testWorld, true, testWorld.initialState(i*2+1));
 			}
 		} else {
 			//Q-learning proce and perturb testing sessions
 			for(MyWorld testWorld : testingWorlds){
 				QLearner testQLearner = new QLearner(allLearners.get(0), condition); //both proce and perturb Q only have one Q-value function so it is directly transferred to the test case
-				setTitleLabel(testWorld, 1, colorsTesting[testWorld.sessionNum-1]);
-				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testbefore_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
 				testQLearner.run(testWorld, false);
-				testQLearner.run(testWorld, true, initialState(testWorld, testWorld.sessionNum));
-				testQLearner.numOfNonZeroQValues(new State(new int[]{1,1,0,3,3}), "testafter_"+condition+"_"+(testWorld.sessionNum-1), Constants.print);
+				testQLearner.run(testWorld, true, testWorld.initialState(testWorld.sessionNum));
 			}
 		}
-	}
-	
-	public void setTitleLabel(MyWorld world, int roundNum, Color color){
-		String str = "";
-		if(world.typeOfWorld == Constants.TRAINING)
-			str+= "Training Session ";
-		else if(world.typeOfWorld == Constants.TESTING){
-			if(world.sessionNum == 1)
-				str+= "Practice Testing Session ";
-			else
-				str+= "Testing Session ";
-		} else
-			str+= "Practice Session ";
-		str += world.sessionNum+" -- Observation: Wind = "+world.simulationWind+" Dryness = "+world.simulationDryness;
-		if(gameView != null)
-			gameView.setTitleAndRoundLabel(str, roundNum, color);
-	}
-	
-	/**
-	 * To be consistent across all participants, the initial state for each case was identical and is specified here
-	 */
-	public State initialState(MyWorld myWorld, int roundNum){
-		if(myWorld.typeOfWorld == Constants.PRACTICE){
-			if(roundNum == 1){
-				int[] stateOfFires = {3,3,3,3,3};
-				return new State(stateOfFires);
-			} else if(roundNum == 2){
-				int[] stateOfFires = {3,2,0,3,1};
-				return new State(stateOfFires);
-			}	
-		} else if(myWorld.typeOfWorld == Constants.TRAINING){
-			if(myWorld.perturb){
-				switch(roundNum){
-					case 1:
-						int[] stateOfFires = {2,3,3,1,2};
-						return new State(stateOfFires);
-					case 2:
-						int[] stateOfFires1 = {2,2,1,3,3};
-						return new State(stateOfFires1);
-					case 3:
-						int[] stateOfFires2 = {0,2,1,2,3};
-						return new State(stateOfFires2);
-					case 4:
-						int[] stateOfFires3 = {0,1,1,2,3};
-						return new State(stateOfFires3);
-					case 5:
-						int[] stateOfFires4 = {3,3,3,2,3};
-						return new State(stateOfFires4);
-					case 6:
-						int[] stateOfFires5 = {3,3,2,3,1};
-						return new State(stateOfFires5);
-				}
-			} else if(!myWorld.perturb) {
-				switch(roundNum){
-					case 1:
-						int[] stateOfFires = {2,3,3,1,2};
-						return new State(stateOfFires);
-					case 2:
-						int[] stateOfFires1 = {2,2,1,3,3};
-						return new State(stateOfFires1);
-					case 3:
-						int[] stateOfFires2 = {3,1,3,1,2};
-						return new State(stateOfFires2);
-					case 4:
-						int[] stateOfFires3 = {2,3,1,1,3};
-						return new State(stateOfFires3);
-					case 5:
-						int[] stateOfFires4 = {3,3,2,3,3};
-						return new State(stateOfFires4);
-					case 6:
-						int[] stateOfFires5 = {3,2,3,3,3};
-						return new State(stateOfFires5);
-				}
-			}
-		} else if(myWorld.typeOfWorld == Constants.TESTING) {
-			if(roundNum == 1){
-				int[] stateOfFires = {0,1,1,1,0};
-				return new State(stateOfFires);
-			} else if(roundNum == 2){
-				int[] stateOfFires = {3,1,3,1,1};
-				return new State(stateOfFires);
-			} else if(roundNum == 3){
-				int[] stateOfFires = {1,0,3,3,1};
-				return new State(stateOfFires);
-			} else if(roundNum == 4){
-				int[] stateOfFires = {0,1,1,1,3};
-				return new State(stateOfFires);
-			} 
-		}
-		return null;
 	}
 }

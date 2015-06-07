@@ -31,6 +31,7 @@ public class MyServer {
     static Timer timer;
     static int NUM_SECS_RESEND = 15;
     static int resendTimeLeft = NUM_SECS_RESEND; 
+    static int NUM_FIRES = 5;
 
     /**
      * Connects to both the human (through Google Web Speech Recognition) and robot (through ROS) clients
@@ -92,13 +93,13 @@ public class MyServer {
     		humanAction = suggestedHumanAction;    			
     	}
     	else if(type == CommType.REJECT || type == CommType.UPDATE){
-    		humanAction = getActionFromInput(str);
+    		humanAction = MyWorld.getActionFromInput(str);
     	} else if(type == CommType.SUGGEST){
     		int index = str.indexOf("suggest");
     		String humanStr = str.substring(0, index);
     		String robotStr = str.substring(index);
-    		humanAction = getActionFromInput(humanStr);
-    		robotAction = getActionFromInput(robotStr);
+    		humanAction = MyWorld.getActionFromInput(humanStr);
+    		robotAction = MyWorld.getActionFromInput(robotStr);
     	}
     	System.out.println("type "+type+" humanAction "+humanAction);
     	if(type == null || humanAction == null){
@@ -123,7 +124,7 @@ public class MyServer {
     
     public Action getAction(char c){
     	int index = c - 'A';
-    	if(index >= 0 && index < Constants.NUM_FIRES)
+    	if(index >= 0 && index < NUM_FIRES)
     		return Action.valueOf("PUT_OUT"+index);
 		return Action.WAIT;
     }
@@ -140,22 +141,6 @@ public class MyServer {
 	    		return CommType.UPDATE;
     	}
     	return null;
-    }
-    
-    public Action getActionFromInput(String str){
-    	str.toLowerCase();
-    	Action action = null;
-    	if(str.contains("alpha"))
-			action = Action.PUT_OUT0;
-		else if(str.contains("bravo"))
-			action = Action.PUT_OUT1;
-		else if(str.contains("charlie"))
-			action = Action.PUT_OUT2;
-		else if(str.contains("delta"))
-			action = Action.PUT_OUT3;
-		else if(str.contains("echo"))
-			action = Action.PUT_OUT4;
-    	return action;
     }
     
     public String getRobotMessage() {

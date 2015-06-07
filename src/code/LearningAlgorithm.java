@@ -47,6 +47,8 @@ public class LearningAlgorithm {
         int iterations = 0;
         long startTime = System.currentTimeMillis();
         
+        myWorld.reset();
+        
 		State state = null;
 		if(initialStateHuman != null && Main.CURRENT_EXECUTION != Main.SIMULATION)
 			state = initialStateHuman.clone();
@@ -55,7 +57,7 @@ public class LearningAlgorithm {
 		if(Main.arduino != null && Main.currWithSimulatedHuman)
 			Main.arduino.sendString(state.getArduinoString());
         try{
-	        while (!MyWorld.isGoalState(state) && iterations < maxSteps) {
+	        while (!myWorld.isGoalState(state) && iterations < maxSteps) {
 	        	HumanRobotActionPair agentActions = null;
 				if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION) {
 					agentActions = getAgentActionsCommWithHuman(state); //communicates with human to choose action until goal state is reached (and then it's simulated until maxSteps)
@@ -79,7 +81,7 @@ public class LearningAlgorithm {
 				if(withHuman && Main.gameView != null){
 					Main.gameView.setNextEnable(true);
 					Main.gameView.waitForNextClick();
-					if(MyWorld.isGoalState(state)){
+					if(myWorld.isGoalState(state)){
 						Main.gameView.initTitleGUI("congrats");
 					}
 					else if(iterations >= maxSteps)
@@ -218,7 +220,7 @@ public class LearningAlgorithm {
 	public HumanRobotActionPair getAgentActionsCommWithHuman(State state){
 		try{
 			if(Main.gameView != null){
-				Main.gameView.updateState(state);
+				MyWorld.updateState(state);
 				Main.gameView.setAnnouncements("");
 				Main.gameView.setTeammateText("");
 			}
@@ -243,14 +245,6 @@ public class LearningAlgorithm {
 			e.printStackTrace();
 		}
 		return null;
-	}
-	
-	public String getPrintableFromAction(Action action){
-		if(action != Action.WAIT){
-			int fireIndex = Integer.parseInt(action.name().substring(7, 8));
-			return "extinguish "+MyWorld.convertToFireName(fireIndex);
-		}
-		return "have to wait this turn";
 	}
 	
 	/**
@@ -283,12 +277,12 @@ public class LearningAlgorithm {
 			double averageValue = cumulativeValue/humanActions.length;
 			
 			updateGUIMessage("Waiting for teammate...\n");
-			simulateWaitTime(state);
+			myWorld.simulateWaitTime(state);
 			
 			if((maxJointValue - averageValue) > Constants.THRESHOLD_SUGG && bestHumanActionSuggestion != null){ //robot suggests human an action too
 				numRobotSuggestions++;
 				sendRobotMessage("{SUGGESTION R"+getFireIndex(bestRobotActionSuggestion)+", H"+getFireIndex(bestHumanActionSuggestion)+"}");
-				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionSuggestion)+" and suggests you to "+getPrintableFromAction(bestHumanActionSuggestion));
+				updateGUIMessage("Your teammate will "+myWorld.getPrintableFromAction(bestRobotActionSuggestion)+" and suggests you to "+myWorld.getPrintableFromAction(bestHumanActionSuggestion));
 				addToGUIMessage("Would you like to accept the suggestion? (Y or N _)");
 				CommResponse response = getHumanMessage(bestHumanActionSuggestion, state);
 				if(response.commType == CommType.ACCEPT)
@@ -300,13 +294,13 @@ public class LearningAlgorithm {
 			} else { //robot just updates
 				numRobotUpdates++;
 				sendRobotMessage("{UPDATE R"+getFireIndex(bestRobotActionUpdate)+"}");
-				updateGUIMessage("Your teammate will "+getPrintableFromAction(bestRobotActionUpdate));
+				updateGUIMessage("Your teammate will "+myWorld.getPrintableFromAction(bestRobotActionUpdate));
 				addToGUIMessage("Which fire you would like to extinguish (_)?");
 				CommResponse response = getHumanMessage(null, state);
 				actions = new HumanRobotActionPair(response.humanAction, bestRobotActionUpdate);			
 			}
 			sendRobotMessage("{** R"+getFireIndex(actions.getRobotAction())+"}");
-			updateGUIMessage("Summary:\nYou will "+getPrintableFromAction(actions.getHumanAction())+"\nYour teammate will "+getPrintableFromAction(actions.getRobotAction())+"\n");
+			updateGUIMessage("Summary:\nYou will "+myWorld.getPrintableFromAction(actions.getHumanAction())+"\nYour teammate will "+myWorld.getPrintableFromAction(actions.getRobotAction())+"\n");
 			return actions;
 		} catch(Exception e){
 			e.printStackTrace();
@@ -337,9 +331,9 @@ public class LearningAlgorithm {
 			Action humanAction = response.humanAction;
 			Action robotAction = response.robotAction;
 			if(response.commType == CommType.UPDATE)
-				updateGUIMessage("You chose to "+getPrintableFromAction(humanAction));
+				updateGUIMessage("You chose to "+myWorld.getPrintableFromAction(humanAction));
 			else if(response.commType == CommType.SUGGEST)
-				updateGUIMessage("You chose to "+getPrintableFromAction(humanAction)+" and suggest your teammate to "+getPrintableFromAction(robotAction));
+				updateGUIMessage("You chose to "+myWorld.getPrintableFromAction(humanAction)+" and suggest your teammate to "+myWorld.getPrintableFromAction(robotAction));
 			if(response.commType != CommType.NONE){
 				if(response.commType == CommType.SUGGEST){
 					numHumanSuggestions++;
@@ -347,29 +341,29 @@ public class LearningAlgorithm {
 					Action optimalRobotAction = getGreedyRobotAction(state, humanAction);
 					double robotSuggestedQValue = getJointQValue(state, new HumanRobotActionPair(humanAction, optimalRobotAction));
 					addToGUIMessage("Waiting for teammate...");
-					simulateWaitTime(state);
+					myWorld.simulateWaitTime(state);
 					//robot rejects human suggestion and chooses own action assuming human will do their suggested action
 					if((robotSuggestedQValue - humanSuggestedQValue) > Constants.THRESHOLD_REJECT){ 
 						numRobotRejects++;
 						robotAction = optimalRobotAction;
 						sendRobotMessage("{REJECT R"+getFireIndex(robotAction)+"}");
-						updateGUIMessage("Your teammate has a different preference and will "+getPrintableFromAction(robotAction)+"\n");
+						updateGUIMessage("Your teammate has a different preference and will "+myWorld.getPrintableFromAction(robotAction)+"\n");
 					} else {
 						numRobotAccepts++;
 						sendRobotMessage("{ACCEPT R"+getFireIndex(robotAction)+"}");
-						updateGUIMessage("Your teammate accepts to "+getPrintableFromAction(robotAction)+"\n");
+						updateGUIMessage("Your teammate accepts to "+myWorld.getPrintableFromAction(robotAction)+"\n");
 					}
 				} else if(response.commType == CommType.UPDATE){
 					numHumanUpdates++;				
 					addToGUIMessage("Waiting for teammate...");
-					simulateWaitTime(state);
+					myWorld.simulateWaitTime(state);
 					robotAction = getGreedyRobotAction(state, humanAction);
 					sendRobotMessage("{UPDATE R"+getFireIndex(robotAction)+"}");
-					updateGUIMessage("Your teammate will "+getPrintableFromAction(robotAction)+"\n");
+					updateGUIMessage("Your teammate will "+myWorld.getPrintableFromAction(robotAction)+"\n");
 				}
 			}
 			sendRobotMessage("{* R"+getFireIndex(robotAction)+"}");
-			addToGUIMessage("Summary:\nYou will "+getPrintableFromAction(humanAction)+"\nYour teammate will "+getPrintableFromAction(robotAction)+"\n");
+			addToGUIMessage("Summary:\nYou will "+myWorld.getPrintableFromAction(humanAction)+"\nYour teammate will "+myWorld.getPrintableFromAction(robotAction)+"\n");
 			return new HumanRobotActionPair(humanAction, robotAction);
 		} catch(Exception e){
 			e.printStackTrace();
@@ -496,35 +490,6 @@ public class LearningAlgorithm {
 	
 	public void addToGUIMessage(String str){
 		Main.gameView.setTeammateText(Main.gameView.getTeammateText()+"\n"+str);
-	}
-	
-	/**
-	 * Adds wait time to simulate a human playing
-	 */
-	public void simulateWaitTime(State state) {
-		int stateScore = 0;
-		for(int i=0; i<state.stateOfFires.length; i++){
-			int num = state.stateOfFires[i];
-			if(num == Constants.BURNOUT)
-				stateScore += 0;
-			else
-				stateScore += num;
-		}
-		System.out.println("score "+stateScore);
-		try{
-			if(stateScore < 10){
-				int shortRandomTime = 6;
-				System.out.println(shortRandomTime*1000);
-				Thread.sleep(shortRandomTime*1000);
-			} else {
-				int longRandomTime = 8;
-				System.out.println(longRandomTime*1000);
-				Thread.sleep(longRandomTime*1000);
-			}
-			
-		} catch(Exception e){
-			e.printStackTrace();
-		}
 	}
 	
 	/**
@@ -711,7 +676,7 @@ public class LearningAlgorithm {
 		else if(myWorld.typeOfWorld == Constants.TESTING)
 			type = "test";
 		try{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+type+"world_"+myWorld.sessionNum+".csv")));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+type+"world_"+myWorld.sessionNum+"_"+Constants.DOMAIN_NAME+".csv")));
 			for(State state : MyWorld.states){
 				HumanRobotActionPair agentActions = getGreedyJointAction(state).getFirst();
 				State nextState = myWorld.getNextState(state, agentActions);

@@ -137,7 +137,7 @@ public class PRQLearner extends LearningAlgorithm {
 			double currProbPast = probPast*100;
 			long startTime = System.currentTimeMillis();
 			try{
-				while(!MyWorld.isGoalState(state) && iterations < numSteps){
+				while(!myWorld.isGoalState(state) && iterations < numSteps){
 					HumanRobotActionPair agentActions = null;
 					int randNum = Tools.rand.nextInt(100);
 					if(randNum < currProbPast){
@@ -166,7 +166,7 @@ public class PRQLearner extends LearningAlgorithm {
 					if(withHuman && Main.gameView != null){
 						Main.gameView.setNextEnable(true);
 						Main.gameView.waitForNextClick();
-						if(MyWorld.isGoalState(state)){
+						if(myWorld.isGoalState(state)){
 							Main.gameView.initTitleGUI("congrats");
 						}
 					}

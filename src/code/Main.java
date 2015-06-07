@@ -6,7 +6,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 import PR2_robot.Arduino;
@@ -59,45 +58,13 @@ public class Main {
 			SUB_EXECUTION = INPUT;
 		}
 		
-		int[] trainWind = null;
-		int[] trainDryness = null;
-		int[] testWind = null;
-		int[] testDryness = null;
-		
-		if(CURRENT_EXECUTION == SIMULATION){
-			trainWind = Constants.testWind_training_simulation;
-			trainDryness = Constants.testDryness_training_simulation;
-			testWind = Constants.testWind_testing_simulation;
-			testDryness = Constants.testDryness_testing_simulation;
-		} else {
-			trainWind = Constants.testWind_training;
-			trainDryness = Constants.testDryness_training;
-			testWind = Constants.testWind_testing;
-			testDryness = Constants.testDryness_testing;
-		}
-		
-		Constants.NUM_TRAINING_SESSIONS = trainWind.length;
-		Constants.NUM_TESTING_SESSIONS = testWind.length;
-		
-		PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
-		AdaPTTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
-		
-		//construct training worlds for procedural and perturbation
-		List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
-		List<MyWorld> trainingWorldsPerturb = new ArrayList<MyWorld>();
-		for(int i=1; i<=Constants.NUM_TRAINING_SESSIONS; i++){
-			MyWorld proceWorld = new MyWorld(Constants.TRAINING, false, i, trainWind[0], trainDryness[0]);
-			trainingWorldsProce.add(proceWorld);
-			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i, trainWind[i-1], trainDryness[i-1]);
-			trainingWorldsPerturb.add(perturbWorld);
-		}
-		//construct testing worlds for both training
-		List<MyWorld> testingWorlds = new ArrayList<MyWorld>();
-		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
-			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, testWind[i-1], testDryness[i-1]);
-			testingWorlds.add(testWorld);
-		}
-		
+		List<List<MyWorld>> allWorlds = DomainCode.initializeWorlds();
+		List<MyWorld> practiceWorlds = allWorlds.get(0);
+		List<MyWorld> trainingWorldsProce = allWorlds.get(1);
+		List<MyWorld> trainingWorldsPerturb = allWorlds.get(2);
+		List<MyWorld> testingWorlds = allWorlds.get(3);
+		DomainCode.changeTestWorlds(testingWorlds);
+
 		if(SUB_EXECUTION == GENERATE_RBM_DATA){
 			for(MyWorld trainWorld : trainingWorldsPerturb){
 				QLearner learner = new QLearner(null, ExperimentCondition.ADAPT);
@@ -127,7 +94,7 @@ public class Main {
 			Main.currWithSimulatedHuman = true; //so that it uses test wind and test dryness
 			//0th index is the practice testing session
 			writePredefinedTestCase(testingWorlds.get(1), Constants.predefinedProceFileName);
-			proceTestCase = readInPredefinedTestCase(Constants.predefinedProceFileName);
+			proceTestCase = readInPredefinedTestCase(testingWorlds.get(1), Constants.predefinedProceFileName);
 			writePredefinedTestCase(testingWorlds.get(2), Constants.predefinedPerturb1FileName);
 			writePredefinedTestCase(testingWorlds.get(3), Constants.predefinedPerturb2FileName);
 			return;
@@ -137,9 +104,9 @@ public class Main {
 			if(Constants.useOfflineValues)
 				populateOfflineQValues();
 			if(Constants.usePredefinedTestCases){
-				proceTestCase = readInPredefinedTestCase(Constants.predefinedProceFileName);
-				perturb1TestCase = readInPredefinedTestCase(Constants.predefinedPerturb1FileName);
-				perturb2TestCase = readInPredefinedTestCase(Constants.predefinedPerturb2FileName);
+				proceTestCase = readInPredefinedTestCase(testingWorlds.get(1), Constants.predefinedProceFileName);
+				perturb1TestCase = readInPredefinedTestCase(testingWorlds.get(2), Constants.predefinedPerturb1FileName);
+				perturb2TestCase = readInPredefinedTestCase(testingWorlds.get(3), Constants.predefinedPerturb2FileName);
 			}
 			saveToFile = true;
 						
@@ -147,12 +114,13 @@ public class Main {
 				if(SUB_EXECUTION == REWARD_OVER_ITERS){
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
+						DomainCode.changeTestWorlds(testingWorlds);
 						//PERTURBATION - AdaPT
-						TaskExecution AdaPT = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+						TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
 						AdaPT.executeTask();
 						
 						//PERTURBATION - PRQL
-						TaskExecution PRQL = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
+						TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
 						PRQL.executeTask();
 					}
 					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
@@ -176,18 +144,19 @@ public class Main {
 				} else {
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						//makes simulation wind and dryness a noisy version of the real one
-						System.out.println("*** "+i+" ***");
+						System.out.println("*** "+i+" ***");	
+						DomainCode.changeTestWorlds(testingWorlds);
 															
 						//PERTURBATION - AdaPT
-						TaskExecution AdaPT = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+						TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
 						AdaPT.executeTask();
 						
 						//PERTURBATION - PRQL
-						TaskExecution PRQL = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
+						TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
 						PRQL.executeTask();
 						
 						//Standard QLearning
-						TaskExecution QLearning = new TaskExecution(null, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
+						TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
 						QLearning.executeTask();
 						
 						BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardAdaPTName), true));
@@ -204,13 +173,7 @@ public class Main {
 					}
 				}
 			} else {	
-				//sets simulation wind and dryness
-				for(MyWorld trainWorld : trainingWorldsProce)
-					trainWorld.setSimulationWindDryness(Constants.simulationWind_training[0], Constants.simulationDryness_training[0]);
-				for(MyWorld trainWorld : trainingWorldsPerturb)
-					trainWorld.setSimulationWindDryness(Constants.simulationWind_training[trainWorld.sessionNum-1], Constants.simulationDryness_training[trainWorld.sessionNum-1]);
-				for(MyWorld testWorld : testingWorlds)
-					testWorld.setSimulationWindDryness(Constants.simulationWind_testing[testWorld.sessionNum-1], Constants.simulationDryness_testing[testWorld.sessionNum-1]);
+				DomainCode.initForExperiments(trainingWorldsProce, trainingWorldsPerturb, testingWorlds);
 				
 				gameView = new GameView(CURRENT_EXECUTION);
 				if(CURRENT_EXECUTION == ROBOT_HUMAN_TEST){
@@ -230,15 +193,15 @@ public class Main {
 
 				if(trainingType.equalsIgnoreCase("PQ")){
 					//PROCEDURAL - Q-learning
-					TaskExecution proceQ = new TaskExecution(gameView, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
+					TaskExecution proceQ = new TaskExecution(gameView, practiceWorlds, trainingWorldsProce, testingWorlds, ExperimentCondition.PROCE_Q);
 					proceQ.executeTask();
 				} else if(trainingType.equalsIgnoreCase("BQ")){
 					//PERTURBATION - Q-learning
-					TaskExecution perturbQ = new TaskExecution(gameView, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PERTURB_Q);
+					TaskExecution perturbQ = new TaskExecution(gameView, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PERTURB_Q);
 					perturbQ.executeTask();
 				} else if(trainingType.equalsIgnoreCase("BH")){
 					//PERTURBATION
-					TaskExecution AdaPT = new TaskExecution(gameView, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+					TaskExecution AdaPT = new TaskExecution(gameView, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
 					AdaPT.executeTask();
 				}
 				Main.gameView.initTitleGUI("end");
@@ -305,7 +268,7 @@ public class Main {
 			BufferedWriter stateWriter = new BufferedWriter(new FileWriter(file, true));
 			for(int i=0; i<MyWorld.states.size(); i++){
 				State state = MyWorld.states.get(i);
-				if(MyWorld.isGoalState(state))
+				if(myWorld.isGoalState(state))
 					continue;
 				for(Action humanAction : Action.values()){
 					for(Action robotAction : Action.values()){
@@ -338,7 +301,7 @@ public class Main {
 	/**
 	 * Read in from a file predefined test cases so that participants can be compared fairly on their performance in the testing sessions
 	 */
-	public static String[][][] readInPredefinedTestCase(String fileName){
+	public static String[][][] readInPredefinedTestCase(MyWorld myWorld, String fileName){
 		try{			
 			String[][][] arr = new String[MyWorld.mdp.states.size()][Action.values().length][Action.values().length];
 			
@@ -350,7 +313,7 @@ public class Main {
 			int num=0;	
 			for(int i=0; i<MyWorld.states.size(); i++){
 				State state = MyWorld.states.get(i);
-				if(MyWorld.isGoalState(state))
+				if(myWorld.isGoalState(state))
 					continue;
 				for(Action humanAction : Action.values()){
 					for(Action robotAction : Action.values()){
