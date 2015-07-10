@@ -72,13 +72,11 @@ public class Main {
 				learner.run(trainWorld, true);
 				learner.run(trainWorld, false /*withHuman*/);
 				learner.run(trainWorld, true);
-				learner.sampleTransitionFunc();
 			}
 			for(MyWorld testWorld : testingWorlds){
 				QLearner learner = new QLearner(null, ExperimentCondition.ADAPT);
 				learner.run(testWorld, false /*withHuman*/);
 				learner.run(testWorld, true);
-				learner.sampleTransitionFunc();
 			}
 			return;
 		}

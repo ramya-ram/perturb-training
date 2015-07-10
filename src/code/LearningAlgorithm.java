@@ -622,7 +622,18 @@ public class LearningAlgorithm {
 	
 	public void saveEpisodeToFile(State state, Action humanAction, Action robotAction, State nextState, double reward){
 		try{
-			if(withHuman && Main.saveToFile){
+			if(Main.SUB_EXECUTION == Main.GENERATE_RBM_DATA){
+				String type = "";
+				if(myWorld.typeOfWorld == Constants.TRAINING)
+					type = "train";
+				else if(myWorld.typeOfWorld == Constants.TESTING)
+					type = "test";
+				
+				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+type+"world_"+myWorld.sessionNum+"_"+Constants.DOMAIN_NAME+"_features_whileSimulating.csv"), true));
+				writer.write(state.toStringRBM()+","+humanAction.ordinal()+","+robotAction.ordinal()+","+nextState.toStringRBM()+"\n");
+				writer.close();
+			}
+			else if(withHuman && Main.saveToFile){
 				BufferedWriter episodeWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"episode.txt"), true));
 				episodeWriter.write(state.toStringFile()+", "+humanAction+", "+robotAction+", "
 						+nextState.toStringFile()+", "+reward+"\n");
@@ -667,27 +678,5 @@ public class LearningAlgorithm {
 		      }
 		  }
 		};
-	}
-	
-	public void sampleTransitionFunc(){
-		String type = "";
-		if(myWorld.typeOfWorld == Constants.TRAINING)
-			type = "train";
-		else if(myWorld.typeOfWorld == Constants.TESTING)
-			type = "test";
-		try{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+type+"world_"+myWorld.sessionNum+"_"+Constants.DOMAIN_NAME+"_features.csv")));
-			for(int i=0; i<3; i++){ //loop through all states multiple times to get more data points
-				for(State state : MyWorld.states){
-					HumanRobotActionPair agentActions = getGreedyJointAction(state).getFirst();
-					State nextState = myWorld.getNextState(state, agentActions);
-					writer.write(state.toStringRBM()+","+agentActions.getHumanAction().ordinal()+","+agentActions.getRobotAction().ordinal()+","+nextState.toStringRBM()+"\n");
-					//writer.write(state.getId()+","+agentActions.getId()+","+nextState.getId()+"\n");
-				}
-			}
-			writer.close();
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
 	}
 }

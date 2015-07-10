@@ -44,7 +44,7 @@ public class TaskExecution {
 			List<Policy> trainedPolicies = trainedResult.getSecond();
 			if(condition == ExperimentCondition.PRQL) {
 				runTestingPhase(trainedLearners, trainedPolicies, -1);
-				if(Main.SUB_EXECUTION == -1){ //Only run PRQL with different priors when SUB_EXECUTION == -1, not when SUB_EXECUTION == REWARD_OVER_ITERS 
+				if(Main.INPUT == Main.SIMULATION){ //Only run PRQL with different priors when INPUT == SIMULATION
 					for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
 						runTestingPhase(trainedLearners, trainedPolicies, i);
 					}

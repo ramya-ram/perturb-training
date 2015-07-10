@@ -23,7 +23,7 @@ public class Constants {
 	//num of times to run
 	public static final int NUM_EPISODES = 200000;
 	public static final int NUM_EPISODES_TEST = 1500;
-	public static final int INTERVAL = 50;
+	public static final int INTERVAL = 50; //when showing reward over time (Main.INPUT == Main.REWARD_OVER_ITERS), reward is only recorded at every interval (e.g. every 100 iterations)
 	public static final int NUM_STEPS_PER_EPISODE = 20; 
 	
 	public static boolean usePredefinedTestCases = false;
