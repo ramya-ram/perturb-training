@@ -121,4 +121,15 @@ public class State {
 		return intensity+"";
 			
 	}
+	
+	public String toStringRBM(){
+		String str = "";
+		for(int i=0; i<stateOfFires.length; i++){
+			if(i == stateOfFires.length-1)
+				str+=stateOfFires[i];
+			else
+				str+=stateOfFires[i]+",";
+		}
+		return str;
+	}
 }

@@ -24,7 +24,7 @@ public class Main {
 	        REWARD_OVER_ITERS = 7; //evaluates reward received over the number of iterations over time (evaluates AdaPT and PRQL at specified intervals until some number of iterations)
 	
 	//choose one of the above options
-	public static int INPUT = SIMULATION;
+	public static int INPUT = GENERATE_RBM_DATA;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;

@@ -676,11 +676,14 @@ public class LearningAlgorithm {
 		else if(myWorld.typeOfWorld == Constants.TESTING)
 			type = "test";
 		try{
-			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+type+"world_"+myWorld.sessionNum+"_"+Constants.DOMAIN_NAME+".csv")));
-			for(State state : MyWorld.states){
-				HumanRobotActionPair agentActions = getGreedyJointAction(state).getFirst();
-				State nextState = myWorld.getNextState(state, agentActions);
-				writer.write(state.getId()+","+agentActions.getId()+","+nextState.getId()+"\n");
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+type+"world_"+myWorld.sessionNum+"_"+Constants.DOMAIN_NAME+"_features.csv")));
+			for(int i=0; i<3; i++){ //loop through all states multiple times to get more data points
+				for(State state : MyWorld.states){
+					HumanRobotActionPair agentActions = getGreedyJointAction(state).getFirst();
+					State nextState = myWorld.getNextState(state, agentActions);
+					writer.write(state.toStringRBM()+","+agentActions.getHumanAction().ordinal()+","+agentActions.getRobotAction().ordinal()+","+nextState.toStringRBM()+"\n");
+					//writer.write(state.getId()+","+agentActions.getId()+","+nextState.getId()+"\n");
+				}
 			}
 			writer.close();
 		} catch(Exception e) {
