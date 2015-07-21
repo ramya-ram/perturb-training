@@ -35,6 +35,8 @@ public class LearningAlgorithm {
 	public static Timer timer;
 	public static int timeLeft = Constants.MAX_TIME;
 	
+	public ExperimentCondition condition;
+	
 	/**
 	 * Run one episode of the task (initial state to goal state) with e-greedy Q-learning
 	 */
@@ -666,7 +668,7 @@ public class LearningAlgorithm {
 	 */
 	public void saveEpisodeToFile(State state, Action humanAction, Action robotAction, State nextState, double reward, int episodeNum){
 		try{
-			if(Main.SUB_EXECUTION == Main.GENERATE_RBM_DATA){
+			if(Main.CURRENT_EXECUTION == Main.SIMULATION && condition == ExperimentCondition.PRQL_RBM){
 				String type = "";
 				int beginSamplingEpisodeNum = -1;
 				if(myWorld.typeOfWorld == Constants.TRAINING) {

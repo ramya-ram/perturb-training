@@ -49,6 +49,10 @@ public class TaskExecution {
 						runTestingPhase(trainedLearners, trainedPolicies, i); //runs PRQL with a prior initialized with the value function learned from each training task
 					}
 				}
+			} else if (condition == ExperimentCondition.PRQL_RBM) {
+				//run matlab function
+				int closestMDPNum = -1;
+				runTestingPhase(trainedLearners, trainedPolicies, closestMDPNum); //starts with value function initialized with the closest MDP/task from training (as determined using the RBM)
 			} else {
 				runTestingPhase(trainedLearners, trainedPolicies, -1); //for AdaPT, no prior is needed
 			}
@@ -216,10 +220,10 @@ public class TaskExecution {
 		baseQLearner.runQLearning(trainWorld0, false); //robot simulates on the task
 		baseQLearner.runQLearning(trainWorld0, true, trainWorld0.initialState(2)); //robot works with the person
 		learners.add(baseQLearner.currQValues); //learned Q-value function is saved
-		if(condition == ExperimentCondition.PRQL)
+		if(condition == ExperimentCondition.PRQL || condition == ExperimentCondition.PRQL_RBM)
 			policies.add(baseQLearner.computePolicy()); //learned policy (saves only optimal action for each state, not all Q-values of all actions) is saved
 		
-		if(condition == ExperimentCondition.ADAPT || condition == ExperimentCondition.PRQL){
+		if(condition == ExperimentCondition.ADAPT || condition == ExperimentCondition.PRQL || condition == ExperimentCondition.PRQL_RBM){
 			//perturbation training sessions
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
@@ -231,7 +235,7 @@ public class TaskExecution {
 				perturbLearner.runQLearning(trainWorld, false); //robot simulates on the task
 				perturbLearner.runQLearning(trainWorld, true, trainWorld.initialState(i*2+2)); //robot works with the person
 				learners.add(perturbLearner.currQValues); //learned Q-value function is saved
-				if(condition == ExperimentCondition.PRQL)
+				if(condition == ExperimentCondition.PRQL || condition == ExperimentCondition.PRQL_RBM)
 					policies.add(perturbLearner.computePolicy()); //learned policy (saves only optimal action for each state, not all Q-values of all actions) is saved
 			}
 		} else if(condition == ExperimentCondition.PERTURB_Q || condition == ExperimentCondition.PROCE_Q){
@@ -264,12 +268,12 @@ public class TaskExecution {
 			System.out.println("Learners size "+learners.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
-				AdaPTLearner learner = new AdaPTLearner(testWorld, learners);
+				AdaPTLearner learner = new AdaPTLearner(testWorld, learners, condition);
 				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
 				learner.runAdaPT(false); //robot simulates on the task 
 				learner.runAdaPT(true, testWorld.initialState(testWorld.sessionNum)); //robot works with the person
 			}
-		} else if(condition == ExperimentCondition.PRQL){
+		} else if(condition == ExperimentCondition.PRQL || condition == ExperimentCondition.PRQL_RBM){
 			if(initialQValuesIndex >= 0) //if using a previously learned value function as a prior, PRQL will begin with those values
 				learners.add(allLearners.get(initialQValuesIndex));
 			else //if using no prior, PRQL will begin with a value function of all zeros
@@ -277,7 +281,7 @@ public class TaskExecution {
 			System.out.println("Library size "+allPolicies.size()+" Learners size "+learners.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
-				PRQLearner learner = new PRQLearner(testWorld, allPolicies, learners.get(0));
+				PRQLearner learner = new PRQLearner(testWorld, allPolicies, learners.get(0), condition);
 				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
 				learner.runPRQL(false); //robot simulates on the task
 				learner.runPRQL(true, testWorld.initialState(testWorld.sessionNum)); //robot works with the person

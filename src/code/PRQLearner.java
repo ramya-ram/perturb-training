@@ -12,9 +12,11 @@ public class PRQLearner extends LearningAlgorithm {
 	public int[] numOfEpisodesChosen; //stores for how many episodes each prior policy and the current value function has been used
 	public List<Policy> library; //stores the library of previously learned policies
 	
-	public PRQLearner(MyWorld myWorld, List<Policy> library, QValuesSet qValuesSet){
+	public PRQLearner(MyWorld myWorld, List<Policy> library, QValuesSet qValuesSet, ExperimentCondition condition){
 		this.myWorld = myWorld;
 		this.library = library;
+		this.condition = condition; 
+		
 		timer = new Timer(1000, timerListener());
 		if(qValuesSet != null) //transfer the previously learned Q-values if not null
 			currQValues = qValuesSet.clone();

@@ -25,12 +25,10 @@ public class Main {
 	       	        
 			//SIMULATION RUNS
 	        REWARD_OVER_ITERS = 6, //evaluates reward received over the number of iterations over time (evaluates AdaPT, PRQL, Q-learning from scratch at specified intervals until some number of iterations)
-	    	REWARD_LIMITED_TIME = 7, //compares AdaPT, PRQL with different priors, and Q-learning from scratch given limited simulation time
-	
-			GENERATE_RBM_DATA = 8;
+	    	REWARD_LIMITED_TIME = 7; //compares AdaPT, PRQL with different priors, and Q-learning from scratch given limited simulation time
 	
 	//CHANGE WHEN RUNNING THIS PROGRAM: choose one of the above options and set it here
-	public static int INPUT = GENERATE_RBM_DATA;
+	public static int INPUT = REWARD_OVER_ITERS;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -75,22 +73,6 @@ public class Main {
 		List<MyWorld> trainingWorldsPerturb = allWorlds.get(2);
 		List<MyWorld> testingWorlds = allWorlds.get(3);
 		DomainCode.changeTestWorlds(testingWorlds);
-
-		if(SUB_EXECUTION == GENERATE_RBM_DATA){
-			for(MyWorld trainWorld : trainingWorldsPerturb){
-				QLearner learner = new QLearner(null, ExperimentCondition.ADAPT);
-				learner.runQLearning(trainWorld, false /*withHuman*/);
-				learner.runQLearning(trainWorld, true);
-				learner.runQLearning(trainWorld, false /*withHuman*/);
-				learner.runQLearning(trainWorld, true);
-			}
-			for(MyWorld testWorld : testingWorlds){
-				QLearner learner = new QLearner(null, ExperimentCondition.ADAPT);
-				learner.runQLearning(testWorld, false /*withHuman*/);
-				learner.runQLearning(testWorld, true);
-			}
-			return;
-		}
 		
 		//if option is create offline values, Q-learning will be run and the Q-values at the end of the learning will be saved to a file
 		if(SUB_EXECUTION == CREATE_OFFLINE_QVALUES){
@@ -221,6 +203,10 @@ public class Main {
 		//PERTURBATION - AdaPT
 		TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
 		AdaPT.executeTask();
+		
+		//PERTURBATION - PRQL using RBM prior
+		TaskExecution PRQL_RBM = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL_RBM);
+		PRQL_RBM.executeTask();
 		
 		//PERTURBATION - PRQL
 		TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);

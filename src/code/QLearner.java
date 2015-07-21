@@ -11,8 +11,6 @@ import javax.swing.Timer;
  * Used to learn policies during training
  */
 public class QLearner extends LearningAlgorithm {
-	public ExperimentCondition condition;
-
 	public QLearner(QValuesSet qValuesSet, ExperimentCondition condition) {
 		this.condition = condition;
 		timer = new Timer(1000, timerListener());

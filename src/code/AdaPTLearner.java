@@ -14,8 +14,9 @@ import javax.swing.Timer;
  * Used in the testing session of the perturbation training condition using HR-Perturb
  */
 public class AdaPTLearner extends LearningAlgorithm {
-	public AdaPTLearner(MyWorld myWorld, List<QValuesSet> learners){
+	public AdaPTLearner(MyWorld myWorld, List<QValuesSet> learners, ExperimentCondition condition){
 		this.myWorld = myWorld;
+		this.condition = condition;
 		
 		//list of Q-value functions that will be adapted for the new task
 		qValuesList = new ArrayList<QValuesSet>();
