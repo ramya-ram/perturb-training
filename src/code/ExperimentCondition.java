@@ -7,6 +7,7 @@ package code;
  * -PROCE_Q: procedural training using Q-learning
  * -PERTURB_Q: perturbation training using Q-learning
  * -PRQL: policy reuse in Q-learning (used for comparison with AdaPT to see if our algorithmic modifications to PRQL are helpful)
+ * -Q_LEARNING: standard Q-learning from scratch with no prior knowledge
  */
 public enum ExperimentCondition {
 	ADAPT, PROCE_Q, PERTURB_Q, PRQL, Q_LEARNING

@@ -17,18 +17,21 @@ public class QLearner extends LearningAlgorithm {
 		this.condition = condition;
 		timer = new Timer(1000, timerListener());
 		
-		if(qValuesSet != null) //transfer the previously learned q-values passed in as a parameter if not null
+		if(qValuesSet != null) //transfer the previously learned Q-values if not null
 			currQValues = qValuesSet.clone();			
-		else //if there are no qvalues to transfer from previous tasks, use the ones from offline learning
+		else //if there are no Q-values to transfer from previous tasks, use the ones from offline learning
 			currQValues = new QValuesSet(Main.robotQValuesOffline, Main.jointQValuesOffline);
 	}
 	
+	/**
+	 * Run Q-learning for the MDP specified by MyWorld, initialStateHuman is null so the initial state will be randomly selected
+	 */
 	public void run(MyWorld myWorld, boolean withHuman){
 		run(myWorld, withHuman, null);
 	}
 	
 	/**
-	 * Run QLearning for the number of episodes specified and see how accumulated reward changes over these episodes
+	 * Run Q-learning for the MDP specified by MyWorld and use initialStateHuman as the initial state
 	 */
 	public void run(MyWorld myWorld, boolean withHuman, State initialStateHuman) {
 		this.myWorld = myWorld;
@@ -36,12 +39,12 @@ public class QLearner extends LearningAlgorithm {
 		this.withHuman = withHuman;
 		Main.currWithSimulatedHuman = withHuman;
 		
-		int numEpisodes = Constants.NUM_EPISODES;
+		int numEpisodes = Constants.NUM_EPISODES; //run Constants.NUM_EPISODES episodes when running any training task execution
 		if(myWorld.typeOfWorld == Constants.TESTING){
 			currCommunicator = Constants.ROBOT; //robot initiates
-			numEpisodes = Constants.NUM_EPISODES_TEST;
+			numEpisodes = Constants.NUM_EPISODES_TEST; //run Constants.NUM_EPISODES_TEST episodes when running any test task execution
 		}
-		if(withHuman)
+		if(withHuman) //only run one episode when working with the person
 			numEpisodes = 1;
 		
 		resetCommunicationCounts();	
@@ -53,12 +56,14 @@ public class QLearner extends LearningAlgorithm {
 		
 		try{
 	        for(int i = 0; i < numEpisodes; i++) {
+	        	//run one episode of the task
 				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 	            
 	            if(withHuman && Main.saveToFile){
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 						saveDataToFile(tuple.getFirst(), tuple.getSecond(), tuple.getThird());
 					else{
+						//if running simulation runs, save the reward into the appropriate file depending on the condition being run
 						if(myWorld.typeOfWorld == Constants.TESTING){
 							String fileName = "";
 							if(condition == ExperimentCondition.PERTURB_Q)
@@ -88,6 +93,7 @@ public class QLearner extends LearningAlgorithm {
 			BufferedWriter jointWriter = new BufferedWriter(new FileWriter(new File(Constants.jointQValuesFile), true));
 			BufferedWriter robotWriter = new BufferedWriter(new FileWriter(new File(Constants.robotQValuesFile), true));
 	
+			//saves the robot value function Q(s, a_r) into robotQValuesFile and the joint value function Q(s, a_h, a_r) into jointQValuesFile
 	    	for(int i=0; i<MyWorld.states.size(); i++){
 				State state = MyWorld.states.get(i);
 				for(Action robotAction : Action.values()){

@@ -6,9 +6,14 @@ import java.util.List;
 import code.Constants;
 import code.MyWorld;
 
-
+/**
+ * Code specific to a particular task
+ * Includes initializing the training and testing worlds and initializing anything specific for human subject experiments
+ */
 public class DomainCode {
-	
+	/**
+	 * Initialize training and testing worlds (and practice worlds for human subject experiments)
+	 */
 	public static List<List<MyWorld>> initializeWorlds(){
 		List<List<MyWorld>> allWorlds = new ArrayList<List<MyWorld>>();
 		
@@ -43,7 +48,7 @@ public class DomainCode {
 		}
 		allWorlds.add(practiceWorlds);
 		
-		//construct training worlds for procedural and perturbation
+		//construct training worlds for procedural and perturbation training
 		List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
 		List<MyWorld> trainingWorldsPerturb = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TRAINING_SESSIONS; i++){
@@ -55,7 +60,7 @@ public class DomainCode {
 		allWorlds.add(trainingWorldsProce);
 		allWorlds.add(trainingWorldsPerturb);
 		
-		//construct testing worlds for both training
+		//construct testing worlds for both types of training
 		List<MyWorld> testingWorlds = new ArrayList<MyWorld>();
 		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
 			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, testWind[i-1], testDryness[i-1]);
@@ -65,10 +70,16 @@ public class DomainCode {
 		return allWorlds;
 	}
 	
+	/**
+	 * Changes the test worlds for each simulation run, if needed
+	 */
 	public static void changeTestWorlds(List<MyWorld> testingWorlds){
 		return;
 	}
 	
+	/**
+	 * Initialization for human subject experiments, if needed
+	 */
 	public static void initForExperiments(List<MyWorld> trainingWorldsProce, List<MyWorld> trainingWorldsPerturb, List<MyWorld> testingWorlds){
 		//sets simulation wind and dryness
 		for(MyWorld trainWorld : trainingWorldsProce)

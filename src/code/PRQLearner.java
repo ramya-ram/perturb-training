@@ -8,17 +8,17 @@ import java.util.List;
 import javax.swing.Timer;
 
 public class PRQLearner extends LearningAlgorithm {
-	public double[] weights;
-	public int[] numOfEpisodesChosen;
-	public List<Policy> library;
+	public double[] weights; //stores the weights for each prior policy and for the value function being currently learned
+	public int[] numOfEpisodesChosen; //stores for how many episodes each prior policy and the current value function has been used
+	public List<Policy> library; //stores the library of previously learned policies
 	
 	public PRQLearner(MyWorld myWorld, List<Policy> library, QValuesSet qValuesSet){
 		this.myWorld = myWorld;
 		this.library = library;
 		timer = new Timer(1000, timerListener());
-		if(qValuesSet != null) //transfer the previously learned q-values passed in as a parameter if not null
+		if(qValuesSet != null) //transfer the previously learned Q-values if not null
 			currQValues = qValuesSet.clone();
-		else //if there are no qvalues to transfer from previous tasks, use the ones from offline learning
+		else //if there are no Q-values to transfer from previous tasks, use the ones from offline learning
 			currQValues = new QValuesSet(Main.robotQValuesOffline, Main.jointQValuesOffline);
 		
 		weights = new double[library.size()+1];
@@ -30,24 +30,28 @@ public class PRQLearner extends LearningAlgorithm {
 		weights[library.size()] = 0;
 	}
 	
+	/**
+	 * Runs the Policy Reuse in Q-learning (PRQL) algorithm for the MDP specified by MyWorld in the constructor
+	 * initialStateHuman is null so the initial state will be randomly selected
+	 */
 	public void runPRQL(boolean withHuman) {
 		runPRQL(withHuman, null);
 	}
 	
 	/**
-	 * Runs the policy reuse algorithm for the number of episodes specified
+	 * Runs the Policy Reuse in Q-learning (PRQL) algorithm for the MDP specified by MyWorld in the constructor and use initialStateHuman as the initial state
 	 */
 	public Policy runPRQL(boolean withHuman, State initialStateHuman) {
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
 		Main.currWithSimulatedHuman = withHuman;
 		
-		int numEpisodes = Constants.NUM_EPISODES;
+		int numEpisodes = Constants.NUM_EPISODES; //run Constants.NUM_EPISODES episodes when running any training task execution
 		if(myWorld.typeOfWorld == Constants.TESTING){
 			currCommunicator = Constants.ROBOT; //robot initiates
-			numEpisodes = Constants.NUM_EPISODES_TEST;
+			numEpisodes = Constants.NUM_EPISODES_TEST; //run Constants.NUM_EPISODES_TEST episodes when running any test task execution
 		}	
-		if(withHuman)
+		if(withHuman) //only run one episode when working with the person
 			numEpisodes = 1;
 		
 		resetCommunicationCounts();
@@ -66,13 +70,14 @@ public class PRQLearner extends LearningAlgorithm {
 			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
 			double currTemp = Constants.TEMP;
 			for(int k=0; k<numEpisodes; k++){
-				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
+				//choosing a policy for action selection, giving each a probability based on the temperature parameter and weights
 				double[] probForPolicies = getProbForPolicies(weights, currTemp);
 				int policyNum = 0;
+				//use the value function that is currently being learned when evaluating PRQL
 				if(withHuman || (Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS && k%Constants.INTERVAL == 0)){
-					policyNum = probForPolicies.length-1; //the new policy
-				} else {
-					int randNum = Tools.rand.nextInt(100);
+					policyNum = probForPolicies.length-1; //the new value function being learned
+				} else { //otherwise sample a policy (or the new value function) for use in this episode
+					int randNum = Constants.rand.nextInt(100);
 					while(randNum>probForPolicies[policyNum]){
 						policyNum++;
 						if(policyNum>=probForPolicies.length){
@@ -84,20 +89,23 @@ public class PRQLearner extends LearningAlgorithm {
 				double reward = 0;
 				int iterations = 0;
 				long duration = 0;
-				if(isPastPolicy(library, policyNum)){ //using past policy
+				if(isPastPolicy(library, policyNum)){ //using a past policy
 					Policy currPolicy = library.get(policyNum);
 					Tuple<Double, Integer, Long> tuple = piReuse(currPolicy, 1, Constants.NUM_STEPS_PER_EPISODE, 
 							Constants.PAST_PROB, Constants.DECAY_VALUE);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
-				} else { //using new policy being learned
+				} else { //using the new value function being learned, running a full greedy episode (no exploration)
 					Tuple<Double, Integer, Long> tuple = runFullyGreedy(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
 				}
 				
+				//if trying to get a learning curve of the agent, store the reward if one interval has passed
+				//so if the interval = 100, store the reward every 100 episodes
+				//add this reward to the reward from previous simulation runs (at the end, we will divide by the number of runs to get an average learning curve)
 				if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
 					if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
 						Main.PRQLTotal[myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
@@ -112,6 +120,8 @@ public class PRQLearner extends LearningAlgorithm {
 					}
 				}
 	           
+				//the weight of the policy/value function chosen for this episode is updated
+				//and the number of times it been chosen is incremented
 				weights[policyNum] = (weights[policyNum]*numOfEpisodesChosen[policyNum] + reward)/(numOfEpisodesChosen[policyNum] + 1);
 				numOfEpisodesChosen[policyNum] = numOfEpisodesChosen[policyNum] + 1;
 				currTemp = currTemp + Constants.DELTA_TEMP;
@@ -139,18 +149,18 @@ public class PRQLearner extends LearningAlgorithm {
 			try{
 				while(!myWorld.isGoalState(state) && iterations < numSteps){
 					HumanRobotActionPair agentActions = null;
-					int randNum = Tools.rand.nextInt(100);
+					int randNum = Constants.rand.nextInt(100);
 					if(randNum < currProbPast){
 						if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION)
-		        			agentActions = getAgentActionsCommWithHuman(state);
+		        			agentActions = getAgentActionsCommWithHuman(state); //communicates with human to choose action
 		        		else
-		        			agentActions = pastPolicy.action(state.getId());
+		        			agentActions = pastPolicy.action(state.getId()); //agent chooses the action specified by the past policy
 					} 
 					if(randNum >= currProbPast || agentActions == null){
 		        		if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION)
-		        			agentActions = getAgentActionsCommWithHuman(state);
+		        			agentActions = getAgentActionsCommWithHuman(state); //communicates with human to choose action
 		        		else
-		        			agentActions = getAgentActionsSimulation(state);
+		        			agentActions = getAgentActionsSimulation(state); //agent uses e-greedy approach to choose action
 					}  
 					
 					State nextState = myWorld.getNextState(state, agentActions);					                
@@ -159,7 +169,7 @@ public class PRQLearner extends LearningAlgorithm {
 					saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward[k][iterations]);
 					updateQValues(state, agentActions, nextState, reward[k][iterations]);
 					
-					currProbPast = currProbPast*decayValue;
+					currProbPast = currProbPast*decayValue; //decays the probability of using a past policy (as the agent learns, it's more likely to choose the new value function being learned)
 					state = nextState.clone();
 					iterations++;
 					
@@ -182,14 +192,15 @@ public class PRQLearner extends LearningAlgorithm {
 	}
 	
 	/**
-	 * Run QLearning for the number of episodes specified and see how accumulated reward changes over these episodes
+	 * Run Q-learning, use initialStateHuman as the initial state
 	 */
 	public Tuple<Double, Integer, Long> runFullyGreedy(int maxSteps, State initialStateHuman) {
 		return run(true, maxSteps, initialStateHuman);
     }
 	
 	/**
-	 * An array of probabilities is calculated for the policies so that one can be chosen based on the weights associated with each
+	 * A distribution is calculated over all the policies and new value function so that for each episode, one can be sampled for action selection
+	 * The higher the weight, the more likely it will be chosen for that episode
 	 */
 	public double[] getProbForPolicies(double[] weights, double temp) {
 		double[] probForPolicies = new double[weights.length];
@@ -209,6 +220,10 @@ public class PRQLearner extends LearningAlgorithm {
 		return probForPolicies;
 	}
 	
+	/**
+	 * All policies from 0 to library.size()-1 are past policies, the one at library.size() (or weights.size()-1) is the new value function being learned
+	 * (weights.size() = library.size() + 1)
+	 */
 	public boolean isPastPolicy(List<Policy> library, int index) {
 		return index<library.size();
 	}

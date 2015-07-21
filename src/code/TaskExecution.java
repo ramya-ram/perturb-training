@@ -43,17 +43,18 @@ public class TaskExecution {
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
 			List<Policy> trainedPolicies = trainedResult.getSecond();
 			if(condition == ExperimentCondition.PRQL) {
-				runTestingPhase(trainedLearners, trainedPolicies, -1);
-				if(Main.INPUT == Main.SIMULATION){ //Only run PRQL with different priors when INPUT == SIMULATION
+				runTestingPhase(trainedLearners, trainedPolicies, -1); //runs PRQL with an uninformative prior (starts with value function initialized with all zeros)
+				if(Main.INPUT == Main.SIMULATION){ //only run PRQL with different priors when INPUT == SIMULATION
 					for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
-						runTestingPhase(trainedLearners, trainedPolicies, i);
+						runTestingPhase(trainedLearners, trainedPolicies, i); //runs PRQL with a prior initialized with the value function learned from each training task
 					}
 				}
 			} else {
-				runTestingPhase(trainedLearners, trainedPolicies, -1);
+				runTestingPhase(trainedLearners, trainedPolicies, -1); //for AdaPT, no prior is needed
 			}
 		}
 		
+		//runs simulated training and simulated testing for human subject experiments
 		else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN_TEST){
 			runPracticeSession();
 			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
@@ -62,6 +63,7 @@ public class TaskExecution {
 			runTestingPhase(trainedLearners, trainedPolicies, -1);
 		}
 		
+		//runs simulated training human subject experiments
 		else if(Main.CURRENT_EXECUTION == Main.SIMULATION_HUMAN_TRAIN){
 			runPracticeSession();
 			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
@@ -69,6 +71,7 @@ public class TaskExecution {
 			saveTrainingToFile(trainedLearners);
 		}
 		
+		//runs embodied robot testing for human subject experiments, using learned value functions from simulation training
 		else if(Main.CURRENT_EXECUTION == Main.ROBOT_HUMAN_TEST){
 			List<QValuesSet> trainedLearners = readTrainingFromFile();
 			System.out.println("read from training files");
@@ -177,7 +180,7 @@ public class TaskExecution {
 	public void runPracticeSession(){
 		Main.saveToFile = false;
 			
-		//practice session	
+		//participants do two practice sessions before beginning the training tasks
 		QLearner practice1 = new QLearner(null, ExperimentCondition.PROCE_Q);
 		QLearner practice2 = new QLearner(null, ExperimentCondition.PROCE_Q);
 		
@@ -202,18 +205,19 @@ public class TaskExecution {
 		List<QValuesSet> learners = new ArrayList<QValuesSet>();
 		List<Policy> policies = new ArrayList<Policy>();
 		
+		//for each task, the robot works with the person twice, simulating before each of these two interactions
 		//first training session -- same for procedural and perturbation
 		QLearner baseQLearner = new QLearner(null, ExperimentCondition.PROCE_Q);
 		MyWorld trainWorld0 = trainingWorlds.get(0);
 		trainWorld0.setTitleLabel(1, colorsTraining, 0);
-		baseQLearner.run(trainWorld0, false /*withHuman*/);
-		baseQLearner.run(trainWorld0, true, trainWorld0.initialState(1));
+		baseQLearner.run(trainWorld0, false /*withHuman*/); //robot simulates on the task
+		baseQLearner.run(trainWorld0, true, trainWorld0.initialState(1)); //robot works with the person
 		trainWorld0.setTitleLabel(2, colorsTraining, 0);
-		baseQLearner.run(trainWorld0, false);
-		baseQLearner.run(trainWorld0, true, trainWorld0.initialState(2));
-		learners.add(baseQLearner.currQValues);
+		baseQLearner.run(trainWorld0, false); //robot simulates on the task
+		baseQLearner.run(trainWorld0, true, trainWorld0.initialState(2)); //robot works with the person
+		learners.add(baseQLearner.currQValues); //learned Q-value function is saved
 		if(condition == ExperimentCondition.PRQL)
-			policies.add(baseQLearner.computePolicy());
+			policies.add(baseQLearner.computePolicy()); //learned policy (saves only optimal action for each state, not all Q-values of all actions) is saved
 		
 		if(condition == ExperimentCondition.ADAPT || condition == ExperimentCondition.PRQL){
 			//perturbation training sessions
@@ -221,25 +225,25 @@ public class TaskExecution {
 				MyWorld trainWorld = trainingWorlds.get(i);
 				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.ADAPT);
 				trainWorld.setTitleLabel(1, colorsTraining, trainingWorlds.get(i).sessionNum-1);
-				perturbLearner.run(trainWorld, false);
-				perturbLearner.run(trainWorld, true, trainWorld.initialState(i*2+1));
+				perturbLearner.run(trainWorld, false); //robot simulates on the task
+				perturbLearner.run(trainWorld, true, trainWorld.initialState(i*2+1)); //robot works with the person
 				trainWorld.setTitleLabel(2, colorsTraining, trainingWorlds.get(i).sessionNum-1);
-				perturbLearner.run(trainWorld, false);
-				perturbLearner.run(trainWorld, true, trainWorld.initialState(i*2+2));
-				learners.add(perturbLearner.currQValues);
+				perturbLearner.run(trainWorld, false); //robot simulates on the task
+				perturbLearner.run(trainWorld, true, trainWorld.initialState(i*2+2)); //robot works with the person
+				learners.add(perturbLearner.currQValues); //learned Q-value function is saved
 				if(condition == ExperimentCondition.PRQL)
-					policies.add(perturbLearner.computePolicy());
+					policies.add(perturbLearner.computePolicy()); //learned policy (saves only optimal action for each state, not all Q-values of all actions) is saved
 			}
-		} else if(condition == ExperimentCondition.PERTURB_Q || condition == ExperimentCondition.PROCE_Q){ //both perturb and proce Q-learning use one qlearner to learn all training tasks
-			//extra training sessions after base session
+		} else if(condition == ExperimentCondition.PERTURB_Q || condition == ExperimentCondition.PROCE_Q){
+			//both procedural and perturbation Q-learning use one Q-learner to learn all training tasks
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
 				trainWorld.setTitleLabel(1, colorsTraining, trainingWorlds.get(i).sessionNum-1);
-				baseQLearner.run(trainWorld, false);
-				baseQLearner.run(trainWorld, true, trainWorld.initialState(i*2+1));
+				baseQLearner.run(trainWorld, false); //robot simulates on the task
+				baseQLearner.run(trainWorld, true, trainWorld.initialState(i*2+1)); //robot works with the person
 				trainWorld.setTitleLabel(2, colorsTraining, trainingWorlds.get(i).sessionNum-1);
-				baseQLearner.run(trainWorld, false);
-				baseQLearner.run(trainWorld, true, trainWorld.initialState(i*2+2));
+				baseQLearner.run(trainWorld, false); //robot simulates on the task
+				baseQLearner.run(trainWorld, true, trainWorld.initialState(i*2+2)); //robot works with the person
 			}
 		}
 		
@@ -252,45 +256,48 @@ public class TaskExecution {
 	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
 	 */
 	public void runTestingPhase(List<QValuesSet> allLearners, List<Policy> allPolicies, int initialQValuesIndex){
-		System.out.println("allLearners size "+allLearners.size()+" allPolicies size "+allPolicies.size());
+		System.out.println("AllLearners size "+allLearners.size()+" AllPolicies size "+allPolicies.size());
 		List<QValuesSet> learners = new ArrayList<QValuesSet>();
 		if(condition == ExperimentCondition.ADAPT){
+			//AdaPT uses all value functions learned from training and adapts them for the new task so learners includes all learners from training
 			learners.addAll(allLearners);
 			System.out.println("Learners size "+learners.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
-				AdaPTLearner perturbLearner = new AdaPTLearner(testWorld, learners);
+				AdaPTLearner learner = new AdaPTLearner(testWorld, learners);
 				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
-				perturbLearner.runHRPerturb(false);
-				perturbLearner.runHRPerturb(true, testWorld.initialState(testWorld.sessionNum));
+				learner.runAdaPT(false); //robot simulates on the task 
+				learner.runAdaPT(true, testWorld.initialState(testWorld.sessionNum)); //robot works with the person
 			}
 		} else if(condition == ExperimentCondition.PRQL){
-			if(initialQValuesIndex >= 0)
+			if(initialQValuesIndex >= 0) //if using a previously learned value function as a prior, PRQL will begin with those values
 				learners.add(allLearners.get(initialQValuesIndex));
-			else
+			else //if using no prior, PRQL will begin with a value function of all zeros
 				learners.add(new QValuesSet());
 			System.out.println("Library size "+allPolicies.size()+" Learners size "+learners.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
 				PRQLearner learner = new PRQLearner(testWorld, allPolicies, learners.get(0));
 				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
-				learner.runPRQL(false);
-				learner.runPRQL(true, testWorld.initialState(testWorld.sessionNum));
+				learner.runPRQL(false); //robot simulates on the task
+				learner.runPRQL(true, testWorld.initialState(testWorld.sessionNum)); //robot works with the person
 			}
 		} else if(condition == ExperimentCondition.Q_LEARNING){
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
+				//Q-learning from scratch starts with a value function initialized with all zeros (uninformative prior)
 				QLearner learner = new QLearner(new QValuesSet(), ExperimentCondition.Q_LEARNING);
-				learner.run(testWorld, false);
-				learner.run(testWorld, true, testWorld.initialState(i*2+1));
+				learner.run(testWorld, false); //robot simulates on the task
+				learner.run(testWorld, true, testWorld.initialState(i*2+1)); //robot works with the person
 			}
 		} else {
-			//Q-learning proce and perturb testing sessions
+			//Q-learning procedural and perturbation testing sessions
 			for(MyWorld testWorld : testingWorlds){
-				QLearner testQLearner = new QLearner(allLearners.get(0), condition); //both proce and perturb Q only have one Q-value function so it is directly transferred to the test case
+				//both procedural and perturbation Q-learning have only one Q-value function, this is directly transferred to the test case
+				QLearner testQLearner = new QLearner(allLearners.get(0), condition);
 				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
-				testQLearner.run(testWorld, false);
-				testQLearner.run(testWorld, true, testWorld.initialState(testWorld.sessionNum));
+				testQLearner.run(testWorld, false); //robot simulates on the task
+				testQLearner.run(testWorld, true, testWorld.initialState(testWorld.sessionNum)); //robot works with the person
 			}
 		}
 	}

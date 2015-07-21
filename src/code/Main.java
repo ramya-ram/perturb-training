@@ -23,7 +23,7 @@ public class Main {
 	        GENERATE_RBM_DATA = 6, //generate tuples from transition function to feed to a Restricted Boltzmann Machine (RBM)
 	        REWARD_OVER_ITERS = 7; //evaluates reward received over the number of iterations over time (evaluates AdaPT and PRQL at specified intervals until some number of iterations)
 	
-	//choose one of the above options
+	//CHANGE WHEN RUNNING THIS PROGRAM: choose one of the above options and set it here
 	public static int INPUT = GENERATE_RBM_DATA;
 	
 	public static boolean currWithSimulatedHuman = false;
@@ -34,15 +34,20 @@ public class Main {
 	public static MyServer myServer;
 	public static Arduino arduino;
 	
+	//input data, including Q-values learned offline that gives robot base knowledge and predefined test cases for consistency in human subject experiments
 	public static double[][][] jointQValuesOffline;
 	public static double[][] robotQValuesOffline;
 	public static String[][][] perturb2TestCase;
 	public static String[][][] perturb1TestCase;
 	public static String[][][] proceTestCase;
 	
+	//adds up reward over many simulation runs that then gets averaged to obtain an average performance of the algorithm over time
+	//the rows in AdaPTTotal and PRQLTotal represent different test cases
+	//the columns represent reward over time
 	public static double[][] PRQLTotal;
 	public static double[][] AdaPTTotal;
 
+	//used by the program to determine what options to run (based on the INPUT variable that is set above but do NOT change this! this is automatically set)
 	public static int CURRENT_EXECUTION = -1;
 	public static int SUB_EXECUTION = -1;
 	
@@ -58,6 +63,7 @@ public class Main {
 			SUB_EXECUTION = INPUT;
 		}
 		
+		//initializes practice, training, and testing worlds (domain-specific so they are initialized in DomainCode.java)
 		List<List<MyWorld>> allWorlds = DomainCode.initializeWorlds();
 		List<MyWorld> practiceWorlds = allWorlds.get(0);
 		List<MyWorld> trainingWorldsProce = allWorlds.get(1);
@@ -81,6 +87,7 @@ public class Main {
 			return;
 		}
 		
+		//if option is create offline values, Q-learning will be run and the Q-values at the end of the learning will be saved to a file
 		if(SUB_EXECUTION == CREATE_OFFLINE_QVALUES){
 			QLearner qLearnerProce = new QLearner(null, ExperimentCondition.PROCE_Q);
 			qLearnerProce.run(trainingWorldsProce.get(0), false /*withHuman*/);
@@ -88,6 +95,7 @@ public class Main {
 			return;
 		}
 		
+		//if option is create predefined test cases, a test case will be created for a procedural task and then two perturbation tasks
 		if(SUB_EXECUTION == CREATE_PREDEFINED){
 			Main.currWithSimulatedHuman = true; //so that it uses test wind and test dryness
 			//0th index is the practice testing session
@@ -100,19 +108,21 @@ public class Main {
 		
 		try {
 			if(Constants.useOfflineValues)
-				populateOfflineQValues();
-			if(Constants.usePredefinedTestCases){
+				populateOfflineQValues(); //read in offline values if using them
+			if(Constants.usePredefinedTestCases){ //read in predefined test cases if using them
 				proceTestCase = readInPredefinedTestCase(testingWorlds.get(1), Constants.predefinedProceFileName);
 				perturb1TestCase = readInPredefinedTestCase(testingWorlds.get(2), Constants.predefinedPerturb1FileName);
 				perturb2TestCase = readInPredefinedTestCase(testingWorlds.get(3), Constants.predefinedPerturb2FileName);
 			}
 			saveToFile = true;
-						
+			
+			//program goes here if running anything in simulation (multiple options are part of this)
 			if(CURRENT_EXECUTION == SIMULATION){
+				//if you want a curve showing how the agent learns the task over time, you can get a plot of reward accumulated over many episodes as the agent learns
 				if(SUB_EXECUTION == REWARD_OVER_ITERS){
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
-						DomainCode.changeTestWorlds(testingWorlds);
+						DomainCode.changeTestWorlds(testingWorlds); //changes any domain-specific variables before another simulation run, if needed
 						//PERTURBATION - AdaPT
 						TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
 						AdaPT.executeTask();
@@ -123,6 +133,10 @@ public class Main {
 					}
 					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
 					
+					//the rows in AdaPTTotal and PRQLTotal represent different test cases
+					//the columns represent reward over time
+					//when running multiple simulation runs in one test case/row, the reward over time is added up for that row so that when averaged, 
+					//that row represents a robust learning over time curve for that test case
 					for(int i=0; i<AdaPTTotal.length; i++){
 						for(int j=0; j<AdaPTTotal[i].length; j++){
 							rewardWriter.write((AdaPTTotal[i][j]/Constants.NUM_AVERAGING)+", ");
@@ -139,9 +153,8 @@ public class Main {
 					}	
 					rewardWriter.close();
 					return;
-				} else {
+				} else { //for other simulation executions, run all the algorithms and compare how they perform given limited simulation time (instead of looking at reward over time)
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
-						//makes simulation wind and dryness a noisy version of the real one
 						System.out.println("*** "+i+" ***");	
 						DomainCode.changeTestWorlds(testingWorlds);
 															
@@ -170,7 +183,8 @@ public class Main {
 						rewardQLearningWriter.close();
 					}
 				}
-			} else {	
+			} else { //for human subject experiments
+				//initialize any domain-specific variables for experiments, if needed
 				DomainCode.initForExperiments(trainingWorldsProce, trainingWorldsPerturb, testingWorlds);
 				
 				gameView = new GameView(CURRENT_EXECUTION);
@@ -181,13 +195,15 @@ public class Main {
 					arduino.initialize();
 				}
 				
+				//make a directory for each participant
 				System.out.print("ParticipantID: ");
-				String nameParticipant = Tools.scan.next();
+				String nameParticipant = Constants.scan.next();
 				File dir = new File(Constants.participantDir+nameParticipant);
 				dir.mkdir();
 				Constants.participantDir = Constants.participantDir+nameParticipant+"\\";
-				System.out.print("TrainingType (PQ or BH or BQ): "); 
-				String trainingType = Tools.scan.next();
+				//participant either assigned to procedural Q-learning (PQ), perturbation Q-learning (BQ), perturbation AdaPT(BH)
+				System.out.print("TrainingType (PQ or BQ or BH): "); 
+				String trainingType = Constants.scan.next();
 
 				if(trainingType.equalsIgnoreCase("PQ")){
 					//PROCEDURAL - Q-learning
@@ -211,7 +227,7 @@ public class Main {
 	}
 	
 	/**
-	 * Initialize q values from offline learning (saved in a file)
+	 * Initialize Q-values from offline learning (saved in a file)
 	 */
 	public static void populateOfflineQValues(){
 		try{
@@ -228,7 +244,8 @@ public class Main {
 
 			jointReader.close();
 			robotReader.close();
-							
+				
+			//read in Q-values from input data files
 			int jointNum=0;
 			int robotNum=0;
 			for(int i=0; i<MyWorld.states.size(); i++){
@@ -266,8 +283,10 @@ public class Main {
 			BufferedWriter stateWriter = new BufferedWriter(new FileWriter(file, true));
 			for(int i=0; i<MyWorld.states.size(); i++){
 				State state = MyWorld.states.get(i);
+				//if goal state, no need to write into test case because the next state is also the goal state
 				if(myWorld.isGoalState(state))
 					continue;
+				//go through every possible joint action for this state
 				for(Action humanAction : Action.values()){
 					for(Action robotAction : Action.values()){
 						if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
@@ -276,10 +295,11 @@ public class Main {
 							HumanRobotActionPair agentActions;
 							do{
 								agentActions = new HumanRobotActionPair(humanAction, robotAction);
+								//get the next state after the team takes the joint action agentActions
 								nextState = myWorld.getNextState(state, agentActions);
 								if(humanAction==Action.WAIT && robotAction==Action.WAIT)
 									break;
-							} while(state.equals(nextState));
+							} while(state.equals(nextState)); //keep looping if the next state == state, which prevents infinite loops in the predefined test cases
 							if(myWorld.predefinedText.length() > 0)
 								stateWriter.write(myWorld.predefinedText+",");
 							else
@@ -318,6 +338,7 @@ public class Main {
 						if((MyWorld.mdp.humanAgent.actionsAsList(state).contains(humanAction) || humanAction == Action.WAIT)
 								&& (MyWorld.mdp.robotAgent.actionsAsList(state).contains(robotAction) || robotAction == Action.WAIT)){
 							
+							//read in predefined test cases from input data files
 							String str1 = nextStates[num];
 							if(str1.length() > 0)
 								arr[state.getId()][humanAction.ordinal()][robotAction.ordinal()] = str1;

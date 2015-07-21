@@ -104,17 +104,17 @@ public class MyServer {
     	System.out.println("type "+type+" humanAction "+humanAction);
     	if(type == null || humanAction == null){
     		System.out.println("What was the type of communication (A = Accept, R = Reject, S = Suggest, U = Update)?");
-    		type = getCommType(Tools.scan.next().toUpperCase().trim().charAt(0));
+    		type = getCommType(Constants.scan.next().toUpperCase().trim().charAt(0));
     		if(type == CommType.ACCEPT){
     			humanAction = suggestedHumanAction;
     		} else{
 	    		System.out.println("What was the human's action? (A = Alpha, B = Bravo, C = Charlie, D = Delta, E = Echo)");
-	    		humanAction = getAction(Tools.scan.next().toUpperCase().charAt(0)); 	
+	    		humanAction = getAction(Constants.scan.next().toUpperCase().charAt(0)); 	
     		}
     	}
     	if(type == CommType.SUGGEST && robotAction == null){
     		System.out.println("What was the suggested robot action? (A = Alpha, B = Bravo, C = Charlie, D = Delta, E = Echo)");
-    		robotAction = getAction(Tools.scan.next().toUpperCase().charAt(0));
+    		robotAction = getAction(Constants.scan.next().toUpperCase().charAt(0));
     	}
     		
     	CommResponse response = new CommResponse(type, humanAction, robotAction);

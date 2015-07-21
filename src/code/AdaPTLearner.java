@@ -17,33 +17,37 @@ public class AdaPTLearner extends LearningAlgorithm {
 	public AdaPTLearner(MyWorld myWorld, List<QValuesSet> learners){
 		this.myWorld = myWorld;
 		
+		//list of Q-value functions that will be adapted for the new task
 		qValuesList = new ArrayList<QValuesSet>();
 		for(QValuesSet set : learners){
 			QValuesSet newSet = set.clone();
-			qValuesList.add(newSet);
+			qValuesList.add(newSet); //adding Q-value functions learned from previous tasks
 		}	
 		timer = new Timer(1000, timerListener());
 	}
 	
-	public void runHRPerturb(boolean withHuman) {
-		runHRPerturb(withHuman, null);
+	/**
+	 * Runs the AdaPT algorithm with no specified initial state
+	 */
+	public void runAdaPT(boolean withHuman) {
+		runAdaPT(withHuman, null);
 	}
 	
 	/**
-	 * Runs the policy reuse algorithm for the number of episodes specified
+	 * Runs the AdaPT algorithm with a specific initial state (useful for consistency in human subject experiments)
 	 */
-	public void runHRPerturb(boolean withHuman, State initialStateHuman) {
+	public void runAdaPT(boolean withHuman, State initialStateHuman) {
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
-		Main.currWithSimulatedHuman = withHuman;
+		Main.currWithSimulatedHuman = withHuman; 
 		
 		int numEpisodes = Constants.NUM_EPISODES;
 		if(myWorld.typeOfWorld == Constants.TESTING){
-			currCommunicator = Constants.ROBOT; //robot initiates
+			currCommunicator = Constants.ROBOT; //robot initiates for testing tasks to keep constant across participants
 			numEpisodes = Constants.NUM_EPISODES_TEST;
 		}	
 		if(withHuman)
-			numEpisodes = 1;
+			numEpisodes = 1; //only run the task once when working with the person
 		
 		resetCommunicationCounts();		
 		
@@ -52,7 +56,7 @@ public class AdaPTLearner extends LearningAlgorithm {
 			Main.gameView.waitForStartRoundClick();
 		}
 
-		//starting policy reuse algorithm
+		//starting AdaPT algorithm
 		try{
 			String fileName = "";
 			if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS)
@@ -62,27 +66,28 @@ public class AdaPTLearner extends LearningAlgorithm {
 			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
 			double currTemp = Constants.TEMP;
 			for(int k=0; k<numEpisodes; k++){
-				//choosing an action policy, giving each a probability based on the temperature parameter and the gain W
-				double[] probForPolicies = getProbForPolicies(qValuesList, currTemp);
-				probForPolicies = getAccumulatedArray(probForPolicies);
+				//calculate probabilities of selecting each value function based on the temperature parameter and the weights
+				double[] probForValueFuncs = getProbForValueFuncs(qValuesList, currTemp);
+				probForValueFuncs = getAccumulatedArray(probForValueFuncs);
 				
-				int policyNum = 0;
-				if(withHuman || (Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS && k%Constants.INTERVAL == 0)){
-					//if working with the human, choose the policy with the highest weight
+				int currValueFuncNum = 0;
+				//if working with the human, choose the value function with the highest weight
+				//or when calculating reward over time in simulation and one interval has passed, record the reward by using the value function with the highest weight
+				if(withHuman || (Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS && k%Constants.INTERVAL == 0)){ 
 					double maxWeight = Integer.MIN_VALUE;
-					policyNum = -1;
+					currValueFuncNum = -1;
 					for(int i=0; i<qValuesList.size(); i++){
 						if(qValuesList.get(i).weight > maxWeight){
 							maxWeight = qValuesList.get(i).weight;
-							policyNum = i;
+							currValueFuncNum = i;
 						}
 					}
-				} else {
-					int randNum = Tools.rand.nextInt(100);
-					while(randNum>probForPolicies[policyNum]){
-						policyNum++;
-						if(policyNum>=probForPolicies.length){
-							policyNum = probForPolicies.length-1;
+				} else { //otherwise, choose a value function for action selection by sampling based on the probabilities
+					int randNum = Constants.rand.nextInt(100);
+					while(randNum > probForValueFuncs[currValueFuncNum]){
+						currValueFuncNum++;
+						if(currValueFuncNum >= probForValueFuncs.length){
+							currValueFuncNum = probForValueFuncs.length-1;
 							break;
 						}
 					}
@@ -91,7 +96,8 @@ public class AdaPTLearner extends LearningAlgorithm {
 				int iterations = 0;
 				long duration = 0;
 				
-				currQValues = qValuesList.get(policyNum);
+				//use the chosen value function to run an episode
+				currQValues = qValuesList.get(currValueFuncNum);
 				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
 				reward = tuple.getFirst();
 				iterations = tuple.getSecond();
@@ -99,6 +105,7 @@ public class AdaPTLearner extends LearningAlgorithm {
 
 				if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
 					if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
+						//if 
 						Main.AdaPTTotal[myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
 				} else {
 					if(withHuman && Main.saveToFile){
@@ -111,7 +118,8 @@ public class AdaPTLearner extends LearningAlgorithm {
 					}
 				}
 				
-				currQValues = qValuesList.get(policyNum);
+				//update the weight of the chosen value function and the number of times it has been used
+				currQValues = qValuesList.get(currValueFuncNum);
 				currQValues.weight = (currQValues.weight*currQValues.numEpisodesChosen + reward)/(currQValues.numEpisodesChosen + 1);
 				currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;
 				currTemp = currTemp + Constants.DELTA_TEMP;
@@ -122,41 +130,34 @@ public class AdaPTLearner extends LearningAlgorithm {
 		}	
 	}
 	
-	public void printWeights(){
-		for(QValuesSet set : qValuesList)
-			System.out.print(set.weight+" ");
-		System.out.println();
-	}
-	
-	public void printNumEpisodesChosen(){
-		for(QValuesSet set : qValuesList)
-			System.out.print(set.numEpisodesChosen+" ");
-		System.out.println();
+	/**
+	 * An array of probabilities is calculated using the temperature parameter and the value function weights
+	 * Using this distribution, a value function can be sampled
+	 */
+	public double[] getProbForValueFuncs(List<QValuesSet> learners, double temp) {
+		double[] probForValueFuncs = new double[learners.size()];
+		double sum = 0;
+		for(int i=0; i<probForValueFuncs.length; i++){
+			probForValueFuncs[i] = Math.pow(Math.E, temp*learners.get(i).weight);
+			sum += probForValueFuncs[i];
+		}
+		for(int i=0; i<probForValueFuncs.length; i++){
+			if(sum > 0){
+				probForValueFuncs[i] /= sum;
+			}
+			probForValueFuncs[i] *= 100;
+		}
+		return probForValueFuncs;
 	}
 	
 	/**
-	 * An array of probabilities is calculated for the policies so that one can be chosen based on the weights associated with each
+	 * Accumulate the probabilities so sampling is easier
+	 * e.g. A probability distribution like [10,50,40] would become [10,60,100] 
 	 */
-	public double[] getProbForPolicies(List<QValuesSet> learners, double temp) {
-		double[] probForPolicies = new double[learners.size()];
-		double sum = 0;
-		for(int i=0; i<probForPolicies.length; i++){
-			probForPolicies[i] = Math.pow(Math.E, temp*learners.get(i).weight);
-			sum += probForPolicies[i];
+	public double[] getAccumulatedArray(double[] probForValueFuncs){
+		for(int i=1; i<probForValueFuncs.length; i++){
+			probForValueFuncs[i] = probForValueFuncs[i-1]+probForValueFuncs[i];
 		}
-		for(int i=0; i<probForPolicies.length; i++){
-			if(sum > 0){
-				probForPolicies[i] /= sum;
-			}
-			probForPolicies[i] *= 100;
-		}
-		return probForPolicies;
-	}
-	
-	public double[] getAccumulatedArray(double[] probForPolicies){
-		for(int i=1; i<probForPolicies.length; i++){
-			probForPolicies[i] = probForPolicies[i-1]+probForPolicies[i];
-		}
-		return probForPolicies;
+		return probForValueFuncs;
 	}
 }
