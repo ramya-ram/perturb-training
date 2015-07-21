@@ -44,7 +44,7 @@ public class TaskExecution {
 			List<Policy> trainedPolicies = trainedResult.getSecond();
 			if(condition == ExperimentCondition.PRQL) {
 				runTestingPhase(trainedLearners, trainedPolicies, -1); //runs PRQL with an uninformative prior (starts with value function initialized with all zeros)
-				if(Main.INPUT == Main.SIMULATION){ //only run PRQL with different priors when INPUT == SIMULATION
+				if(Main.SUB_EXECUTION == Main.REWARD_LIMITED_TIME){ //only run PRQL with different priors when SUB_EXECUTION == REWARD_LIMITED_TIME
 					for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
 						runTestingPhase(trainedLearners, trainedPolicies, i); //runs PRQL with a prior initialized with the value function learned from each training task
 					}
@@ -186,10 +186,10 @@ public class TaskExecution {
 		
 		try{
 			practiceWorlds.get(0).setTitleLabel(1, null, -1);
-			practice1.run(practiceWorlds.get(0), true, practiceWorlds.get(0).initialState(1));
+			practice1.runQLearning(practiceWorlds.get(0), true, practiceWorlds.get(0).initialState(1));
 			Constants.MAX_TIME = 10;
 			practiceWorlds.get(1).setTitleLabel(2, null, -1);
-			practice2.run(practiceWorlds.get(1), true, practiceWorlds.get(1).initialState(2));
+			practice2.runQLearning(practiceWorlds.get(1), true, practiceWorlds.get(1).initialState(2));
 		} catch(Exception e){
 			e.printStackTrace();
 		}
@@ -210,11 +210,11 @@ public class TaskExecution {
 		QLearner baseQLearner = new QLearner(null, ExperimentCondition.PROCE_Q);
 		MyWorld trainWorld0 = trainingWorlds.get(0);
 		trainWorld0.setTitleLabel(1, colorsTraining, 0);
-		baseQLearner.run(trainWorld0, false /*withHuman*/); //robot simulates on the task
-		baseQLearner.run(trainWorld0, true, trainWorld0.initialState(1)); //robot works with the person
+		baseQLearner.runQLearning(trainWorld0, false /*withHuman*/); //robot simulates on the task
+		baseQLearner.runQLearning(trainWorld0, true, trainWorld0.initialState(1)); //robot works with the person
 		trainWorld0.setTitleLabel(2, colorsTraining, 0);
-		baseQLearner.run(trainWorld0, false); //robot simulates on the task
-		baseQLearner.run(trainWorld0, true, trainWorld0.initialState(2)); //robot works with the person
+		baseQLearner.runQLearning(trainWorld0, false); //robot simulates on the task
+		baseQLearner.runQLearning(trainWorld0, true, trainWorld0.initialState(2)); //robot works with the person
 		learners.add(baseQLearner.currQValues); //learned Q-value function is saved
 		if(condition == ExperimentCondition.PRQL)
 			policies.add(baseQLearner.computePolicy()); //learned policy (saves only optimal action for each state, not all Q-values of all actions) is saved
@@ -225,11 +225,11 @@ public class TaskExecution {
 				MyWorld trainWorld = trainingWorlds.get(i);
 				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.ADAPT);
 				trainWorld.setTitleLabel(1, colorsTraining, trainingWorlds.get(i).sessionNum-1);
-				perturbLearner.run(trainWorld, false); //robot simulates on the task
-				perturbLearner.run(trainWorld, true, trainWorld.initialState(i*2+1)); //robot works with the person
+				perturbLearner.runQLearning(trainWorld, false); //robot simulates on the task
+				perturbLearner.runQLearning(trainWorld, true, trainWorld.initialState(i*2+1)); //robot works with the person
 				trainWorld.setTitleLabel(2, colorsTraining, trainingWorlds.get(i).sessionNum-1);
-				perturbLearner.run(trainWorld, false); //robot simulates on the task
-				perturbLearner.run(trainWorld, true, trainWorld.initialState(i*2+2)); //robot works with the person
+				perturbLearner.runQLearning(trainWorld, false); //robot simulates on the task
+				perturbLearner.runQLearning(trainWorld, true, trainWorld.initialState(i*2+2)); //robot works with the person
 				learners.add(perturbLearner.currQValues); //learned Q-value function is saved
 				if(condition == ExperimentCondition.PRQL)
 					policies.add(perturbLearner.computePolicy()); //learned policy (saves only optimal action for each state, not all Q-values of all actions) is saved
@@ -239,11 +239,11 @@ public class TaskExecution {
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
 				trainWorld.setTitleLabel(1, colorsTraining, trainingWorlds.get(i).sessionNum-1);
-				baseQLearner.run(trainWorld, false); //robot simulates on the task
-				baseQLearner.run(trainWorld, true, trainWorld.initialState(i*2+1)); //robot works with the person
+				baseQLearner.runQLearning(trainWorld, false); //robot simulates on the task
+				baseQLearner.runQLearning(trainWorld, true, trainWorld.initialState(i*2+1)); //robot works with the person
 				trainWorld.setTitleLabel(2, colorsTraining, trainingWorlds.get(i).sessionNum-1);
-				baseQLearner.run(trainWorld, false); //robot simulates on the task
-				baseQLearner.run(trainWorld, true, trainWorld.initialState(i*2+2)); //robot works with the person
+				baseQLearner.runQLearning(trainWorld, false); //robot simulates on the task
+				baseQLearner.runQLearning(trainWorld, true, trainWorld.initialState(i*2+2)); //robot works with the person
 			}
 		}
 		
@@ -287,8 +287,8 @@ public class TaskExecution {
 				MyWorld testWorld = testingWorlds.get(i);
 				//Q-learning from scratch starts with a value function initialized with all zeros (uninformative prior)
 				QLearner learner = new QLearner(new QValuesSet(), ExperimentCondition.Q_LEARNING);
-				learner.run(testWorld, false); //robot simulates on the task
-				learner.run(testWorld, true, testWorld.initialState(i*2+1)); //robot works with the person
+				learner.runQLearning(testWorld, false); //robot simulates on the task
+				learner.runQLearning(testWorld, true, testWorld.initialState(i*2+1)); //robot works with the person
 			}
 		} else {
 			//Q-learning procedural and perturbation testing sessions
@@ -296,8 +296,8 @@ public class TaskExecution {
 				//both procedural and perturbation Q-learning have only one Q-value function, this is directly transferred to the test case
 				QLearner testQLearner = new QLearner(allLearners.get(0), condition);
 				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
-				testQLearner.run(testWorld, false); //robot simulates on the task
-				testQLearner.run(testWorld, true, testWorld.initialState(testWorld.sessionNum)); //robot works with the person
+				testQLearner.runQLearning(testWorld, false); //robot simulates on the task
+				testQLearner.runQLearning(testWorld, true, testWorld.initialState(testWorld.sessionNum)); //robot works with the person
 			}
 		}
 	}

@@ -38,15 +38,15 @@ public class LearningAlgorithm {
 	/**
 	 * Run one episode of the task (initial state to goal state) with e-greedy Q-learning
 	 */
-	public Tuple<Double, Integer, Long> run(int maxSteps, State initialStateHuman){
-		return run(false, maxSteps, initialStateHuman);
+	public Tuple<Double, Integer, Long> run(int maxSteps, State initialStateHuman, int episodeNum){
+		return run(false, maxSteps, initialStateHuman, episodeNum);
 	}
 
 	/**
 	 * Runs one episode of the task (initial state to goal state) 
 	 * Can either be e-greedy Q-learning (explore epsilon% of the time) or full greedy Q-learning (no exploration, 100% exploitation)
 	 */
-	public Tuple<Double, Integer, Long> run(boolean fullyGreedy, int maxSteps, State initialStateHuman){
+	public Tuple<Double, Integer, Long> run(boolean fullyGreedy, int maxSteps, State initialStateHuman, int episodeNum){
         double episodeReward = 0;
         int iterations = 0;
         long startTime = System.currentTimeMillis();
@@ -76,7 +76,7 @@ public class LearningAlgorithm {
 	            State nextState = myWorld.getNextState(state, agentActions);
 	            double reward = myWorld.reward(state, agentActions, nextState);
 	            episodeReward += reward;
-	            saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward);     
+	            saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward, episodeNum);     
 	            updateQValues(state, agentActions, nextState, reward);
 	            
 	            state = nextState.clone();
@@ -664,18 +664,24 @@ public class LearningAlgorithm {
 	/**
 	 * Saves the episode, iteration by iteration, for human subject experiments and for sampling data points
 	 */
-	public void saveEpisodeToFile(State state, Action humanAction, Action robotAction, State nextState, double reward){
+	public void saveEpisodeToFile(State state, Action humanAction, Action robotAction, State nextState, double reward, int episodeNum){
 		try{
 			if(Main.SUB_EXECUTION == Main.GENERATE_RBM_DATA){
 				String type = "";
-				if(myWorld.typeOfWorld == Constants.TRAINING)
+				int beginSamplingEpisodeNum = -1;
+				if(myWorld.typeOfWorld == Constants.TRAINING) {
 					type = "train";
-				else if(myWorld.typeOfWorld == Constants.TESTING)
+					beginSamplingEpisodeNum = Constants.NUM_EPISODES - Constants.NUM_EPISODES_SAMPLE_RBM;
+				} else if(myWorld.typeOfWorld == Constants.TESTING) {
 					type = "test";
+					beginSamplingEpisodeNum = Constants.NUM_EPISODES_TEST - Constants.NUM_EPISODES_SAMPLE_RBM;
+				}
 				
-				BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+type+"world_"+myWorld.sessionNum+"_"+Constants.DOMAIN_NAME+"_features_whileSimulating.csv"), true));
-				writer.write(state.toStringRBM()+","+humanAction.ordinal()+","+robotAction.ordinal()+","+nextState.toStringRBM()+"\n");
-				writer.close();
+				if(episodeNum >= beginSamplingEpisodeNum){
+					BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+type+"world_"+myWorld.sessionNum+"_"+Constants.DOMAIN_NAME+"_testing_7_21.csv"), true));
+					writer.write(state.toStringRBM()+","+humanAction.ordinal()+","+robotAction.ordinal()+","+nextState.toStringRBM()+"\n");
+					writer.close();
+				}
 			}
 			else if(withHuman && Main.saveToFile){
 				BufferedWriter episodeWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"episode.txt"), true));

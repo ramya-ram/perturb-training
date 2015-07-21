@@ -26,14 +26,14 @@ public class QLearner extends LearningAlgorithm {
 	/**
 	 * Run Q-learning for the MDP specified by MyWorld, initialStateHuman is null so the initial state will be randomly selected
 	 */
-	public void run(MyWorld myWorld, boolean withHuman){
-		run(myWorld, withHuman, null);
+	public void runQLearning(MyWorld myWorld, boolean withHuman){
+		runQLearning(myWorld, withHuman, null);
 	}
 	
 	/**
 	 * Run Q-learning for the MDP specified by MyWorld and use initialStateHuman as the initial state
 	 */
-	public void run(MyWorld myWorld, boolean withHuman, State initialStateHuman) {
+	public void runQLearning(MyWorld myWorld, boolean withHuman, State initialStateHuman) {
 		this.myWorld = myWorld;
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
@@ -57,7 +57,7 @@ public class QLearner extends LearningAlgorithm {
 		try{
 	        for(int i = 0; i < numEpisodes; i++) {
 	        	//run one episode of the task
-				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
+				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, i);
 	            
 	            if(withHuman && Main.saveToFile){
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)

@@ -13,15 +13,21 @@ import PR2_robot.GameView;
 import PR2_robot.MyServer;
 
 public class Main {
-	public static int 
-			SIMULATION = 0, //use for running simulation runs on the computer (compares AdaPT, PRQL with different priors, and Q-learning from scratch given limited simulation time)
+	public static int
+			//HUMAN EXPERIMENTS
 			SIMULATION_HUMAN_TRAIN_TEST = 1, //use for human experiments where participants work with the simulation environment for training and testing
 			SIMULATION_HUMAN_TRAIN = 2, //use for human experiments where participants work with the simulation environment only for training
 			ROBOT_HUMAN_TEST = 3, //use for human experiments where participants work with the robot in testing after training in simulation
+			
+			//CREATE VALUES/TASKS BEFORE RUNNING
 			CREATE_PREDEFINED = 4, //use for creating predefined test cases for human subject experiments (given a state and joint action, the next state will always be the same across participants)
 			CREATE_OFFLINE_QVALUES = 5, //use for running offline deterministic simulations and having these values saved to a file so that the robot starts with base knowledge when working with a human
-	        GENERATE_RBM_DATA = 6, //generate tuples from transition function to feed to a Restricted Boltzmann Machine (RBM)
-	        REWARD_OVER_ITERS = 7; //evaluates reward received over the number of iterations over time (evaluates AdaPT and PRQL at specified intervals until some number of iterations)
+	       	        
+			//SIMULATION RUNS
+	        REWARD_OVER_ITERS = 6, //evaluates reward received over the number of iterations over time (evaluates AdaPT, PRQL, Q-learning from scratch at specified intervals until some number of iterations)
+	    	REWARD_LIMITED_TIME = 7, //compares AdaPT, PRQL with different priors, and Q-learning from scratch given limited simulation time
+	
+			GENERATE_RBM_DATA = 8;
 	
 	//CHANGE WHEN RUNNING THIS PROGRAM: choose one of the above options and set it here
 	public static int INPUT = GENERATE_RBM_DATA;
@@ -51,12 +57,11 @@ public class Main {
 	public static int CURRENT_EXECUTION = -1;
 	public static int SUB_EXECUTION = -1;
 	
+	public static int SIMULATION = 0;
+	
 	public static void main(String[] args){	
 		if(INPUT == SIMULATION_HUMAN_TRAIN_TEST || INPUT == SIMULATION_HUMAN_TRAIN || INPUT == ROBOT_HUMAN_TEST){
 			CURRENT_EXECUTION = INPUT;
-			SUB_EXECUTION = -1;
-		} else if(INPUT == SIMULATION){
-			CURRENT_EXECUTION = SIMULATION;
 			SUB_EXECUTION = -1;
 		} else {
 			CURRENT_EXECUTION = SIMULATION;
@@ -74,15 +79,15 @@ public class Main {
 		if(SUB_EXECUTION == GENERATE_RBM_DATA){
 			for(MyWorld trainWorld : trainingWorldsPerturb){
 				QLearner learner = new QLearner(null, ExperimentCondition.ADAPT);
-				learner.run(trainWorld, false /*withHuman*/);
-				learner.run(trainWorld, true);
-				learner.run(trainWorld, false /*withHuman*/);
-				learner.run(trainWorld, true);
+				learner.runQLearning(trainWorld, false /*withHuman*/);
+				learner.runQLearning(trainWorld, true);
+				learner.runQLearning(trainWorld, false /*withHuman*/);
+				learner.runQLearning(trainWorld, true);
 			}
 			for(MyWorld testWorld : testingWorlds){
 				QLearner learner = new QLearner(null, ExperimentCondition.ADAPT);
-				learner.run(testWorld, false /*withHuman*/);
-				learner.run(testWorld, true);
+				learner.runQLearning(testWorld, false /*withHuman*/);
+				learner.runQLearning(testWorld, true);
 			}
 			return;
 		}
@@ -90,7 +95,7 @@ public class Main {
 		//if option is create offline values, Q-learning will be run and the Q-values at the end of the learning will be saved to a file
 		if(SUB_EXECUTION == CREATE_OFFLINE_QVALUES){
 			QLearner qLearnerProce = new QLearner(null, ExperimentCondition.PROCE_Q);
-			qLearnerProce.run(trainingWorldsProce.get(0), false /*withHuman*/);
+			qLearnerProce.runQLearning(trainingWorldsProce.get(0), false /*withHuman*/);
 			qLearnerProce.saveOfflineLearning();
 			return;
 		}
@@ -122,14 +127,7 @@ public class Main {
 				if(SUB_EXECUTION == REWARD_OVER_ITERS){
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
-						DomainCode.changeTestWorlds(testingWorlds); //changes any domain-specific variables before another simulation run, if needed
-						//PERTURBATION - AdaPT
-						TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
-						AdaPT.executeTask();
-						
-						//PERTURBATION - PRQL
-						TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
-						PRQL.executeTask();
+						runAllConditions(practiceWorlds, trainingWorldsPerturb, testingWorlds);
 					}
 					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
 					
@@ -155,21 +153,9 @@ public class Main {
 					return;
 				} else { //for other simulation executions, run all the algorithms and compare how they perform given limited simulation time (instead of looking at reward over time)
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
-						System.out.println("*** "+i+" ***");	
-						DomainCode.changeTestWorlds(testingWorlds);
-															
-						//PERTURBATION - AdaPT
-						TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
-						AdaPT.executeTask();
-						
-						//PERTURBATION - PRQL
-						TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
-						PRQL.executeTask();
-						
-						//Standard QLearning
-						TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
-						QLearning.executeTask();
-						
+						System.out.println("*** "+i+" ***");
+						runAllConditions(practiceWorlds, trainingWorldsPerturb, testingWorlds);
+												
 						BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardAdaPTName), true));
 						BufferedWriter rewardPRQLWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
 						BufferedWriter rewardQLearningWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardQLearningName), true));
@@ -224,6 +210,25 @@ public class Main {
 		} catch(Exception e){
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Run AdaPT, PRQL, and standard Q-learning for all training and test tasks
+	 */
+	public static void runAllConditions(List<MyWorld> practiceWorlds, List<MyWorld> trainingWorldsPerturb, List<MyWorld> testingWorlds){
+		DomainCode.changeTestWorlds(testingWorlds);
+		
+		//PERTURBATION - AdaPT
+		TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+		AdaPT.executeTask();
+		
+		//PERTURBATION - PRQL
+		TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
+		PRQL.executeTask();
+		
+		//Standard QLearning
+		TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
+		QLearning.executeTask();
 	}
 	
 	/**

@@ -91,13 +91,12 @@ public class PRQLearner extends LearningAlgorithm {
 				long duration = 0;
 				if(isPastPolicy(library, policyNum)){ //using a past policy
 					Policy currPolicy = library.get(policyNum);
-					Tuple<Double, Integer, Long> tuple = piReuse(currPolicy, 1, Constants.NUM_STEPS_PER_EPISODE, 
-							Constants.PAST_PROB, Constants.DECAY_VALUE);
+					Tuple<Double, Integer, Long> tuple = piReuse(currPolicy, Constants.NUM_STEPS_PER_EPISODE, Constants.PAST_PROB, Constants.DECAY_VALUE, k);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
 				} else { //using the new value function being learned, running a full greedy episode (no exploration)
-					Tuple<Double, Integer, Long> tuple = runFullyGreedy(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman);
+					Tuple<Double, Integer, Long> tuple = runFullyGreedy(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, k);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
@@ -136,66 +135,58 @@ public class PRQLearner extends LearningAlgorithm {
 	/**
 	 * Given a past policy, runs an episode that either chooses the past policy action or uses a e-greedy approach
 	 */
-	public Tuple<Double, Integer, Long> piReuse(
-			Policy pastPolicy, int numEpisodes, int numSteps, double probPast, double decayValue) {
-		double[][] reward = new double[numEpisodes][numSteps+1];
+	public Tuple<Double, Integer, Long> piReuse(Policy pastPolicy, int numSteps, double probPast, double decayValue, int episodeNum) {
+		double[] reward = new double[numSteps+1];
 		double episodeReward = 0;
 		int iterations = 0;
 		long duration = 0;
-		for(int k=0; k<numEpisodes; k++){
-			State state = myWorld.initialState().clone();
-			double currProbPast = probPast*100;
-			long startTime = System.currentTimeMillis();
-			try{
-				while(!myWorld.isGoalState(state) && iterations < numSteps){
-					HumanRobotActionPair agentActions = null;
-					int randNum = Constants.rand.nextInt(100);
-					if(randNum < currProbPast){
-						if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION)
-		        			agentActions = getAgentActionsCommWithHuman(state); //communicates with human to choose action
-		        		else
-		        			agentActions = pastPolicy.action(state.getId()); //agent chooses the action specified by the past policy
-					} 
-					if(randNum >= currProbPast || agentActions == null){
-		        		if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION)
-		        			agentActions = getAgentActionsCommWithHuman(state); //communicates with human to choose action
-		        		else
-		        			agentActions = getAgentActionsSimulation(state); //agent uses e-greedy approach to choose action
-					}  
-					
-					State nextState = myWorld.getNextState(state, agentActions);					                
-					reward[k][iterations] = myWorld.reward(state, agentActions, nextState);
-					episodeReward += reward[k][iterations];					
-					saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward[k][iterations]);
-					updateQValues(state, agentActions, nextState, reward[k][iterations]);
-					
-					currProbPast = currProbPast*decayValue; //decays the probability of using a past policy (as the agent learns, it's more likely to choose the new value function being learned)
-					state = nextState.clone();
-					iterations++;
-					
-					if(withHuman && Main.gameView != null){
-						Main.gameView.setNextEnable(true);
-						Main.gameView.waitForNextClick();
-						if(myWorld.isGoalState(state)){
-							Main.gameView.initTitleGUI("congrats");
-						}
-					}
-				}
-			} catch(Exception e){
-				e.printStackTrace();
-			}
+		State state = myWorld.initialState().clone();
+		double currProbPast = probPast*100;
+		long startTime = System.currentTimeMillis();
+		while(!myWorld.isGoalState(state) && iterations < numSteps){
+			HumanRobotActionPair agentActions = null;
+			int randNum = Constants.rand.nextInt(100);
+			if(randNum < currProbPast){
+				if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION)
+        			agentActions = getAgentActionsCommWithHuman(state); //communicates with human to choose action
+        		else
+        			agentActions = pastPolicy.action(state.getId()); //agent chooses the action specified by the past policy
+			} 
+			if(randNum >= currProbPast || agentActions == null){
+        		if(withHuman && Main.CURRENT_EXECUTION != Main.SIMULATION)
+        			agentActions = getAgentActionsCommWithHuman(state); //communicates with human to choose action
+        		else
+        			agentActions = getAgentActionsSimulation(state); //agent uses e-greedy approach to choose action
+			}  
 			
-			long endTime = System.currentTimeMillis();
-			duration = endTime - startTime;
-		}
+			State nextState = myWorld.getNextState(state, agentActions);					                
+			reward[iterations] = myWorld.reward(state, agentActions, nextState);
+			episodeReward += reward[iterations];
+			saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward[iterations], episodeNum);
+			updateQValues(state, agentActions, nextState, reward[iterations]);
+			
+			currProbPast = currProbPast*decayValue; //decays the probability of using a past policy (as the agent learns, it's more likely to choose the new value function being learned)
+			state = nextState.clone();
+			iterations++;
+			
+			if(withHuman && Main.gameView != null){
+				Main.gameView.setNextEnable(true);
+				Main.gameView.waitForNextClick();
+				if(myWorld.isGoalState(state)){
+					Main.gameView.initTitleGUI("congrats");
+				}
+			}
+		}		
+		long endTime = System.currentTimeMillis();
+		duration = endTime - startTime;
 		return new Tuple<Double, Integer, Long>(episodeReward, iterations, duration);
 	}
 	
 	/**
 	 * Run Q-learning, use initialStateHuman as the initial state
 	 */
-	public Tuple<Double, Integer, Long> runFullyGreedy(int maxSteps, State initialStateHuman) {
-		return run(true, maxSteps, initialStateHuman);
+	public Tuple<Double, Integer, Long> runFullyGreedy(int maxSteps, State initialStateHuman, int episodeNum) {
+		return run(true, maxSteps, initialStateHuman, episodeNum);
     }
 	
 	/**

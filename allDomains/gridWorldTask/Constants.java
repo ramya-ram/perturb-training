@@ -32,7 +32,8 @@ public class Constants {
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
-	public static int NUM_AVERAGING = 1; //run simulations this many times and average to get more robust result
+	public static int NUM_AVERAGING = 1; //run simulations this many times and average to get a more robust result
+	public static int NUM_EPISODES_SAMPLE_RBM = 1000; //number of episodes in which data points are sampled and given as input to the RBM (recording ALL episodes might be too much data, so this can be some subset of the total number of episodes)
 	
 	public static int NUM_ROWS = 10;
 	public static int NUM_COLS = 10;
