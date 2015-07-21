@@ -4,6 +4,8 @@ package code;
  * Representation for a state in this MDP
  */
 public class State {
+	//the state contains the intensity for each fire
+	//e.g. if there are 5 fires, the array would be length 5, each value would indicate the intensity of that particular fire
 	public int[] stateOfFires;
 	
 	public State(){

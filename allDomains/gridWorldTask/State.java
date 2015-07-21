@@ -4,6 +4,7 @@ package code;
  * Representation for a state in this MDP
  */
 public class State {
+	//the state contains the human's and robot's locations on the grid
 	public Location humanLoc;
 	public Location robotLoc;
 	
@@ -17,6 +18,9 @@ public class State {
 		this.robotLoc = robotLoc.clone();
 	}
 	
+	/**
+	 * Assigns this state to a unique ID so that the value function can refer to states using their unique numbers
+	 */
 	public int getId(){
 		int id = 0;
 		int rows = Constants.NUM_ROWS;
@@ -27,16 +31,19 @@ public class State {
 	
 	/**
 	 * This string is sent to the arduino to display the current intensities of the fires on the LED lights
+	 * Since we do not conduct human experiments for this task, this method is empty
 	 */
 	public String getArduinoString(){
-		String str = "";
-		return str;
+		return "";
 	}
 	
 	public int hashCode() {
 		return 5;
 	}
 	
+	/**
+	 * Two states are equal if the human's and robot's locations match
+	 */
 	public boolean equals(Object Obj){
 		State state = (State)Obj;
 		return (humanLoc.equals(state.humanLoc)) && (robotLoc.equals(state.robotLoc));
@@ -54,7 +61,12 @@ public class State {
 		return "H: "+humanLoc+" R: "+robotLoc; 
 	}
 	
-	public String getCharFromIntensity(int intensity){
-		return intensity+"";		
+	/**
+	 * Writes the state into a file using a format like "2,1,9,0" to represent the human and robot locations
+	 * The first two numbers are the human location row and column respectively and the second two numbers are the robot's row and column
+	 * This is used for sampling data points that can then be inputed into an RBM
+	 */
+	public String toStringRBM(){
+		return humanLoc.row+","+humanLoc.col+","+robotLoc.row+","+robotLoc.col;
 	}
 }

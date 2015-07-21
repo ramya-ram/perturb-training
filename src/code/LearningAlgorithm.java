@@ -369,7 +369,7 @@ public class LearningAlgorithm {
 					addToGUIMessage("Waiting for teammate...");
 					myWorld.simulateWaitTime(state);
 					//if the robot gains a lot from rejecting the human's suggestion and choosing the optimal action (determined by THRESHOLD_REJECT), then the robot rejects
-					if((robotSuggestedQValue - humanSuggestedQValue) > Constants.THRESHOLD_REJECT){ 
+					if((robotSuggestedQValue - humanSuggestedQValue) > Constants.THRESHOLD_ACCEPT){ 
 						numRobotRejects++;
 						robotAction = optimalRobotAction;
 						sendRobotMessage("{REJECT R"+getActionIndex(robotAction)+"}");

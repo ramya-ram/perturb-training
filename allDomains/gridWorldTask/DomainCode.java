@@ -7,8 +7,14 @@ import java.util.List;
 import code.Constants;
 import code.MyWorld;
 
+/**
+ * Code specific to a particular task
+ * Includes initializing the training and testing worlds and initializing anything specific for human subject experiments
+ */
 public class DomainCode {
-	
+	/**
+	 * Initialize training and testing worlds (and practice worlds for human subject experiments)
+	 */
 	public static List<List<MyWorld>> initializeWorlds(){
 		List<List<MyWorld>> allWorlds = new ArrayList<List<MyWorld>>();
 		
@@ -37,12 +43,18 @@ public class DomainCode {
 		return allWorlds;
 	}
 	
+	/**
+	 * Changes the test worlds for each simulation run, if needed
+	 */
 	public static void changeTestWorlds(List<MyWorld> testingWorlds){
 		for(MyWorld testWorld : testingWorlds){
 			testWorld.changeGoalLoc();
 		}
 	}
 	
+	/**
+	 * Initialization for human subject experiments, if needed
+	 */
 	public static void initForExperiments(List<MyWorld> trainingWorldsProce, List<MyWorld> trainingWorldsPerturb, List<MyWorld> testingWorlds){
 		return;
 	}

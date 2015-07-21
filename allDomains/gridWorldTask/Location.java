@@ -1,5 +1,8 @@
 package code;
 
+/**
+ * Specifies a location on the grid (with a row and column)
+ */
 public class Location{
 	public int row;
 	public int col;

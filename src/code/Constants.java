@@ -8,8 +8,8 @@ import java.util.Scanner;
  */
 public class Constants {
 	
-	public static final double GAMMA = 1; // gamma is penalty on delayed result
-	public static final double ALPHA = 0.05; // learning rate
+	public static final double GAMMA = 1; //gamma is penalty on delayed result
+	public static final double ALPHA = 0.05; //learning rate
 	public static final double TEMP = 0; //temperature parameter 
 	public static final double DELTA_TEMP = 0.01; //change in temperature parameter 
 	
@@ -19,14 +19,12 @@ public class Constants {
 	
 	public static int MAX_TIME = 15; //the number of seconds participants get to make a decision in human subject experiments
 	public static final double EPSILON = 0.1; //probability of exploring (vs. exploiting)
-	
-	public static double THRESHOLD_SUGG = 0; 
-	public static double THRESHOLD_REJECT = 2;
+	public static double THRESHOLD_SUGG = 0; //threshold for robot to determine whether to suggest or update
+	public static double THRESHOLD_ACCEPT = 2; //threshold for robot to determine whether to accept or reject
 	
 	public static final Random rand = new Random();
 	public static final Scanner scan = new Scanner(System.in);
 	
-	//num of times to run
 	public static final int NUM_EPISODES = 200000; //number of episodes agent simulates in the training task before working with the person (works with the person twice for each training task)
 	public static final int NUM_EPISODES_TEST = 1500; //number of episodes the agent simulates in the testing task before evaluating
 	public static final int INTERVAL = 50; //when showing reward over time (Main.INPUT == Main.REWARD_OVER_ITERS), reward is only recorded at every interval (e.g. every 100 iterations)

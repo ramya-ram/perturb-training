@@ -155,6 +155,7 @@ public class MyWorld {
 	
 	/**
 	 * Determines if the given state is a goal state
+	 * Here, the goal state is when all fires are either burned out or are non-existent/none
 	 */
 	public boolean isGoalState(State state){
 		return state.allItemsInState(Constants.NONE, Constants.BURNOUT);
@@ -177,16 +178,18 @@ public class MyWorld {
 	 */
 	public double reward(State state, HumanRobotActionPair agentActions, State nextState){		
 		if(isGoalState(nextState))
+			//-100 reward is given for each burned out fire at the end of the episode
 			return -(100*nextState.getNumItemsInState(Constants.BURNOUT));
 		double reward = -10;
 		for(int i=0; i<nextState.stateOfFires.length; i++){
+			//negative reward is given for each fire, propotional to its intensity
 			reward += -1*nextState.stateOfFires[i];
 		}
 		return reward;
 	}
 	
 	/**
-	 * Computes the next state and prints appropriate messages on SocketTest based on saved predefined case from file
+	 * Computes the next state and prints appropriate messages based on the predefined test case read from a file
 	 */
 	public State getPredefinedNextState(State state, HumanRobotActionPair agentActions){
 		try{
@@ -247,7 +250,7 @@ public class MyWorld {
 	}
 	
 	/**
-	 * Determines the next state and prints appropriate messages to SocketTest
+	 * Determines the next state and prints appropriate messages
 	 * There can be stochasticity through spreading and burnout of fires
 	 */
 	public State getNextState(State state, HumanRobotActionPair agentActions){

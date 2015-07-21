@@ -10,6 +10,10 @@ import java.util.Set;
 import code.Action;
 import code.State;
 
+/**
+ * Implementation for the domain specifics of an MDP
+ * Specifies the transition function, reward function, etc of the world/MDP
+ */
 public class MyWorld {
 	public static MDP mdp;
 	public static List<State> states = new ArrayList<State>();
@@ -17,15 +21,18 @@ public class MyWorld {
 	public String predefinedText;
 	public String textToDisplay;
 	
-	public Location goalLoc;
+	public Location goalLoc; //goal location in the grid
 	
+	//token locations give the agents additional reward if picked up
 	public static List<Location> staticTokenLocs = Arrays.asList(
 			new Location(4,1), new Location(4,2), new Location(4,3), new Location(5,6), new Location(5,7), new Location(5,8), 
 			new Location(1,5), new Location(2,5), new Location(3,5), new Location(6,4), new Location(7,4), new Location(8,4));
+	//pit locations give agents negative reward when crossed
 	public static List<Location> staticPitLocs = Arrays.asList(
 			new Location(1,1), new Location(2,2), new Location(3,3), new Location(6,6), new Location(7,7), new Location(8,8), 
 			new Location(8,1), new Location(7,2), new Location(6,3), new Location(3,6), new Location(2,7), new Location(1,8));
 
+	//keeps track of the tokens in each episode that have not yet been picked up (tokens are gone when picked up once)
 	public List<Location> currTokenLocs;
 	
 	public int sessionNum; //specifies which training or testing round it is
@@ -43,6 +50,9 @@ public class MyWorld {
 			mdp = initializeMDP();
 	}
 	
+	/**
+	 * Prints the grid with tokens and pits for visualization
+	 */
 	public void printGrid(){
 		for(int i=0; i<Constants.NUM_ROWS; i++){
 			for(int j=0; j<Constants.NUM_COLS; j++){
@@ -57,16 +67,26 @@ public class MyWorld {
 		}
 	}
 	
+	/**
+	 * Chooses a random goal location
+	 */
 	public void changeGoalLoc(){
-		this.goalLoc = new Location(Tools.rand.nextInt(Constants.NUM_ROWS), Tools.rand.nextInt(Constants.NUM_COLS));
+		this.goalLoc = new Location(Constants.rand.nextInt(Constants.NUM_ROWS), Constants.rand.nextInt(Constants.NUM_COLS));
 		System.out.println("Goal Location: "+this.goalLoc);
 	}
 	
+	/**
+	 * This method can be used to change any variables in the task for each new episode
+	 * Here, we reset all token locations each time the agent begins the task again
+	 */
 	public void reset(){
 		currTokenLocs = new ArrayList<Location>();
 		currTokenLocs.addAll(staticTokenLocs);	
 	}
 	
+	/**
+	 * A string read from a file is converted to a state
+	 */
 	public static State getStateFromFile(String str){
 		return null;
 	}
@@ -94,6 +114,7 @@ public class MyWorld {
 				Location humanLoc = new Location(row1, col1);
 				for(int row2 = 0; row2 < Constants.NUM_ROWS; row2++){
 					for(int col2 = 0; col2 < Constants.NUM_COLS; col2++){
+						//for all possible locations for the human and robot, create a new state and add it to the list of states
 						Location robotLoc = new Location(row2, col2);
 						State state = new State(humanLoc, robotLoc);
 						states.add(state);
@@ -101,6 +122,7 @@ public class MyWorld {
 				}
 			}
 		}
+		//in this task, all states can be initial states
 		initStates = new State[states.size()];
 		int count=0;
 		for(State state : states){
@@ -122,6 +144,7 @@ public class MyWorld {
 					possibleActions.add(Action.WAIT);
 					return possibleActions;
 				}
+				//the robot can move up, down, left, and right according to its current location on the grid
 				if(s.robotLoc.row>0)
 					possibleActions.add(Action.UP);
 				if(s.robotLoc.row<Constants.NUM_ROWS-1)
@@ -130,7 +153,6 @@ public class MyWorld {
 					possibleActions.add(Action.LEFT);
 				if(s.robotLoc.col<Constants.NUM_COLS-1)
 					possibleActions.add(Action.RIGHT);
-				//possibleActions.add(Action.WAIT);
 				return possibleActions;
 			}	
 		};
@@ -148,6 +170,7 @@ public class MyWorld {
 					possibleActions.add(Action.WAIT);
 					return possibleActions;
 				}
+				//the human can move up, down, left, and right according to its current location on the grid
 				if(s.humanLoc.row>0)
 					possibleActions.add(Action.UP);
 				if(s.humanLoc.row<Constants.NUM_ROWS-1)
@@ -156,21 +179,27 @@ public class MyWorld {
 					possibleActions.add(Action.LEFT);
 				if(s.humanLoc.col<Constants.NUM_COLS-1)
 					possibleActions.add(Action.RIGHT);
-				//possibleActions.add(Action.WAIT);
 				return possibleActions;
 			}	
 		};
 	}
 	
+	/**
+	 * Determines if the given state is a goal state
+	 * Here, the goal state is when the human and robot reaches the goal location
+	 */
 	public boolean isGoalState(State state){
 		return state.humanLoc.equals(goalLoc) && state.robotLoc.equals(goalLoc);
 	}
 	
+	/**
+	 * Returns an initial state for the episode (either randomly from the initStates array or a specific initial state)
+	 */
 	public State initialState(){
 		if(Main.currWithSimulatedHuman && typeOfWorld == Constants.TESTING){
 			return new State(new Location(4, 0), new Location(4, Constants.NUM_COLS-1));
 		}
-		return initStates[Tools.rand.nextInt(initStates.length)];	
+		return initStates[Constants.rand.nextInt(initStates.length)];	
 	}
 	
 	/**
@@ -179,12 +208,15 @@ public class MyWorld {
 	 */
 	public double reward(State state, HumanRobotActionPair agentActions, State nextState){
 		if(isGoalState(nextState))
+			//+20 is given when the goal state is reached
 			return 20;
 		double reward = -1;
+		//if both the human and robot get the token together, +5 is given ()
 		if(nextState.humanLoc.equals(nextState.robotLoc) && currTokenLocs.contains(nextState.humanLoc)){
 			reward += 5;
 			currTokenLocs.remove(nextState.humanLoc);
 		}
+		//+1 is given if either the human OR the robot gets a token (so it's better to coordinate and get it together)
 		if(currTokenLocs.contains(nextState.humanLoc)){
 			reward += 1;
 			currTokenLocs.remove(nextState.humanLoc);
@@ -193,6 +225,7 @@ public class MyWorld {
 			reward += 1;
 			currTokenLocs.remove(nextState.robotLoc);
 		}
+		//-5 is given every time the human or robot are on a pit location
 		if(staticPitLocs.contains(nextState.humanLoc))
 			reward -= 5;
 		if(staticPitLocs.contains(nextState.robotLoc))
@@ -200,20 +233,9 @@ public class MyWorld {
 		return reward;
 	}
 	
-	public State getProcePredefinedNextState(State state, HumanRobotActionPair agentActions) {
-		return null;
-	}
-	
 	/**
-	 * Computes the next state and prints appropriate messages on SocketTest based on saved predefined case from file
-	 */
-	public State getPredefinedNextState(State state, HumanRobotActionPair agentActions){
-		return null;
-	}
-	
-	/**
-	 * Determines the next state and prints appropriate messages to SocketTest
-	 * There can be stochasticity through spreading and burnout of fires
+	 * Determines the next state and prints appropriate messages
+	 * There can be stochasticity in robot movement
 	 */
 	public State getNextState(State state, HumanRobotActionPair agentActions){
 		textToDisplay = "";
@@ -223,17 +245,11 @@ public class MyWorld {
 		if(isGoalState(newState))
 			return newState;
 
-		try{
-			if(Main.currWithSimulatedHuman){
-				if(Constants.usePredefinedTestCases && typeOfWorld == Constants.TESTING){
-					newState = getPredefinedNextState(newState, agentActions);
-					return newState;
-				}
-			}
-			
+		try{	
 			Action humanAction = agentActions.getHumanAction();
 			Action robotAction = agentActions.getRobotAction();
 			
+			//gets the next state locations given the human and robot actions
 			newState.humanLoc = getNextStateLoc(newState.humanLoc, humanAction);
 			newState.robotLoc = getNextStateLoc(newState.robotLoc, robotAction);
 			
@@ -245,9 +261,15 @@ public class MyWorld {
 		return newState;
 	}
 	
+	/**
+	 * Gets the next state location given the current location and action
+	 * Stochasticity is added by including uncertainty in the action
+	 * 80% of the time, the agent will go to the desired location
+	 * 10% of the time, it will go to the left and the last 10%, it will go to the right
+	 */
 	public Location getNextStateLoc(Location currLoc, Action action){
 		Location newLoc = currLoc.clone();
-		int randNum = Tools.rand.nextInt(100);
+		int randNum = Constants.rand.nextInt(100);
 		switch(action){
 			case UP:
 				if(randNum < 80) {
@@ -307,10 +329,6 @@ public class MyWorld {
 	}
 	
 	public void setTitleLabel(int roundNum, Color[] colorArray, int indexOfColor){
-		return;
-	}
-	
-	public static void initForExperiments(List<MyWorld> trainingWorldsProce, List<MyWorld> trainingWorldsPerturb, List<MyWorld> testingWorlds){
 		return;
 	}
 	
