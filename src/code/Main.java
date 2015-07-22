@@ -201,20 +201,20 @@ public class Main {
 		DomainCode.changeTestWorlds(testingWorlds);
 		
 		//PERTURBATION - AdaPT
-		TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
-		AdaPT.executeTask();
+		//TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+		//AdaPT.executeTask();
 		
 		//PERTURBATION - PRQL using RBM prior
 		TaskExecution PRQL_RBM = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL_RBM);
 		PRQL_RBM.executeTask();
 		
 		//PERTURBATION - PRQL
-		TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
+		/*TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
 		PRQL.executeTask();
 		
 		//Standard QLearning
 		TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
-		QLearning.executeTask();
+		QLearning.executeTask();*/
 	}
 	
 	/**

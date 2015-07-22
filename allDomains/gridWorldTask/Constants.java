@@ -67,6 +67,9 @@ public class Constants {
 	public static String rewardQLearningName = simulationDir+"QLearning_"+DOMAIN_NAME+".csv";
 	public static String numIterName = simulationDir+"numIter_"+DOMAIN_NAME+".csv";
 	
+	//directory where generated RBM data points and matlab code for the RBM are stored
+	public static String rbmDir = "RBM_MatlabCode\\";
+
 	//directory where Q-values from a participant's training is stored to be used in the participant's testing phase
-	public static String trainedQValuesDir = "C:\\Users\\julie\\Dropbox (MIT)\\trainingQValues\\";
+	public static String trainedQValuesDir = "trainingQValues\\";
 }

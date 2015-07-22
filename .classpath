@@ -41,5 +41,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Users/julie/gitWorkspace/perturb-training"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/julie/gitWorkspace/perturb-training/lib/matlabcontrol-4.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

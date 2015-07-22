@@ -680,7 +680,8 @@ public class LearningAlgorithm {
 				}
 				
 				if(episodeNum >= beginSamplingEpisodeNum){
-					BufferedWriter writer = new BufferedWriter(new FileWriter(new File(Constants.simulationDir+type+"world_"+myWorld.sessionNum+"_"+Constants.DOMAIN_NAME+"_testing_7_21.csv"), true));
+					File file = new File(Constants.rbmDir+type+"world_"+Constants.DOMAIN_NAME+"_"+myWorld.sessionNum+".csv");
+					BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
 					writer.write(state.toStringRBM()+","+humanAction.ordinal()+","+robotAction.ordinal()+","+nextState.toStringRBM()+"\n");
 					writer.close();
 				}

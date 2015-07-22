@@ -6,9 +6,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import matlabcontrol.MatlabProxy;
+import matlabcontrol.MatlabProxyFactory;
+import matlabcontrol.MatlabProxyFactoryOptions;
 import PR2_robot.GameView;
 
 /**
@@ -21,6 +25,8 @@ public class TaskExecution {
 	public List<MyWorld> trainingWorlds;
 	public List<MyWorld> testingWorlds;
 	public ExperimentCondition condition;
+	public MatlabProxyFactory factory;
+	public MatlabProxy proxy;
 	
 	public Color[] colorsTraining = {Color.BLUE, new Color(107, 142, 35), new Color(148,0,211)};
 	public Color[] colorsTesting = {new Color(178,34,34), new Color(148,0,211), Color.BLUE, new Color(148,0,211)};
@@ -32,29 +38,74 @@ public class TaskExecution {
 		this.testingWorlds = testingWorlds;
 		this.condition = condition;
 		System.out.println(condition);
+		
+		try{
+			MatlabProxyFactoryOptions options = new MatlabProxyFactoryOptions.Builder().setUsePreviouslyControlledSession(true).build();
+	
+			//Create a proxy, which we will use to control MATLAB
+		    factory = new MatlabProxyFactory(options);
+		    proxy = factory.getProxy();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public int[] populateArrayWithValue(int arrayLength, int value){
+		int[] array = new int[arrayLength];
+		for(int j=0; j<array.length; j++)
+			array[j] = value;
+		return array;
 	}
 	
 	/**
 	 * Run training and testing phases, according to which option is being run
 	 */
 	public void executeTask(){
+		int[] initialQValuesIndices = new int[Constants.NUM_TESTING_SESSIONS];
+		for(int i=0; i<initialQValuesIndices.length; i++)
+			initialQValuesIndices[i] = -1;
+		
 		if(Main.CURRENT_EXECUTION == Main.SIMULATION){
 			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
 			List<Policy> trainedPolicies = trainedResult.getSecond();
 			if(condition == ExperimentCondition.PRQL) {
-				runTestingPhase(trainedLearners, trainedPolicies, -1); //runs PRQL with an uninformative prior (starts with value function initialized with all zeros)
+				runTestingPhase(trainedLearners, trainedPolicies, initialQValuesIndices); //runs PRQL with an uninformative prior (starts with value function initialized with all zeros)
 				if(Main.SUB_EXECUTION == Main.REWARD_LIMITED_TIME){ //only run PRQL with different priors when SUB_EXECUTION == REWARD_LIMITED_TIME
 					for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
-						runTestingPhase(trainedLearners, trainedPolicies, i); //runs PRQL with a prior initialized with the value function learned from each training task
+						initialQValuesIndices = populateArrayWithValue(Constants.NUM_TESTING_SESSIONS, i); //all testing tasks will begin with the values learned from training task i
+						runTestingPhase(trainedLearners, trainedPolicies, initialQValuesIndices); //runs PRQL with a prior initialized with the value function learned from each training task
 					}
 				}
 			} else if (condition == ExperimentCondition.PRQL_RBM) {
-				//run matlab function
-				int closestMDPNum = -1;
-				runTestingPhase(trainedLearners, trainedPolicies, closestMDPNum); //starts with value function initialized with the closest MDP/task from training (as determined using the RBM)
+				//run matlab function runRBM to get closest MDP to each test task
+				try {
+				  	String addPath = "addpath('"+Paths.get("").toAbsolutePath().toString()+"\\RBM_MatlabCode')";
+				  	proxy.eval(addPath);
+				  	
+				    for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
+				    	//initialQValuesIndices[i] = 
+				    	proxy.feval("runRBM", 3, 100, 5, i);
+				    	/*for(Object o : result)
+				    		System.out.println(o);
+				    	Object result0 = result[0];
+				    	System.out.println(result0);
+				    	int intresult = (int)result0;
+				    	System.out.println(intresult);*/
+				    }
+				  	String removePath = "rmpath('"+Paths.get("").toAbsolutePath().toString()+"\\RBM_MatlabCode')";
+				  	proxy.eval(removePath);
+				  	
+				    //Disconnect the proxy from MATLAB
+				    proxy.disconnect();
+				    proxy = factory.getProxy();
+				    
+				} catch(Exception e){
+					e.printStackTrace();
+				}
+			    runTestingPhase(trainedLearners, trainedPolicies, initialQValuesIndices); //starts with value function initialized with the closest MDP/task from training (as determined using the RBM)
 			} else {
-				runTestingPhase(trainedLearners, trainedPolicies, -1); //for AdaPT, no prior is needed
+				runTestingPhase(trainedLearners, trainedPolicies, initialQValuesIndices); //for AdaPT, no prior is needed
 			}
 		}
 		
@@ -64,7 +115,7 @@ public class TaskExecution {
 			Pair<List<QValuesSet>, List<Policy>> trainedResult = runTrainingPhase();
 			List<QValuesSet> trainedLearners = trainedResult.getFirst();
 			List<Policy> trainedPolicies = trainedResult.getSecond();
-			runTestingPhase(trainedLearners, trainedPolicies, -1);
+			runTestingPhase(trainedLearners, trainedPolicies, initialQValuesIndices);
 		}
 		
 		//runs simulated training human subject experiments
@@ -80,7 +131,7 @@ public class TaskExecution {
 			List<QValuesSet> trainedLearners = readTrainingFromFile();
 			System.out.println("read from training files");
 			Constants.MAX_TIME = 25;
-			runTestingPhase(trainedLearners, null, -1);
+			runTestingPhase(trainedLearners, null, initialQValuesIndices);
 		}
 	}
 	
@@ -185,8 +236,8 @@ public class TaskExecution {
 		Main.saveToFile = false;
 			
 		//participants do two practice sessions before beginning the training tasks
-		QLearner practice1 = new QLearner(null, ExperimentCondition.PROCE_Q);
-		QLearner practice2 = new QLearner(null, ExperimentCondition.PROCE_Q);
+		QLearner practice1 = new QLearner(null, condition);
+		QLearner practice2 = new QLearner(null, condition);
 		
 		try{
 			practiceWorlds.get(0).setTitleLabel(1, null, -1);
@@ -211,7 +262,7 @@ public class TaskExecution {
 		
 		//for each task, the robot works with the person twice, simulating before each of these two interactions
 		//first training session -- same for procedural and perturbation
-		QLearner baseQLearner = new QLearner(null, ExperimentCondition.PROCE_Q);
+		QLearner baseQLearner = new QLearner(null, condition);
 		MyWorld trainWorld0 = trainingWorlds.get(0);
 		trainWorld0.setTitleLabel(1, colorsTraining, 0);
 		baseQLearner.runQLearning(trainWorld0, false /*withHuman*/); //robot simulates on the task
@@ -227,7 +278,7 @@ public class TaskExecution {
 			//perturbation training sessions
 			for(int i=1; i<trainingWorlds.size(); i++){
 				MyWorld trainWorld = trainingWorlds.get(i);
-				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, ExperimentCondition.ADAPT);
+				QLearner perturbLearner = new QLearner(baseQLearner.currQValues, condition);
 				trainWorld.setTitleLabel(1, colorsTraining, trainingWorlds.get(i).sessionNum-1);
 				perturbLearner.runQLearning(trainWorld, false); //robot simulates on the task
 				perturbLearner.runQLearning(trainWorld, true, trainWorld.initialState(i*2+1)); //robot works with the person
@@ -256,32 +307,28 @@ public class TaskExecution {
 	
 	/**
 	 * Runs the testing phase
-	 * Procedural uses Q-learning and is initialized with Q-values learned from training
-	 * Perturbation uses Human-Robot Policy Reuse with the library learned from training
 	 */
-	public void runTestingPhase(List<QValuesSet> allLearners, List<Policy> allPolicies, int initialQValuesIndex){
+	public void runTestingPhase(List<QValuesSet> allLearners, List<Policy> allPolicies, int[] initialQValuesIndices){
+		for(int value : initialQValuesIndices)
+			System.out.print(value+" ");
+		System.out.println();
 		System.out.println("AllLearners size "+allLearners.size()+" AllPolicies size "+allPolicies.size());
-		List<QValuesSet> learners = new ArrayList<QValuesSet>();
 		if(condition == ExperimentCondition.ADAPT){
 			//AdaPT uses all value functions learned from training and adapts them for the new task so learners includes all learners from training
-			learners.addAll(allLearners);
-			System.out.println("Learners size "+learners.size());
+			System.out.println("Learners size "+allLearners.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
-				AdaPTLearner learner = new AdaPTLearner(testWorld, learners, condition);
+				AdaPTLearner learner = new AdaPTLearner(testWorld, allLearners, condition);
 				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
 				learner.runAdaPT(false); //robot simulates on the task 
 				learner.runAdaPT(true, testWorld.initialState(testWorld.sessionNum)); //robot works with the person
 			}
 		} else if(condition == ExperimentCondition.PRQL || condition == ExperimentCondition.PRQL_RBM){
-			if(initialQValuesIndex >= 0) //if using a previously learned value function as a prior, PRQL will begin with those values
-				learners.add(allLearners.get(initialQValuesIndex));
-			else //if using no prior, PRQL will begin with a value function of all zeros
-				learners.add(new QValuesSet());
-			System.out.println("Library size "+allPolicies.size()+" Learners size "+learners.size());
+			//System.out.println("Library size "+allPolicies.size()+" Learners size "+learners.size());
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
-				PRQLearner learner = new PRQLearner(testWorld, allPolicies, learners.get(0), condition);
+				QValuesSet initialQValues = getQValues(allLearners, initialQValuesIndices[i]);
+				PRQLearner learner = new PRQLearner(testWorld, allPolicies, initialQValues, condition);
 				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
 				learner.runPRQL(false); //robot simulates on the task
 				learner.runPRQL(true, testWorld.initialState(testWorld.sessionNum)); //robot works with the person
@@ -290,7 +337,7 @@ public class TaskExecution {
 			for(int i=0; i<testingWorlds.size(); i++){
 				MyWorld testWorld = testingWorlds.get(i);
 				//Q-learning from scratch starts with a value function initialized with all zeros (uninformative prior)
-				QLearner learner = new QLearner(new QValuesSet(), ExperimentCondition.Q_LEARNING);
+				QLearner learner = new QLearner(new QValuesSet(), condition);
 				learner.runQLearning(testWorld, false); //robot simulates on the task
 				learner.runQLearning(testWorld, true, testWorld.initialState(i*2+1)); //robot works with the person
 			}
@@ -304,5 +351,11 @@ public class TaskExecution {
 				testQLearner.runQLearning(testWorld, true, testWorld.initialState(testWorld.sessionNum)); //robot works with the person
 			}
 		}
+	}
+	
+	public QValuesSet getQValues(List<QValuesSet> allLearners, int qValuesIndex){
+		if(qValuesIndex >= 0) //if using a previously learned value function as a prior, PRQL will begin with those values
+			return allLearners.get(qValuesIndex);
+		return new QValuesSet(); //if using no prior, PRQL will begin with a value function of all zeros
 	}
 }
