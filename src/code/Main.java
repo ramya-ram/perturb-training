@@ -6,8 +6,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.file.Paths;
 import java.util.List;
 
+import matlabcontrol.MatlabProxy;
+import matlabcontrol.MatlabProxyFactory;
+import matlabcontrol.MatlabProxyFactoryOptions;
 import PR2_robot.Arduino;
 import PR2_robot.GameView;
 import PR2_robot.MyServer;
@@ -50,12 +54,19 @@ public class Main {
 	//the columns represent reward over time
 	public static double[][] PRQLTotal;
 	public static double[][] AdaPTTotal;
+	
+	public static int[][][] RBMTrainTaskData;
+	public static int[][][] RBMTestTaskData;
+	public static int currRBMDataNum = 0;
 
 	//used by the program to determine what options to run (based on the INPUT variable that is set above but do NOT change this! this is automatically set)
 	public static int CURRENT_EXECUTION = -1;
 	public static int SUB_EXECUTION = -1;
 	
 	public static int SIMULATION = 0;
+	
+	public static MatlabProxyFactory factory;
+	public static MatlabProxy proxy;
 	
 	public static void main(String[] args){	
 		if(INPUT == SIMULATION_HUMAN_TRAIN_TEST || INPUT == SIMULATION_HUMAN_TRAIN || INPUT == ROBOT_HUMAN_TEST){
@@ -73,6 +84,10 @@ public class Main {
 		List<MyWorld> trainingWorldsPerturb = allWorlds.get(2);
 		List<MyWorld> testingWorlds = allWorlds.get(3);
 		DomainCode.changeTestWorlds(testingWorlds);
+		
+		int numFeatures = 2*(new State().toArrayRBM().length) + 2;
+		RBMTrainTaskData = new int[Constants.NUM_TRAINING_SESSIONS][Constants.NUM_RBM_DATA_POINTS][numFeatures];
+		RBMTestTaskData = new int[Constants.NUM_TESTING_SESSIONS][Constants.NUM_RBM_DATA_POINTS][numFeatures];
 		
 		//if option is create offline values, Q-learning will be run and the Q-values at the end of the learning will be saved to a file
 		if(SUB_EXECUTION == CREATE_OFFLINE_QVALUES){
@@ -103,10 +118,18 @@ public class Main {
 			}
 			saveToFile = true;
 			
-			//program goes here if running anything in simulation (multiple options are part of this)
-			if(CURRENT_EXECUTION == SIMULATION){
-				//if you want a curve showing how the agent learns the task over time, you can get a plot of reward accumulated over many episodes as the agent learns
-				if(SUB_EXECUTION == REWARD_OVER_ITERS){
+			if(CURRENT_EXECUTION == SIMULATION){ //if running anything in simulation (multiple options are part of this)
+				MatlabProxyFactoryOptions options = new MatlabProxyFactoryOptions.Builder().setUsePreviouslyControlledSession(true).build();
+				
+				//create a proxy to control MATLAB
+			    factory = new MatlabProxyFactory(options);
+			    proxy = factory.getProxy();
+			    
+			    //add matlab code path
+			  	String addPath = "addpath('"+Paths.get("").toAbsolutePath().toString()+"\\RBM_MatlabCode')";
+			  	Main.proxy.eval(addPath);
+				
+				if(SUB_EXECUTION == REWARD_OVER_ITERS){ //compares algorithms on how quickly they learn (can be used to plot a learning curve showing how the agent learns the task over time)
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
 						runAllConditions(practiceWorlds, trainingWorldsPerturb, testingWorlds);
@@ -133,7 +156,7 @@ public class Main {
 					}	
 					rewardWriter.close();
 					return;
-				} else { //for other simulation executions, run all the algorithms and compare how they perform given limited simulation time (instead of looking at reward over time)
+				} else if(SUB_EXECUTION == REWARD_LIMITED_TIME){ //compares the algorithms after simulating for a limited number of iterations
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
 						runAllConditions(practiceWorlds, trainingWorldsPerturb, testingWorlds);
@@ -151,6 +174,14 @@ public class Main {
 						rewardQLearningWriter.close();
 					}
 				}
+				
+				//remove matlab code path
+				String removePath = "rmpath('"+Paths.get("").toAbsolutePath().toString()+"\\RBM_MatlabCode')";
+			  	proxy.eval(removePath);
+			  	
+			    //disconnect the proxy from MATLAB
+			    proxy.disconnect();
+			    
 			} else { //for human subject experiments
 				//initialize any domain-specific variables for experiments, if needed
 				DomainCode.initForExperiments(trainingWorldsProce, trainingWorldsPerturb, testingWorlds);
@@ -201,8 +232,8 @@ public class Main {
 		DomainCode.changeTestWorlds(testingWorlds);
 		
 		//PERTURBATION - AdaPT
-		//TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
-		//AdaPT.executeTask();
+		TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+		AdaPT.executeTask();
 		
 		//PERTURBATION - PRQL using RBM prior
 		TaskExecution PRQL_RBM = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL_RBM);

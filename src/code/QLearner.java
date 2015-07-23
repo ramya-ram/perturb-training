@@ -55,7 +55,7 @@ public class QLearner extends LearningAlgorithm {
 		try{
 	        for(int i = 0; i < numEpisodes; i++) {
 	        	//run one episode of the task
-				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, i);
+				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, i, null);
 	            
 	            if(withHuman && Main.saveToFile){
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)

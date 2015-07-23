@@ -32,8 +32,8 @@ public class Constants {
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
-	public static int NUM_AVERAGING = 50; //run simulations this many times and average to get a more robust result
-	public static int NUM_EPISODES_SAMPLE_RBM = 1000; //number of episodes in which data points are sampled and given as input to the RBM (recording ALL episodes might be too much data, so this can be some subset of the total number of episodes)
+	public static int NUM_AVERAGING = 10; //run simulations this many times and average to get a more robust result
+	public static int NUM_RBM_DATA_POINTS = 5000;
 	
 	public static int STATES_PER_FIRE = 5;
 	public static int NUM_FIRES = 5;
@@ -80,11 +80,8 @@ public class Constants {
 	public static String rewardAdaPTName = simulationDir+"AdaPT_"+DOMAIN_NAME+".csv";
 	public static String rewardPRQLName = simulationDir+"PRQL_"+DOMAIN_NAME+".csv";
 	public static String rewardQLearningName = simulationDir+"QLearning_"+DOMAIN_NAME+".csv";
-	public static String numIterName = simulationDir+"numIter_"+DOMAIN_NAME+".csv";
+	public static String numIterName = simulationDir+"withRBM_numIter_"+DOMAIN_NAME+".csv";
 	
-	//directory where generated RBM data points and matlab code for the RBM are stored
-	public static String rbmDir = "RBM_MatlabCode\\";
-		
 	//directory where Q-values from a participant's training is stored to be used in the participant's testing phase
 	public static String trainedQValuesDir = "trainingQValues\\";
 }

@@ -136,6 +136,14 @@ public class State {
 	}
 	
 	/**
+	 * Writes the state into a file using a format like "0,3,1,4,3" to represent the intensities of the 5 fires, A, B, C, D, and E respectively
+	 * This is used for sampling data points that can then be inputed into an RBM
+	 */
+	public int[] toArrayRBM(){
+		return stateOfFires;
+	}
+	
+	/**
 	 * Replaces the character '#' for fires that are burned out
 	 */
 	public String getCharFromIntensity(int intensity){

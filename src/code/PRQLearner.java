@@ -36,14 +36,14 @@ public class PRQLearner extends LearningAlgorithm {
 	 * Runs the Policy Reuse in Q-learning (PRQL) algorithm for the MDP specified by MyWorld in the constructor
 	 * initialStateHuman is null so the initial state will be randomly selected
 	 */
-	public void runPRQL(boolean withHuman) {
-		runPRQL(withHuman, null);
+	public void runPRQL(boolean withHuman, List<QValuesSet> trainedLearners) {
+		runPRQL(withHuman, null, trainedLearners);
 	}
 	
 	/**
 	 * Runs the Policy Reuse in Q-learning (PRQL) algorithm for the MDP specified by MyWorld in the constructor and use initialStateHuman as the initial state
 	 */
-	public Policy runPRQL(boolean withHuman, State initialStateHuman) {
+	public Policy runPRQL(boolean withHuman, State initialStateHuman, List<QValuesSet> trainedLearners) {
 		this.mdp = MyWorld.mdp;
 		this.withHuman = withHuman;
 		Main.currWithSimulatedHuman = withHuman;
@@ -93,12 +93,12 @@ public class PRQLearner extends LearningAlgorithm {
 				long duration = 0;
 				if(isPastPolicy(library, policyNum)){ //using a past policy
 					Policy currPolicy = library.get(policyNum);
-					Tuple<Double, Integer, Long> tuple = piReuse(currPolicy, Constants.NUM_STEPS_PER_EPISODE, Constants.PAST_PROB, Constants.DECAY_VALUE, k);
+					Tuple<Double, Integer, Long> tuple = piReuse(currPolicy, Constants.NUM_STEPS_PER_EPISODE, Constants.PAST_PROB, Constants.DECAY_VALUE, k, trainedLearners);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
 				} else { //using the new value function being learned, running a full greedy episode (no exploration)
-					Tuple<Double, Integer, Long> tuple = runFullyGreedy(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, k);
+					Tuple<Double, Integer, Long> tuple = runFullyGreedy(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, k, trainedLearners);
 					reward = tuple.getFirst();
 					iterations = tuple.getSecond();
 					duration = tuple.getThird();
@@ -137,7 +137,7 @@ public class PRQLearner extends LearningAlgorithm {
 	/**
 	 * Given a past policy, runs an episode that either chooses the past policy action or uses a e-greedy approach
 	 */
-	public Tuple<Double, Integer, Long> piReuse(Policy pastPolicy, int numSteps, double probPast, double decayValue, int episodeNum) {
+	public Tuple<Double, Integer, Long> piReuse(Policy pastPolicy, int numSteps, double probPast, double decayValue, int episodeNum, List<QValuesSet> trainedLearners) {
 		double[] reward = new double[numSteps+1];
 		double episodeReward = 0;
 		int iterations = 0;
@@ -164,7 +164,7 @@ public class PRQLearner extends LearningAlgorithm {
 			State nextState = myWorld.getNextState(state, agentActions);					                
 			reward[iterations] = myWorld.reward(state, agentActions, nextState);
 			episodeReward += reward[iterations];
-			saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward[iterations], episodeNum);
+			saveEpisodeToFile(state, agentActions.getHumanAction(), agentActions.getRobotAction(), nextState, reward[iterations], episodeNum, trainedLearners);
 			updateQValues(state, agentActions, nextState, reward[iterations]);
 			
 			currProbPast = currProbPast*decayValue; //decays the probability of using a past policy (as the agent learns, it's more likely to choose the new value function being learned)
@@ -187,8 +187,8 @@ public class PRQLearner extends LearningAlgorithm {
 	/**
 	 * Run Q-learning, use initialStateHuman as the initial state
 	 */
-	public Tuple<Double, Integer, Long> runFullyGreedy(int maxSteps, State initialStateHuman, int episodeNum) {
-		return run(true, maxSteps, initialStateHuman, episodeNum);
+	public Tuple<Double, Integer, Long> runFullyGreedy(int maxSteps, State initialStateHuman, int episodeNum, List<QValuesSet> trainedLearners) {
+		return run(true, maxSteps, initialStateHuman, episodeNum, trainedLearners);
     }
 	
 	/**

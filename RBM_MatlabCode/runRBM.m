@@ -1,19 +1,25 @@
-function [closestMDPNum] = runRBM(numTrainingTasks, numDataPoints, numHiddenUnits, testTaskNum)
+function closestMDPNum = runRBM(traindata_param, testdata_param, numHiddenUnits)
 
-trainDataPrefix = 'RBM_MatlabCode\\trainworld_fire_';
-testDataFile = strcat('RBM_MatlabCode\\testworld_fire_', int2str(testTaskNum), '.csv');
-
-testDataFile = strcat(testDataFile);
-testdata = csvread(testDataFile);
-testdata = testdata(1:numDataPoints, :);
-
+numTrainingTasks = size(traindata_param, 2);
+numDataPoints = size(traindata_param{1}, 2);
+numFeatures = size(traindata_param{1}{1}, 2);
 meanError = zeros(1,numTrainingTasks);
- 
-for num=1:numTrainingTasks
-    trainDataFile = strcat(trainDataPrefix, int2str(num), '.csv');
-    data = csvread(trainDataFile);
-    data = data(1:numDataPoints, :);
 
+traindata = zeros(numTrainingTasks, numDataPoints, numFeatures);
+testdata = zeros(numDataPoints, numFeatures);
+for i=1:size(traindata,1)
+    for j=1:size(traindata,2)
+        traindata(i,j,:) = traindata_param{i}{j};
+    end
+end
+
+for i=1:size(testdata,1)
+    testdata(i,:) = testdata_param{i};
+end
+
+for num=1:numTrainingTasks
+    data = reshape(traindata(num,:,:), [size(traindata,2),size(traindata,3)]);
+    
     % Train Gaussian-Bernoulli RBM
     rbm = randRBM(size(data,2), numHiddenUnits, 'GBRBM');
     rbm = pretrainRBM(rbm, data);
@@ -31,9 +37,9 @@ for num=1:numTrainingTasks
     meanError(1,num) = (1/length(testdata))*sum(errors);
 end
 
-[minValue, closestMDPNum] = min(meanError);
+[minValue, minIndices] = min(meanError);
 meanError
-closestMDPNum
+closestMDPNum = minIndices(1)
 
 end
 

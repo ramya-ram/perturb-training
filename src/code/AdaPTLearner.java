@@ -99,7 +99,7 @@ public class AdaPTLearner extends LearningAlgorithm {
 				
 				//use the chosen value function to run an episode
 				currQValues = qValuesList.get(currValueFuncNum);
-				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, k);
+				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, k, null);
 				reward = tuple.getFirst();
 				iterations = tuple.getSecond();
 				duration = tuple.getThird();
