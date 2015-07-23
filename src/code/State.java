@@ -98,7 +98,7 @@ public class State {
 	/**
 	 * Writes the state to a file using a format like "03143" to represent the intensities of the 5 fires, A, B, C, D, and E respectively
 	 */
-	public String toStringFile() {
+	public String toString() {
 		String str = "";
 		for(int i=0; i<stateOfFires.length; i++){
 			str+=stateOfFires[i];
@@ -121,22 +121,7 @@ public class State {
 	}
 	
 	/**
-	 * Writes the state into a file using a format like "0,3,1,4,3" to represent the intensities of the 5 fires, A, B, C, D, and E respectively
-	 * This is used for sampling data points that can then be inputed into an RBM
-	 */
-	public String toStringRBM(){
-		String str = "";
-		for(int i=0; i<stateOfFires.length; i++){
-			if(i == stateOfFires.length-1)
-				str+=stateOfFires[i];
-			else
-				str+=stateOfFires[i]+",";
-		}
-		return str;
-	}
-	
-	/**
-	 * Writes the state into a file using a format like "0,3,1,4,3" to represent the intensities of the 5 fires, A, B, C, D, and E respectively
+	 * Returns an array of this state's features (in this case, it's just the state of the fires)
 	 * This is used for sampling data points that can then be inputed into an RBM
 	 */
 	public int[] toArrayRBM(){

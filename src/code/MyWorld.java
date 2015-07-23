@@ -302,7 +302,7 @@ public class MyWorld {
 					return newState;
 				} else {
 					newState = getStochasStateAfterActions(newState, humanFireIndex, robotFireIndex);
-					predefinedText += newState.toStringFile();
+					predefinedText += newState.toString();
 					return newState;
 				}
 			}

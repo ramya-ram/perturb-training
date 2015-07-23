@@ -57,16 +57,17 @@ public class State {
 		return "H: "+humanLoc+" R: "+robotLoc; 
 	}
 	
-	public String toStringFile() {
-		return "H: "+humanLoc+" R: "+robotLoc; 
-	}
-	
 	/**
-	 * Writes the state into a file using a format like "2,1,9,0" to represent the human and robot locations
+	 * Returns an array of this state's features (in this case, the array has the format [2,1,9,0] to represent the human and robot locations
 	 * The first two numbers are the human location row and column respectively and the second two numbers are the robot's row and column
 	 * This is used for sampling data points that can then be inputed into an RBM
 	 */
-	public String toStringRBM(){
-		return humanLoc.row+","+humanLoc.col+","+robotLoc.row+","+robotLoc.col;
+	public int[] toArrayRBM(){
+		int[] stateArray = new int[4];
+		stateArray[0] = humanLoc.row;
+		stateArray[1] = humanLoc.col;
+		stateArray[2] = robotLoc.row;
+		stateArray[3] = robotLoc.col;
+		return ;
 	}
 }

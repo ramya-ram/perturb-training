@@ -209,7 +209,7 @@ public class LearningAlgorithm {
 			for(int j=0; j<qValuesSet.jointQValues[stateId].length; j++){
 				for(int k=0; k<qValuesSet.jointQValues[stateId][j].length; k++){
 					if(qValuesSet.jointQValues[stateId][j][k] < 0 || qValuesSet.jointQValues[stateId][j][k] > 0){
-						writer.write("jointQValues["+state.toStringFile()+" "+stateId+"]["+j+"]["+k+"] = "+qValuesSet.jointQValues[stateId][j][k]+"\n");
+						writer.write("jointQValues["+state.toString()+" "+stateId+"]["+j+"]["+k+"] = "+qValuesSet.jointQValues[stateId][j][k]+"\n");
 					}
 				}
 			}
@@ -700,8 +700,8 @@ public class LearningAlgorithm {
 			}
 			else if(withHuman && Main.saveToFile){
 				BufferedWriter episodeWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"episode.txt"), true));
-				episodeWriter.write(state.toStringFile()+", "+humanAction+", "+robotAction+", "
-						+nextState.toStringFile()+", "+reward+"\n");
+				episodeWriter.write(state.toString()+", "+humanAction+", "+robotAction+", "
+						+nextState.toString()+", "+reward+"\n");
 				episodeWriter.close();
 	        }
 		} catch(Exception e){
