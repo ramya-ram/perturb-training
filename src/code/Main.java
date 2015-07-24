@@ -52,8 +52,10 @@ public class Main {
 	//adds up reward over many simulation runs that then gets averaged to obtain an average performance of the algorithm over time
 	//the rows in AdaPTTotal and PRQLTotal represent different test cases
 	//the columns represent reward over time
-	public static double[][] PRQLTotal;
-	public static double[][] AdaPTTotal;
+	//public static double[][] PRQLTotal;
+	//public static double[][] AdaPTTotal;
+	
+	public static double[][][] rewardOverTime;
 	
 	public static int[][][] RBMTrainTaskData;
 	public static int[][][] RBMTestTaskData;
@@ -140,7 +142,7 @@ public class Main {
 					//the columns represent reward over time
 					//when running multiple simulation runs in one test case/row, the reward over time is added up for that row so that when averaged, 
 					//that row represents a robust learning over time curve for that test case
-					for(int i=0; i<AdaPTTotal.length; i++){
+					/*for(int i=0; i<AdaPTTotal.length; i++){
 						for(int j=0; j<AdaPTTotal[i].length; j++){
 							rewardWriter.write((AdaPTTotal[i][j]/Constants.NUM_AVERAGING)+", ");
 						}
@@ -153,9 +155,18 @@ public class Main {
 							rewardWriter.write((PRQLTotal[i][j]/Constants.NUM_AVERAGING)+", ");
 						}
 						rewardWriter.write("\n");
-					}	
+					}	*/
+					for(int num=0; num<ExperimentCondition.values().length; num++){
+						rewardWriter.write(""+ExperimentCondition.values()[num]+"\n");
+						for(int i=0; i<rewardOverTime[num].length; i++){
+							for(int j=0; j<rewardOverTime[num][i].length; j++){
+								rewardWriter.write((rewardOverTime[num][i][j]/Constants.NUM_AVERAGING)+", ");
+							}
+							rewardWriter.write("\n");
+						}
+						rewardWriter.write("\n\n");
+					}
 					rewardWriter.close();
-					return;
 				} else if(SUB_EXECUTION == REWARD_LIMITED_TIME){ //compares the algorithms after simulating for a limited number of iterations
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
@@ -181,7 +192,7 @@ public class Main {
 			  	
 			    //disconnect the proxy from MATLAB
 			    proxy.disconnect();
-			    
+	    
 			} else { //for human subject experiments
 				//initialize any domain-specific variables for experiments, if needed
 				DomainCode.initForExperiments(trainingWorldsProce, trainingWorldsPerturb, testingWorlds);
@@ -235,17 +246,17 @@ public class Main {
 		TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
 		AdaPT.executeTask();
 		
+		//PERTURBATION - PRQL
+		TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
+		PRQL.executeTask();
+		
+		//Standard QLearning
+		TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
+		QLearning.executeTask();
+		
 		//PERTURBATION - PRQL using RBM prior
 		TaskExecution PRQL_RBM = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL_RBM);
 		PRQL_RBM.executeTask();
-		
-		//PERTURBATION - PRQL
-		/*TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
-		PRQL.executeTask();*/
-		
-		//Standard QLearning
-		//TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
-		//QLearning.executeTask();
 	}
 	
 	/**

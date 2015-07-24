@@ -53,27 +53,32 @@ public class QLearner extends LearningAlgorithm {
 		}
 		
 		try{
-	        for(int i = 0; i < numEpisodes; i++) {
+	        for(int k = 0; k < numEpisodes; k++) {
 	        	//run one episode of the task
-				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, i, null);
-	            
-	            if(withHuman && Main.saveToFile){
-					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
-						saveDataToFile(tuple.getFirst(), tuple.getSecond(), tuple.getThird());
-					else{
-						//if running simulation runs, save the reward into the appropriate file depending on the condition being run
-						if(myWorld.typeOfWorld == Constants.TESTING){
-							String fileName = "";
-							if(condition == ExperimentCondition.PERTURB_Q)
-			    				fileName = Constants.rewardPerturbQName;
-			    			else if(condition == ExperimentCondition.PROCE_Q)
-			    				fileName = Constants.rewardProceQName;
-			    			else if(condition == ExperimentCondition.Q_LEARNING)
-			    				fileName = Constants.rewardQLearningName;
-							BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
-
-							rewardWriter.write(""+tuple.getFirst()+", ");
-							rewardWriter.close();
+				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, k, null);
+				
+				if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
+					if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
+						Main.rewardOverTime[condition.ordinal()][myWorld.sessionNum-1][(k/Constants.INTERVAL)] += tuple.getFirst(); //tuple.getFirst() == reward
+				} else {
+		            if(withHuman && Main.saveToFile){
+						if(Main.CURRENT_EXECUTION != Main.SIMULATION)
+							saveDataToFile(tuple.getFirst(), tuple.getSecond(), tuple.getThird());
+						else{
+							//if running simulation runs, save the reward into the appropriate file depending on the condition being run
+							if(myWorld.typeOfWorld == Constants.TESTING){
+								String fileName = "";
+								if(condition == ExperimentCondition.PERTURB_Q)
+				    				fileName = Constants.rewardPerturbQName;
+				    			else if(condition == ExperimentCondition.PROCE_Q)
+				    				fileName = Constants.rewardProceQName;
+				    			else if(condition == ExperimentCondition.Q_LEARNING)
+				    				fileName = Constants.rewardQLearningName;
+								BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
+	
+								rewardWriter.write(""+tuple.getFirst()+", ");
+								rewardWriter.close();
+							}
 						}
 					}
 				}

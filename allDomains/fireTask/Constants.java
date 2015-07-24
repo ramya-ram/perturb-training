@@ -25,15 +25,15 @@ public class Constants {
 	public static final Random rand = new Random();
 	public static final Scanner scan = new Scanner(System.in);
 	
-	public static final int NUM_EPISODES = 200000; //number of episodes agent simulates in the training task before working with the person (works with the person twice for each training task)
-	public static final int NUM_EPISODES_TEST = 1500; //number of episodes the agent simulates in the testing task before evaluating
-	public static final int INTERVAL = 50; //when showing reward over time (Main.INPUT == Main.REWARD_OVER_ITERS), reward is only recorded at every interval (e.g. every 100 iterations)
+	public static final int NUM_EPISODES = 2000; //number of episodes agent simulates in the training task before working with the person (works with the person twice for each training task)
+	public static final int NUM_EPISODES_TEST = 100; //number of episodes the agent simulates in the testing task before evaluating
+	public static final int INTERVAL = 10; //when showing reward over time (Main.INPUT == Main.REWARD_OVER_ITERS), reward is only recorded at every interval (e.g. every 100 iterations)
 	public static final int NUM_STEPS_PER_EPISODE = 20; //max number of steps the agent can have in each episode (after this, the agent stops the current execution and goes to the next episode)
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
-	public static int NUM_AVERAGING = 10; //run simulations this many times and average to get a more robust result
-	public static int NUM_RBM_DATA_POINTS = 5000; //number of data points that are sampled and given as input to the RBM (recording ALL might be too much data, so this can be some subset of the total number of <s,a,s'> the agent experiences)
+	public static int NUM_AVERAGING = 1; //run simulations this many times and average to get a more robust result
+	public static int NUM_RBM_DATA_POINTS = 100; //number of data points that are sampled and given as input to the RBM (recording ALL might be too much data, so this can be some subset of the total number of <s,a,s'> the agent experiences)
 	
 	public static int STATES_PER_FIRE = 5;
 	public static int NUM_FIRES = 5;
@@ -80,7 +80,7 @@ public class Constants {
 	public static String rewardAdaPTName = simulationDir+"AdaPT_"+DOMAIN_NAME+".csv";
 	public static String rewardPRQLName = simulationDir+"PRQL_"+DOMAIN_NAME+".csv";
 	public static String rewardQLearningName = simulationDir+"QLearning_"+DOMAIN_NAME+".csv";
-	public static String numIterName = simulationDir+"withRBM_numIter_"+DOMAIN_NAME+".csv";
+	public static String numIterName = simulationDir+"allConditions_numIter_"+DOMAIN_NAME+".csv";
 	
 	//directory where Q-values from a participant's training is stored to be used in the participant's testing phase
 	public static String trainedQValuesDir = "trainingQValues\\";

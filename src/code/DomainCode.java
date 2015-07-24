@@ -37,8 +37,10 @@ public class DomainCode {
 		Constants.NUM_TRAINING_SESSIONS = trainWind.length;
 		Constants.NUM_TESTING_SESSIONS = testWind.length;
 		
-		Main.PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
-		Main.AdaPTTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		//Main.PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		//Main.AdaPTTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		
+		Main.rewardOverTime = new double[ExperimentCondition.values().length][Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 		
 		//construct practiceWorlds
 		List<MyWorld> practiceWorlds = new ArrayList<MyWorld>();

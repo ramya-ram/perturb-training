@@ -10,5 +10,5 @@ package code;
  * -Q_LEARNING: standard Q-learning from scratch with no prior knowledge
  */
 public enum ExperimentCondition {
-	ADAPT, PROCE_Q, PERTURB_Q, PRQL, PRQL_RBM, Q_LEARNING
+	ADAPT, PRQL, PRQL_RBM, Q_LEARNING, PROCE_Q, PERTURB_Q
 }

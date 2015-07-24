@@ -68,6 +68,6 @@ public class State {
 		stateArray[1] = humanLoc.col;
 		stateArray[2] = robotLoc.row;
 		stateArray[3] = robotLoc.col;
-		return ;
+		return stateArray;
 	}
 }

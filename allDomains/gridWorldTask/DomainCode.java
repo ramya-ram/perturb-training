@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import code.Constants;
+import code.ExperimentCondition;
+import code.Main;
 import code.MyWorld;
 
 /**
@@ -37,9 +39,11 @@ public class DomainCode {
 		}
 		allWorlds.add(testingWorlds);
 		
-		Main.PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
-		Main.AdaPTTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
-				
+		//.PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		//Main.AdaPTTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+			
+		Main.rewardOverTime = new double[ExperimentCondition.values().length][Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		
 		return allWorlds;
 	}
 	

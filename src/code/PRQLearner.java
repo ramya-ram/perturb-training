@@ -110,7 +110,7 @@ public class PRQLearner extends LearningAlgorithm {
 				//add this reward to the reward from previous simulation runs (at the end, we will divide by the number of runs to get an average learning curve)
 				if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
 					if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
-						Main.PRQLTotal[myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+						Main.rewardOverTime[condition.ordinal()][myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
 				} else {
 					if(withHuman && Main.saveToFile){
 						if(Main.CURRENT_EXECUTION != Main.SIMULATION)

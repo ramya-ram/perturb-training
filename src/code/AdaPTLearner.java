@@ -107,7 +107,7 @@ public class AdaPTLearner extends LearningAlgorithm {
 				if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
 					if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
 						//if 
-						Main.AdaPTTotal[myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+						Main.rewardOverTime[condition.ordinal()][myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
 				} else {
 					if(withHuman && Main.saveToFile){
 						if(Main.CURRENT_EXECUTION != Main.SIMULATION)
