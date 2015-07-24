@@ -669,6 +669,9 @@ public class LearningAlgorithm {
 	public void saveEpisodeToFile(State state, Action humanAction, Action robotAction, State nextState, double reward, int episodeNum, List<QValuesSet> trainedLearners){
 		try{
 			if(Main.CURRENT_EXECUTION == Main.SIMULATION && condition == ExperimentCondition.PRQL_RBM){
+				/*if(myWorld.typeOfWorld == Constants.TESTING){
+					System.out.println(currQValues.numNonZeros());
+				}*/
 				if(Main.currRBMDataNum < Constants.NUM_RBM_DATA_POINTS) {
 					int[][][] RBMDataPoints = null;
 					if(myWorld.typeOfWorld == Constants.TRAINING)
@@ -690,8 +693,13 @@ public class LearningAlgorithm {
 				
 				if(Main.currRBMDataNum == Constants.NUM_RBM_DATA_POINTS){
 					if(myWorld.typeOfWorld == Constants.TESTING){
+						//System.out.println(currQValues.numNonZeros());
+						//System.out.println("episodeNum "+episodeNum);
 						int closestMDPNum = (int)((double[]) Main.proxy.returningFeval("runRBM", 1, Main.RBMTrainTaskData, Main.RBMTestTaskData[myWorld.sessionNum-1], 5)[0])[0] - 1;
+						System.out.println("task "+(myWorld.sessionNum-1)+"closestMDP "+closestMDPNum);
 						currQValues = trainedLearners.get(closestMDPNum).clone();
+						//System.out.println(trainedLearners.get(closestMDPNum).numNonZeros());
+						//System.out.println(currQValues.numNonZeros());
 						Main.currRBMDataNum++;
 					} else {
 						Main.currRBMDataNum = 0;

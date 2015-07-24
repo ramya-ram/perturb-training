@@ -44,4 +44,17 @@ public class QValuesSet {
 	public QValuesSet clone(){
 		return new QValuesSet(robotQValues, jointQValues);
 	}
+	
+	public int numNonZeros(){
+		int numNonZeros = 0;
+		for(int i=0; i<this.jointQValues.length; i++){
+			for(int j=0; j<this.jointQValues[i].length; j++){
+				for(int k=0; k<this.jointQValues[i][j].length; k++){
+					if(this.jointQValues[i][j][k] != 0)
+						numNonZeros++;
+				}
+			}
+		}
+		return numNonZeros;
+	}
 }

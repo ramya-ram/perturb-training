@@ -241,11 +241,11 @@ public class Main {
 		
 		//PERTURBATION - PRQL
 		/*TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
-		PRQL.executeTask();
+		PRQL.executeTask();*/
 		
 		//Standard QLearning
-		TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
-		QLearning.executeTask();*/
+		//TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
+		//QLearning.executeTask();
 	}
 	
 	/**

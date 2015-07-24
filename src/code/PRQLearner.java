@@ -30,6 +30,7 @@ public class PRQLearner extends LearningAlgorithm {
 			numOfEpisodesChosen[i] = 0;
 		}
 		weights[library.size()] = 0;
+		//System.out.println(currQValues.numNonZeros());
 	}
 	
 	/**
