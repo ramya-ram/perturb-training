@@ -83,6 +83,10 @@ public class AdaPTLearner extends LearningAlgorithm {
 							currValueFuncNum = i;
 						}
 					}
+					if(withHuman){
+						Main.closestTrainingTask[condition.ordinal()][myWorld.sessionNum-1] = currValueFuncNum;
+						System.out.println("task "+(myWorld.sessionNum-1)+" closestMDP "+currValueFuncNum);
+					}
 				} else { //otherwise, choose a value function for action selection by sampling based on the probabilities
 					int randNum = Constants.rand.nextInt(100);
 					while(randNum > probForValueFuncs[currValueFuncNum]){
@@ -106,7 +110,6 @@ public class AdaPTLearner extends LearningAlgorithm {
 
 				if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
 					if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
-						//if 
 						Main.rewardOverTime[condition.ordinal()][myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
 				} else {
 					if(withHuman && Main.saveToFile){

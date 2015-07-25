@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import code.Constants;
+import code.ExperimentCondition;
+import code.Main;
 import code.MyWorld;
 
 /**
@@ -41,6 +43,7 @@ public class DomainCode {
 		//Main.AdaPTTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 		
 		Main.rewardOverTime = new double[ExperimentCondition.values().length][Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		Main.closestTrainingTask = new int[ExperimentCondition.values().length][Constants.NUM_TESTING_SESSIONS];
 		
 		//construct practiceWorlds
 		List<MyWorld> practiceWorlds = new ArrayList<MyWorld>();

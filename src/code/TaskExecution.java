@@ -275,7 +275,7 @@ public class TaskExecution {
 				Main.currRBMDataNum = 0;
 				MyWorld testWorld = testingWorlds.get(i);
 				QValuesSet initialQValues = getQValues(allLearners, initialQValuesIndex);
-				PRQLearner learner = new PRQLearner(testWorld, allPolicies, initialQValues, condition);
+				PRQLearner learner = new PRQLearner(testWorld, allPolicies, initialQValues, initialQValuesIndex, condition);
 				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
 				learner.runPRQL(false, allLearners); //robot simulates on the task
 				learner.runPRQL(true, testWorld.initialState(testWorld.sessionNum), allLearners); //robot works with the person

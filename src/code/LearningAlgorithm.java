@@ -696,8 +696,9 @@ public class LearningAlgorithm {
 						//System.out.println(currQValues.numNonZeros());
 						//System.out.println("episodeNum "+episodeNum);
 						int closestMDPNum = (int)((double[]) Main.proxy.returningFeval("runRBM", 1, Main.RBMTrainTaskData, Main.RBMTestTaskData[myWorld.sessionNum-1], 5)[0])[0] - 1;
-						System.out.println("task "+(myWorld.sessionNum-1)+" closestMDP "+(closestMDPNum+1));
+						System.out.println("task "+(myWorld.sessionNum-1)+" closestMDP "+closestMDPNum);
 						currQValues = trainedLearners.get(closestMDPNum).clone();
+						Main.closestTrainingTask[condition.ordinal()][myWorld.sessionNum-1] = closestMDPNum;
 						//System.out.println(trainedLearners.get(closestMDPNum).numNonZeros());
 						//System.out.println(currQValues.numNonZeros());
 						Main.currRBMDataNum++;

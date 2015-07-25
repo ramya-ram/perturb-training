@@ -11,12 +11,15 @@ public class PRQLearner extends LearningAlgorithm {
 	public double[] weights; //stores the weights for each prior policy and for the value function being currently learned
 	public int[] numOfEpisodesChosen; //stores for how many episodes each prior policy and the current value function has been used
 	public List<Policy> library; //stores the library of previously learned policies
+	public int previousTrainingTaskIndex = -1;
+	public static double[] bestPriorReward;
 	
-	public PRQLearner(MyWorld myWorld, List<Policy> library, QValuesSet qValuesSet, ExperimentCondition condition){
+	public PRQLearner(MyWorld myWorld, List<Policy> library, QValuesSet qValuesSet, int previousTrainingTaskIndex, ExperimentCondition condition){
 		this.myWorld = myWorld;
 		this.library = library;
-		this.condition = condition; 
-		
+		this.previousTrainingTaskIndex = previousTrainingTaskIndex;
+		this.condition = condition;
+				
 		timer = new Timer(1000, timerListener());
 		if(qValuesSet != null) //transfer the previously learned Q-values if not null
 			currQValues = qValuesSet.clone();
@@ -116,8 +119,14 @@ public class PRQLearner extends LearningAlgorithm {
 						if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 							saveDataToFile(reward, iterations, duration);
 						else{
-							if(myWorld.typeOfWorld == Constants.TESTING)
+							if(myWorld.typeOfWorld == Constants.TESTING){
 								rewardWriter.write(""+reward+", ");
+								if(reward > bestPriorReward[myWorld.sessionNum-1]){
+									bestPriorReward[myWorld.sessionNum-1] = reward;
+									Main.closestTrainingTask[condition.ordinal()][myWorld.sessionNum-1] = previousTrainingTaskIndex;
+									System.out.println("task "+(myWorld.sessionNum-1)+" closerMDP "+previousTrainingTaskIndex);
+								}
+							}
 						}
 					}
 				}

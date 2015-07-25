@@ -39,10 +39,11 @@ public class DomainCode {
 		}
 		allWorlds.add(testingWorlds);
 		
-		//.PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		//Main.PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 		//Main.AdaPTTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 			
 		Main.rewardOverTime = new double[ExperimentCondition.values().length][Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		Main.closestTrainingTask = new int[ExperimentCondition.values().length][Constants.NUM_TESTING_SESSIONS];
 		
 		return allWorlds;
 	}

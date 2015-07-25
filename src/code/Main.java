@@ -56,6 +56,7 @@ public class Main {
 	//public static double[][] AdaPTTotal;
 	
 	public static double[][][] rewardOverTime;
+	public static int[][] closestTrainingTask;
 	
 	public static int[][][] RBMTrainTaskData;
 	public static int[][][] RBMTestTaskData;
@@ -132,10 +133,26 @@ public class Main {
 			  	Main.proxy.eval(addPath);
 				
 				if(SUB_EXECUTION == REWARD_OVER_ITERS){ //compares algorithms on how quickly they learn (can be used to plot a learning curve showing how the agent learns the task over time)
+					BufferedWriter closestTrainingTaskWriter = new BufferedWriter(new FileWriter(new File(Constants.closestTrainingTask), true));
+					for(int num=0; num<ExperimentCondition.values().length; num++){
+						closestTrainingTaskWriter.write(""+ExperimentCondition.values()[num]+",,");
+						for(int j=0; j<Constants.NUM_TESTING_SESSIONS; j++){
+							closestTrainingTaskWriter.write(",");
+						}
+					}
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
 						runAllConditions(practiceWorlds, trainingWorldsPerturb, testingWorlds);
+						for(int num=0; num<ExperimentCondition.values().length; num++){
+							for(int j=0; j<Constants.NUM_TESTING_SESSIONS; j++){
+								closestTrainingTaskWriter.write(Main.closestTrainingTask[num]+",");
+							}
+							closestTrainingTaskWriter.write(",,");
+						}
+						closestTrainingTaskWriter.write("\n");
 					}
+					closestTrainingTaskWriter.close();
+					
 					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
 					
 					//the rows in AdaPTTotal and PRQLTotal represent different test cases
@@ -156,6 +173,7 @@ public class Main {
 						}
 						rewardWriter.write("\n");
 					}	*/
+					
 					for(int num=0; num<ExperimentCondition.values().length; num++){
 						rewardWriter.write(""+ExperimentCondition.values()[num]+"\n");
 						for(int i=0; i<rewardOverTime[num].length; i++){
@@ -241,6 +259,9 @@ public class Main {
 	 */
 	public static void runAllConditions(List<MyWorld> practiceWorlds, List<MyWorld> trainingWorldsPerturb, List<MyWorld> testingWorlds){
 		DomainCode.changeTestWorlds(testingWorlds);
+		PRQLearner.bestPriorReward = new double[Constants.NUM_TESTING_SESSIONS];
+		for(int i=0; i<PRQLearner.bestPriorReward.length; i++)
+			PRQLearner.bestPriorReward[i] = Integer.MIN_VALUE;
 		
 		//PERTURBATION - AdaPT
 		TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
