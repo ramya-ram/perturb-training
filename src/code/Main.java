@@ -141,6 +141,7 @@ public class Main {
 							closestTrainingTaskWriter.write(",");
 						}
 					}
+					closestTrainingTaskWriter.write("\n");
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
 						runAllConditions(practiceWorlds, trainingWorldsPerturb, testingWorlds);
@@ -150,7 +151,7 @@ public class Main {
 							}
 							closestTrainingTaskWriter.write(",,");
 						}
-						closestTrainingTaskWriter.write("\n\n");
+						closestTrainingTaskWriter.write("\n");
 					}
 					closestTrainingTaskWriter.close();
 					

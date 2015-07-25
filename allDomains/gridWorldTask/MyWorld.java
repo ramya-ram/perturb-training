@@ -40,6 +40,7 @@ public class MyWorld {
 	public int sessionNum; //specifies which training or testing round it is
 	public boolean perturb; //specifies if this world is for perturbation or procedural training
 	public int typeOfWorld; //specifies if this world is for training or testing
+	public String type = "";
 	
 	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum, Location goalLoc){
 		this.typeOfWorld = typeOfWorld;
@@ -47,13 +48,11 @@ public class MyWorld {
 		this.sessionNum = sessionNum;
 		this.goalLoc = goalLoc;
 		
-		String type = "";
-		if(typeOfWorld == Constants.TRAINING)
+		if(typeOfWorld == Constants.TRAINING){
 			type = "train";
-		else if(typeOfWorld == Constants.TESTING)
+			fileName = Constants.simulationDir+type+"world_"+Constants.DOMAIN_NAME+"_"+goalLoc.row+"_"+goalLoc.col+".csv";
+		} else if(typeOfWorld == Constants.TESTING)
 			type = "test";
-				
-		fileName = Constants.simulationDir+type+"world_"+Constants.DOMAIN_NAME+"_"+goalLoc.row+"_"+goalLoc.col+".csv";
 		
 		//initialize the mdp only once
 		if(mdp == null)
@@ -81,7 +80,8 @@ public class MyWorld {
 	 * Chooses a random goal location
 	 */
 	public void changeGoalLoc(){
-		this.goalLoc = new Location(Constants.rand.nextInt(Constants.NUM_ROWS), Constants.rand.nextInt(Constants.NUM_COLS));
+		this.goalLoc = new Location(Constants.rand.nextInt(Constants.NUM_ROWS), Constants.rand.nextInt(Constants.NUM_COLS));	
+		fileName = Constants.simulationDir+type+"world_"+Constants.DOMAIN_NAME+"_"+goalLoc.row+"_"+goalLoc.col+".csv";
 		System.out.println("Goal Location: "+this.goalLoc);
 	}
 	

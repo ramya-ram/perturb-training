@@ -8,8 +8,8 @@ import java.util.Scanner;
  */
 public class Constants {
 	
-	public static final double GAMMA = 1; // gamma is penalty on delayed result
-	public static final double ALPHA = 0.05; // learning rate
+	public static final double GAMMA = 1; //gamma is penalty on delayed result
+	public static final double ALPHA = 0.05; //learning rate
 	public static final double TEMP = 0; //temperature parameter 
 	public static final double DELTA_TEMP = 0.01; //change in temperature parameter 
 	
@@ -25,14 +25,14 @@ public class Constants {
 	public static final Random rand = new Random();
 	public static final Scanner scan = new Scanner(System.in);
 	
-	public static final int NUM_EPISODES = 500000; //number of episodes agent simulates in the training task before working with the person (works with the person twice for each training task)
-	public static final int NUM_EPISODES_TEST = 500000; //number of episodes the agent simulates in the testing task before evaluating
+	public static final int NUM_EPISODES = 100000; //number of episodes agent simulates in the training task before working with the person (works with the person twice for each training task)
+	public static final int NUM_EPISODES_TEST = 100000; //number of episodes the agent simulates in the testing task before evaluating
 	public static final int INTERVAL = 1000; //when showing reward over time (Main.INPUT == Main.REWARD_OVER_ITERS), reward is only recorded at every interval (e.g. every 100 iterations)
 	public static final int NUM_STEPS_PER_EPISODE = 30; //max number of steps the agent can have in each episode (after this, the agent stops the current execution and goes to the next episode)
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
-	public static int NUM_AVERAGING = 10; //run simulations this many times and average to get a more robust result
+	public static int NUM_AVERAGING = 1; //run simulations this many times and average to get a more robust result
 	public static int NUM_RBM_DATA_POINTS = 50000; //number of data points that are sampled and given as input to the RBM (recording ALL might be too much data, so this can be some subset of the total number of <s,a,s'> the agent experiences)
 	
 	public static int NUM_ROWS = 10;
