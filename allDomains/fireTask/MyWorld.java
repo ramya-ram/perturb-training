@@ -23,6 +23,7 @@ public class MyWorld {
 	public static State[] initStates;
 	public String predefinedText;
 	public String textToDisplay;
+	public String fileName;
 	
 	public int testWind = 0; 
 	public int testDryness = 0;
@@ -39,6 +40,14 @@ public class MyWorld {
 		this.sessionNum = sessionNum;
 		this.testWind = testWind;
 		this.testDryness = testDryness;
+		
+		String type = "";
+		if(typeOfWorld == Constants.TRAINING)
+			type = "train";
+		else if(typeOfWorld == Constants.TESTING)
+			type = "test";
+		
+		fileName = Constants.simulationDir+type+"world_"+Constants.DOMAIN_NAME+"_"+testWind+"_"+testDryness+".csv";
 		
 		//initialize the mdp only once
 		if(mdp == null)

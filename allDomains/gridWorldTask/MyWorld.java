@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import code.Action;
+import code.Constants;
 import code.State;
 
 /**
@@ -20,6 +21,7 @@ public class MyWorld {
 	public static State[] initStates;
 	public String predefinedText;
 	public String textToDisplay;
+	public String fileName;
 	
 	public Location goalLoc; //goal location in the grid
 	
@@ -44,6 +46,14 @@ public class MyWorld {
 		this.perturb = perturb;
 		this.sessionNum = sessionNum;
 		this.goalLoc = goalLoc;
+		
+		String type = "";
+		if(typeOfWorld == Constants.TRAINING)
+			type = "train";
+		else if(typeOfWorld == Constants.TESTING)
+			type = "test";
+				
+		fileName = Constants.simulationDir+type+"world_"+Constants.DOMAIN_NAME+"_"+goalLoc.row+"_"+goalLoc.col+".csv";
 		
 		//initialize the mdp only once
 		if(mdp == null)

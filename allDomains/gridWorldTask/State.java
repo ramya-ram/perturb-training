@@ -70,4 +70,13 @@ public class State {
 		stateArray[3] = robotLoc.col;
 		return stateArray;
 	}
+	
+	/**
+	 * Writes the state into a file using a format like "2,1,9,0" to represent the human and robot locations
+	 * The first two numbers are the human location row and column respectively and the second two numbers are the robot's row and column
+	 * This is used for sampling data points that can then be inputed into an RBM
+	 */
+	public String toStringRBM(){
+		return humanLoc.row+","+humanLoc.col+","+robotLoc.row+","+robotLoc.col;
+	}
 }

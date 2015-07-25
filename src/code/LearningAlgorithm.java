@@ -672,6 +672,13 @@ public class LearningAlgorithm {
 				/*if(myWorld.typeOfWorld == Constants.TESTING){
 					System.out.println(currQValues.numNonZeros());
 				}*/
+				if(Main.writeRBMDataToFile){
+					File file = new File(myWorld.fileName);
+					BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
+					writer.write(state.toStringRBM()+","+humanAction.ordinal()+","+robotAction.ordinal()+","+nextState.toStringRBM()+"\n");
+					writer.close();
+				}
+				
 				if(Main.currRBMDataNum < Constants.NUM_RBM_DATA_POINTS) {
 					int[][][] RBMDataPoints = null;
 					if(myWorld.typeOfWorld == Constants.TRAINING)

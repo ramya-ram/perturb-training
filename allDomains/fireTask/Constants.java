@@ -32,7 +32,7 @@ public class Constants {
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
-	public static int NUM_AVERAGING = 10; //run simulations this many times and average to get a more robust result
+	public static int NUM_AVERAGING = 1; //run simulations this many times and average to get a more robust result
 	public static int NUM_RBM_DATA_POINTS = 10000; //number of data points that are sampled and given as input to the RBM (recording ALL might be too much data, so this can be some subset of the total number of <s,a,s'> the agent experiences)
 	
 	public static int STATES_PER_FIRE = 5;
@@ -80,7 +80,8 @@ public class Constants {
 	public static String rewardAdaPTName = simulationDir+"AdaPT_"+DOMAIN_NAME+".csv";
 	public static String rewardPRQLName = simulationDir+"PRQL_"+DOMAIN_NAME+".csv";
 	public static String rewardQLearningName = simulationDir+"QLearning_"+DOMAIN_NAME+".csv";
-	public static String numIterName = simulationDir+"10aver_allConditions_numIter_"+DOMAIN_NAME+".csv";
+	public static String numIterName = simulationDir+"10aver_allConditions_numIter_"+DOMAIN_NAME+"_new2.csv";
+	public static String closestTrainingTask = simulationDir+"closestTrainingTask_"+DOMAIN_NAME+"_new2.csv";
 	
 	//directory where Q-values from a participant's training is stored to be used in the participant's testing phase
 	public static String trainedQValuesDir = "trainingQValues\\";

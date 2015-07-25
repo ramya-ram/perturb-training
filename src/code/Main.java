@@ -36,6 +36,7 @@ public class Main {
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
+	public static boolean writeRBMDataToFile = true;
 	
 	//for robot experiments with humans
 	public static GameView gameView;
@@ -145,11 +146,11 @@ public class Main {
 						runAllConditions(practiceWorlds, trainingWorldsPerturb, testingWorlds);
 						for(int num=0; num<ExperimentCondition.values().length; num++){
 							for(int j=0; j<Constants.NUM_TESTING_SESSIONS; j++){
-								closestTrainingTaskWriter.write(Main.closestTrainingTask[num]+",");
+								closestTrainingTaskWriter.write(Main.closestTrainingTask[num][j]+",");
 							}
 							closestTrainingTaskWriter.write(",,");
 						}
-						closestTrainingTaskWriter.write("\n");
+						closestTrainingTaskWriter.write("\n\n");
 					}
 					closestTrainingTaskWriter.close();
 					
