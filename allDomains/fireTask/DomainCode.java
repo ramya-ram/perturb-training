@@ -39,10 +39,10 @@ public class DomainCode {
 		Constants.NUM_TRAINING_SESSIONS = trainWind.length;
 		Constants.NUM_TESTING_SESSIONS = testWind.length;
 		
-		//Main.PRQLTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
-		//Main.AdaPTTotal = new double[Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
-		
-		Main.rewardOverTime = new double[ExperimentCondition.values().length][Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		//rewardOverTime and rewardLimited's first dimension is the number of conditions
+		//because we also include a comparison to PRQL with different priors, we add Constants.NUM_TRAINING_SESSIONS, corresponding to PRQL using each training task Q-values as its prior
+		Main.rewardOverTime = new double[ExperimentCondition.values().length+Constants.NUM_TRAINING_SESSIONS][Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
+		Main.rewardLimitedTime = new double[ExperimentCondition.values().length+Constants.NUM_TRAINING_SESSIONS][Constants.NUM_TESTING_SESSIONS];
 		Main.closestTrainingTask = new int[ExperimentCondition.values().length][Constants.NUM_TESTING_SESSIONS];
 		
 		//construct practiceWorlds

@@ -64,21 +64,10 @@ public class QLearner extends LearningAlgorithm {
 		            if(withHuman && Main.saveToFile){
 						if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 							saveDataToFile(tuple.getFirst(), tuple.getSecond(), tuple.getThird());
-						else{
+						else {
 							//if running simulation runs, save the reward into the appropriate file depending on the condition being run
-							if(myWorld.typeOfWorld == Constants.TESTING){
-								String fileName = "";
-								if(condition == ExperimentCondition.PERTURB_Q)
-				    				fileName = Constants.rewardPerturbQName;
-				    			else if(condition == ExperimentCondition.PROCE_Q)
-				    				fileName = Constants.rewardProceQName;
-				    			else if(condition == ExperimentCondition.Q_LEARNING)
-				    				fileName = Constants.rewardQLearningName;
-								BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
-	
-								rewardWriter.write(""+tuple.getFirst()+", ");
-								rewardWriter.close();
-							}
+							if(myWorld.typeOfWorld == Constants.TESTING)
+								Main.rewardLimitedTime[condition.ordinal()][myWorld.sessionNum-1] += tuple.getFirst();
 						}
 					}
 				}

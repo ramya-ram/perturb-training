@@ -1,8 +1,5 @@
 package code;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.util.List;
 
 import javax.swing.Timer;
@@ -33,7 +30,6 @@ public class PRQLearner extends LearningAlgorithm {
 			numOfEpisodesChosen[i] = 0;
 		}
 		weights[library.size()] = 0;
-		//System.out.println(currQValues.numNonZeros());
 	}
 	
 	/**
@@ -66,80 +62,77 @@ public class PRQLearner extends LearningAlgorithm {
 			Main.gameView.setStartRoundEnable(true);
 			Main.gameView.waitForStartRoundClick();
 		}
+		double currTemp = Constants.TEMP;
 		
-		try{
-			String fileName = "";
-			if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS)
-				fileName = Constants.numIterName;
-			else
-				fileName = Constants.rewardPRQLName;
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
-			double currTemp = Constants.TEMP;
-			for(int k=0; k<numEpisodes; k++){
-				//choosing a policy for action selection, giving each a probability based on the temperature parameter and weights
-				double[] probForPolicies = getProbForPolicies(weights, currTemp);
-				int policyNum = 0;
-				//use the value function that is currently being learned when evaluating PRQL
-				if(withHuman || (Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS && k%Constants.INTERVAL == 0)){
-					policyNum = probForPolicies.length-1; //the new value function being learned
-				} else { //otherwise sample a policy (or the new value function) for use in this episode
-					int randNum = Constants.rand.nextInt(100);
-					while(randNum>probForPolicies[policyNum]){
-						policyNum++;
-						if(policyNum>=probForPolicies.length){
-							policyNum = probForPolicies.length-1;
-							break;
-						}
+		for(int k=0; k<numEpisodes; k++){
+			//choosing a policy for action selection, giving each a probability based on the temperature parameter and weights
+			double[] probForPolicies = getProbForPolicies(weights, currTemp);
+			int policyNum = 0;
+			//use the value function that is currently being learned when evaluating PRQL
+			if(withHuman || (Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS && k%Constants.INTERVAL == 0)){
+				policyNum = probForPolicies.length-1; //the new value function being learned
+			} else { //otherwise sample a policy (or the new value function) for use in this episode
+				int randNum = Constants.rand.nextInt(100);
+				while(randNum>probForPolicies[policyNum]){
+					policyNum++;
+					if(policyNum>=probForPolicies.length){
+						policyNum = probForPolicies.length-1;
+						break;
 					}
 				}
-				double reward = 0;
-				int iterations = 0;
-				long duration = 0;
-				if(isPastPolicy(library, policyNum)){ //using a past policy
-					Policy currPolicy = library.get(policyNum);
-					Tuple<Double, Integer, Long> tuple = piReuse(currPolicy, Constants.NUM_STEPS_PER_EPISODE, Constants.PAST_PROB, Constants.DECAY_VALUE, k, trainedLearners);
-					reward = tuple.getFirst();
-					iterations = tuple.getSecond();
-					duration = tuple.getThird();
-				} else { //using the new value function being learned, running a full greedy episode (no exploration)
-					Tuple<Double, Integer, Long> tuple = runFullyGreedy(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, k, trainedLearners);
-					reward = tuple.getFirst();
-					iterations = tuple.getSecond();
-					duration = tuple.getThird();
-				}
-				
-				//if trying to get a learning curve of the agent, store the reward if one interval has passed
-				//so if the interval = 100, store the reward every 100 episodes
-				//add this reward to the reward from previous simulation runs (at the end, we will divide by the number of runs to get an average learning curve)
-				if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
-					if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
+			}
+			double reward = 0;
+			int iterations = 0;
+			long duration = 0;
+			if(isPastPolicy(library, policyNum)){ //using a past policy
+				Policy currPolicy = library.get(policyNum);
+				Tuple<Double, Integer, Long> tuple = piReuse(currPolicy, Constants.NUM_STEPS_PER_EPISODE, Constants.PAST_PROB, Constants.DECAY_VALUE, k, trainedLearners);
+				reward = tuple.getFirst();
+				iterations = tuple.getSecond();
+				duration = tuple.getThird();
+			} else { //using the new value function being learned, running a full greedy episode (no exploration)
+				Tuple<Double, Integer, Long> tuple = runFullyGreedy(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, k, trainedLearners);
+				reward = tuple.getFirst();
+				iterations = tuple.getSecond();
+				duration = tuple.getThird();
+			}
+			
+			//if trying to get a learning curve of the agent, store the reward if one interval has passed
+			//so if the interval = 100, store the reward every 100 episodes
+			//add this reward to the reward from previous simulation runs (at the end, we will divide by the number of runs to get an average learning curve)
+			if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
+				if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0){
+					if(previousTrainingTaskIndex >= 0)
+						Main.rewardOverTime[ExperimentCondition.values().length+previousTrainingTaskIndex][myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+					else
 						Main.rewardOverTime[condition.ordinal()][myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
-				} else {
-					if(withHuman && Main.saveToFile){
-						if(Main.CURRENT_EXECUTION != Main.SIMULATION)
-							saveDataToFile(reward, iterations, duration);
-						else{
-							if(myWorld.typeOfWorld == Constants.TESTING){
-								rewardWriter.write(""+reward+", ");
-								if(reward > bestPriorReward[myWorld.sessionNum-1]){
-									bestPriorReward[myWorld.sessionNum-1] = reward;
-									Main.closestTrainingTask[condition.ordinal()][myWorld.sessionNum-1] = previousTrainingTaskIndex;
-									System.out.println("task "+(myWorld.sessionNum-1)+" closerMDP "+previousTrainingTaskIndex);
-								}
+				}
+			} else {
+				if(withHuman && Main.saveToFile){
+					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
+						saveDataToFile(reward, iterations, duration);
+					else{
+						if(myWorld.typeOfWorld == Constants.TESTING){
+							//rewardWriter.write(""+reward+", ");
+							if(previousTrainingTaskIndex >= 0)
+								Main.rewardLimitedTime[ExperimentCondition.values().length+previousTrainingTaskIndex][myWorld.sessionNum-1] += reward;
+							else
+								Main.rewardLimitedTime[condition.ordinal()][myWorld.sessionNum-1] += reward;
+							if(reward > bestPriorReward[myWorld.sessionNum-1]){
+								bestPriorReward[myWorld.sessionNum-1] = reward;
+								Main.closestTrainingTask[condition.ordinal()][myWorld.sessionNum-1] = previousTrainingTaskIndex;
+								System.out.println("task "+(myWorld.sessionNum-1)+" closerMDP "+previousTrainingTaskIndex);
 							}
 						}
 					}
 				}
-	           
-				//the weight of the policy/value function chosen for this episode is updated
-				//and the number of times it been chosen is incremented
-				weights[policyNum] = (weights[policyNum]*numOfEpisodesChosen[policyNum] + reward)/(numOfEpisodesChosen[policyNum] + 1);
-				numOfEpisodesChosen[policyNum] = numOfEpisodesChosen[policyNum] + 1;
-				currTemp = currTemp + Constants.DELTA_TEMP;
 			}
-			rewardWriter.close();
-		} catch(Exception e){
-			e.printStackTrace();
+           
+			//the weight of the policy/value function chosen for this episode is updated
+			//and the number of times it been chosen is incremented
+			weights[policyNum] = (weights[policyNum]*numOfEpisodesChosen[policyNum] + reward)/(numOfEpisodesChosen[policyNum] + 1);
+			numOfEpisodesChosen[policyNum] = numOfEpisodesChosen[policyNum] + 1;
+			currTemp = currTemp + Constants.DELTA_TEMP;
 		}
 		return null;
 	}

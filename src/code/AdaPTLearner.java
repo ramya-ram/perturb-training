@@ -1,8 +1,5 @@
 package code;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,80 +55,70 @@ public class AdaPTLearner extends LearningAlgorithm {
 		}
 
 		//starting AdaPT algorithm
-		try{
-			String fileName = "";
-			if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS)
-				fileName = Constants.numIterName;
-			else
-				fileName = Constants.rewardAdaPTName;
-			BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(fileName), true));
-			double currTemp = Constants.TEMP;
-			for(int k=0; k<numEpisodes; k++){
-				//calculate probabilities of selecting each value function based on the temperature parameter and the weights
-				double[] probForValueFuncs = getProbForValueFuncs(qValuesList, currTemp);
-				probForValueFuncs = getAccumulatedArray(probForValueFuncs);
-				
-				int currValueFuncNum = 0;
-				//if working with the human, choose the value function with the highest weight
-				//or when calculating reward over time in simulation and one interval has passed, record the reward by using the value function with the highest weight
-				if(withHuman || (Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS && k%Constants.INTERVAL == 0)){ 
-					double maxWeight = Integer.MIN_VALUE;
-					currValueFuncNum = -1;
-					for(int i=0; i<qValuesList.size(); i++){
-						if(qValuesList.get(i).weight > maxWeight){
-							maxWeight = qValuesList.get(i).weight;
-							currValueFuncNum = i;
-						}
-					}
-					if(withHuman){
-						Main.closestTrainingTask[condition.ordinal()][myWorld.sessionNum-1] = currValueFuncNum;
-						System.out.println("task "+(myWorld.sessionNum-1)+" closestMDP "+currValueFuncNum);
-					}
-				} else { //otherwise, choose a value function for action selection by sampling based on the probabilities
-					int randNum = Constants.rand.nextInt(100);
-					while(randNum > probForValueFuncs[currValueFuncNum]){
-						currValueFuncNum++;
-						if(currValueFuncNum >= probForValueFuncs.length){
-							currValueFuncNum = probForValueFuncs.length-1;
-							break;
-						}
+		double currTemp = Constants.TEMP;
+		for(int k=0; k<numEpisodes; k++){
+			//calculate probabilities of selecting each value function based on the temperature parameter and the weights
+			double[] probForValueFuncs = getProbForValueFuncs(qValuesList, currTemp);
+			probForValueFuncs = getAccumulatedArray(probForValueFuncs);
+			
+			int currValueFuncNum = 0;
+			//if working with the human, choose the value function with the highest weight
+			//or when calculating reward over time in simulation and one interval has passed, record the reward by using the value function with the highest weight
+			if(withHuman || (Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS && k%Constants.INTERVAL == 0)){ 
+				double maxWeight = Integer.MIN_VALUE;
+				currValueFuncNum = -1;
+				for(int i=0; i<qValuesList.size(); i++){
+					if(qValuesList.get(i).weight > maxWeight){
+						maxWeight = qValuesList.get(i).weight;
+						currValueFuncNum = i;
 					}
 				}
-				double reward = 0;
-				int iterations = 0;
-				long duration = 0;
-				
-				//use the chosen value function to run an episode
-				currQValues = qValuesList.get(currValueFuncNum);
-				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, k, null);
-				reward = tuple.getFirst();
-				iterations = tuple.getSecond();
-				duration = tuple.getThird();
-
-				if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
-					if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
-						Main.rewardOverTime[condition.ordinal()][myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
-				} else {
-					if(withHuman && Main.saveToFile){
-						if(Main.CURRENT_EXECUTION != Main.SIMULATION)
-							saveDataToFile(reward, iterations, duration);
-						else{
-							if(myWorld.typeOfWorld == Constants.TESTING)
-								rewardWriter.write(""+reward+", ");
-						}
+				if(withHuman){
+					Main.closestTrainingTask[condition.ordinal()][myWorld.sessionNum-1] = currValueFuncNum;
+					System.out.println("task "+(myWorld.sessionNum-1)+" closestMDP "+currValueFuncNum);
+				}
+			} else { //otherwise, choose a value function for action selection by sampling based on the probabilities
+				int randNum = Constants.rand.nextInt(100);
+				while(randNum > probForValueFuncs[currValueFuncNum]){
+					currValueFuncNum++;
+					if(currValueFuncNum >= probForValueFuncs.length){
+						currValueFuncNum = probForValueFuncs.length-1;
+						break;
 					}
 				}
-				
-				//update the weight of the chosen value function and the number of times it has been used
-				currQValues = qValuesList.get(currValueFuncNum);
-				currQValues.weight = (currQValues.weight*currQValues.numEpisodesChosen + reward)/(currQValues.numEpisodesChosen + 1);
-				currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;
-				currTemp = currTemp + Constants.DELTA_TEMP;
 			}
-			rewardWriter.close();
-		} catch(Exception e){
-			e.printStackTrace();
-		}	
+			double reward = 0;
+			int iterations = 0;
+			long duration = 0;
+			
+			//use the chosen value function to run an episode
+			currQValues = qValuesList.get(currValueFuncNum);
+			Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, k, null);
+			reward = tuple.getFirst();
+			iterations = tuple.getSecond();
+			duration = tuple.getThird();
+
+			if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
+				if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
+					Main.rewardOverTime[condition.ordinal()][myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+			} else {
+				if(withHuman && Main.saveToFile){
+					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
+						saveDataToFile(reward, iterations, duration);
+					else{
+						if(myWorld.typeOfWorld == Constants.TESTING)
+							//rewardWriter.write(""+reward+", ");
+							Main.rewardLimitedTime[condition.ordinal()][myWorld.sessionNum-1] += reward;
+					}
+				}
+			}
+			
+			//update the weight of the chosen value function and the number of times it has been used
+			currQValues = qValuesList.get(currValueFuncNum);
+			currQValues.weight = (currQValues.weight*currQValues.numEpisodesChosen + reward)/(currQValues.numEpisodesChosen + 1);
+			currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;
+			currTemp = currTemp + Constants.DELTA_TEMP;
+		}
 	}
 	
 	/**

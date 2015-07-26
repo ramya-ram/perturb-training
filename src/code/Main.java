@@ -32,11 +32,11 @@ public class Main {
 	    	REWARD_LIMITED_TIME = 7; //compares AdaPT, PRQL with different priors, and Q-learning from scratch given limited simulation time
 	
 	//CHANGE WHEN RUNNING THIS PROGRAM: choose one of the above options and set it here
-	public static int INPUT = REWARD_OVER_ITERS;
+	public static int INPUT = REWARD_LIMITED_TIME;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
-	public static boolean writeRBMDataToFile = true;
+	public static boolean writeRBMDataToFile = false;
 	
 	//for robot experiments with humans
 	public static GameView gameView;
@@ -51,12 +51,9 @@ public class Main {
 	public static String[][][] proceTestCase;
 	
 	//adds up reward over many simulation runs that then gets averaged to obtain an average performance of the algorithm over time
-	//the rows in AdaPTTotal and PRQLTotal represent different test cases
-	//the columns represent reward over time
-	//public static double[][] PRQLTotal;
-	//public static double[][] AdaPTTotal;
-	
+	//the first dimension is the condition, each has a 2D array in which the rows different test case and the columns represent reward over time
 	public static double[][][] rewardOverTime;
+	public static double[][] rewardLimitedTime;
 	public static int[][] closestTrainingTask;
 	
 	public static int[][][] RBMTrainTaskData;
@@ -134,10 +131,10 @@ public class Main {
 			  	Main.proxy.eval(addPath);
 				
 				if(SUB_EXECUTION == REWARD_OVER_ITERS){ //compares algorithms on how quickly they learn (can be used to plot a learning curve showing how the agent learns the task over time)
-					BufferedWriter closestTrainingTaskWriter = new BufferedWriter(new FileWriter(new File(Constants.closestTrainingTask), true));
-					for(int num=0; num<ExperimentCondition.values().length; num++){
+					BufferedWriter closestTrainingTaskWriter = new BufferedWriter(new FileWriter(new File(Constants.closestTrainingTask)));
+					for(int num=0; num<closestTrainingTask.length; num++){
 						closestTrainingTaskWriter.write(""+ExperimentCondition.values()[num]+",,");
-						for(int j=0; j<Constants.NUM_TESTING_SESSIONS; j++){
+						for(int j=0; j<closestTrainingTask[num].length; j++){
 							closestTrainingTaskWriter.write(",");
 						}
 					}
@@ -145,9 +142,9 @@ public class Main {
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
 						runAllConditions(practiceWorlds, trainingWorldsPerturb, testingWorlds);
-						for(int num=0; num<ExperimentCondition.values().length; num++){
-							for(int j=0; j<Constants.NUM_TESTING_SESSIONS; j++){
-								closestTrainingTaskWriter.write(Main.closestTrainingTask[num][j]+",");
+						for(int num=0; num<closestTrainingTask.length; num++){
+							for(int j=0; j<closestTrainingTask[num].length; j++){
+								closestTrainingTaskWriter.write(closestTrainingTask[num][j]+",");
 							}
 							closestTrainingTaskWriter.write(",,");
 						}
@@ -155,29 +152,18 @@ public class Main {
 					}
 					closestTrainingTaskWriter.close();
 					
-					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.numIterName), true));
+					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardOverIters)));
 					
-					//the rows in AdaPTTotal and PRQLTotal represent different test cases
-					//the columns represent reward over time
+					//the first dimension of rewardOverTime is the condition (e.g. AdaPT, PRQL)
+					//within the condition is a 2D array, the columns represent reward over time, rows represent different test tasks
 					//when running multiple simulation runs in one test case/row, the reward over time is added up for that row so that when averaged, 
 					//that row represents a robust learning over time curve for that test case
-					/*for(int i=0; i<AdaPTTotal.length; i++){
-						for(int j=0; j<AdaPTTotal[i].length; j++){
-							rewardWriter.write((AdaPTTotal[i][j]/Constants.NUM_AVERAGING)+", ");
-						}
-						rewardWriter.write("\n");
-					}
-					rewardWriter.write("\n\n");
 					
-					for(int i=0; i<PRQLTotal.length; i++){
-						for(int j=0; j<PRQLTotal[i].length; j++){
-							rewardWriter.write((PRQLTotal[i][j]/Constants.NUM_AVERAGING)+", ");
-						}
-						rewardWriter.write("\n");
-					}	*/
-					
-					for(int num=0; num<ExperimentCondition.values().length; num++){
-						rewardWriter.write(""+ExperimentCondition.values()[num]+"\n");
+					for(int num=0; num<rewardOverTime.length; num++){
+						if(num < ExperimentCondition.values().length)
+							rewardWriter.write(""+ExperimentCondition.values()[num]+"\n");
+						else
+							rewardWriter.write("PRQL"+(num-ExperimentCondition.values().length)+"\n");
 						for(int i=0; i<rewardOverTime[num].length; i++){
 							for(int j=0; j<rewardOverTime[num][i].length; j++){
 								rewardWriter.write((rewardOverTime[num][i][j]/Constants.NUM_AVERAGING)+", ");
@@ -191,19 +177,25 @@ public class Main {
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
 						runAllConditions(practiceWorlds, trainingWorldsPerturb, testingWorlds);
-												
-						BufferedWriter rewardHRPerturbWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardAdaPTName), true));
-						BufferedWriter rewardPRQLWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardPRQLName), true));
-						BufferedWriter rewardQLearningWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardQLearningName), true));
-	
-						rewardHRPerturbWriter.write("\n");
-						rewardPRQLWriter.write("\n");
-						rewardQLearningWriter.write("\n");
-						
-						rewardHRPerturbWriter.close();
-						rewardPRQLWriter.close();
-						rewardQLearningWriter.close();
 					}
+					
+					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardLimitedTime)));
+					//the first dimension of rewardOverTime is the condition (e.g. AdaPT, PRQL)
+					//within the condition is a 2D array, the columns represent reward over time, rows represent different test tasks
+					//when running multiple simulation runs in one test case/row, the reward over time is added up for that row so that when averaged, 
+					//that row represents a robust learning over time curve for that test case
+					
+					for(int num=0; num<rewardOverTime.length; num++){
+						if(num < ExperimentCondition.values().length)
+							rewardWriter.write(""+ExperimentCondition.values()[num]+"\n");
+						else
+							rewardWriter.write("PRQL"+(num-ExperimentCondition.values().length)+"\n");
+						for(int i=0; i<rewardLimitedTime[num].length; i++){
+							rewardWriter.write((rewardLimitedTime[num][i]/Constants.NUM_AVERAGING)+", ");
+						}
+						rewardWriter.write("\n\n");
+					}
+					rewardWriter.close();		
 				}
 				
 				//remove matlab code path
@@ -273,13 +265,13 @@ public class Main {
 		TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
 		PRQL.executeTask();
 		
-		//Standard QLearning
-		TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
-		QLearning.executeTask();
-		
 		//PERTURBATION - PRQL using RBM prior
 		TaskExecution PRQL_RBM = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL_RBM);
 		PRQL_RBM.executeTask();
+		
+		//Standard QLearning
+		TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
+		QLearning.executeTask();
 	}
 	
 	/**
