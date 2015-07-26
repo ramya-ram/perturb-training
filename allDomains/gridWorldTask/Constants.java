@@ -33,7 +33,7 @@ public class Constants {
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
 	public static int NUM_AVERAGING = 50; //run simulations this many times and average to get a more robust result
-	public static int NUM_RBM_DATA_POINTS = 100000; //number of data points that are sampled and given as input to the RBM (recording ALL might be too much data, so this can be some subset of the total number of <s,a,s'> the agent experiences)
+	public static int NUM_RBM_DATA_POINTS = 10000; //number of data points that are sampled and given as input to the RBM (recording ALL might be too much data, so this can be some subset of the total number of <s,a,s'> the agent experiences)
 	
 	public static int NUM_ROWS = 10;
 	public static int NUM_COLS = 10;
