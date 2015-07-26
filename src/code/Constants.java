@@ -26,7 +26,7 @@ public class Constants {
 	public static final Scanner scan = new Scanner(System.in);
 	
 	public static final int NUM_EPISODES = 500000; //number of episodes agent simulates in the training task before working with the person (works with the person twice for each training task)
-	public static final int NUM_EPISODES_TEST = 5000; //number of episodes the agent simulates in the testing task before evaluating
+	public static final int NUM_EPISODES_TEST = 500000; //number of episodes the agent simulates in the testing task before evaluating
 	public static final int INTERVAL = 1000; //when showing reward over time (Main.INPUT == Main.REWARD_OVER_ITERS), reward is only recorded at every interval (e.g. every 100 iterations)
 	public static final int NUM_STEPS_PER_EPISODE = 30; //max number of steps the agent can have in each episode (after this, the agent stops the current execution and goes to the next episode)
 	

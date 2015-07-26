@@ -32,7 +32,7 @@ public class Main {
 	    	REWARD_LIMITED_TIME = 7; //compares AdaPT, PRQL with different priors, and Q-learning from scratch given limited simulation time
 	
 	//CHANGE WHEN RUNNING THIS PROGRAM: choose one of the above options and set it here
-	public static int INPUT = REWARD_LIMITED_TIME;
+	public static int INPUT = REWARD_OVER_ITERS;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
