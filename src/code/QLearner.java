@@ -58,8 +58,10 @@ public class QLearner extends LearningAlgorithm {
 				Tuple<Double, Integer, Long> tuple = run(Constants.NUM_STEPS_PER_EPISODE, initialStateHuman, k, null);
 				
 				if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
-					if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
+					if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0){
+						writeToFile(Constants.rewardOverItersData+"_"+condition+".csv", tuple.getFirst()+",");
 						Main.rewardOverTime[condition.ordinal()][myWorld.sessionNum-1][(k/Constants.INTERVAL)] += tuple.getFirst(); //tuple.getFirst() == reward
+					}
 				} else {
 		            if(withHuman && Main.saveToFile){
 						if(Main.CURRENT_EXECUTION != Main.SIMULATION)
@@ -67,7 +69,7 @@ public class QLearner extends LearningAlgorithm {
 						else {
 							//if running simulation runs, save the reward into the appropriate file depending on the condition being run
 							if(myWorld.typeOfWorld == Constants.TESTING){
-								writeToFile(Constants.rewardLimitedTimeData, ""+tuple.getFirst()+",");
+								writeToFile(Constants.rewardLimitedTimeData, tuple.getFirst()+",");
 								Main.rewardLimitedTime[condition.ordinal()][myWorld.sessionNum-1] += tuple.getFirst();
 							}
 						}

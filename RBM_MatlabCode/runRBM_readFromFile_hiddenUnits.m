@@ -2,7 +2,7 @@ function [bestNumHiddenUnits] = runRBM_readFromFile_hiddenUnits(numDataPoints)
 
 hiddenUnits = [5, 10, 50, 100, 500, 1000];
 
-trainDataFile = 'trainworld_fire_1.csv';
+trainDataFile = 'trainworld_gridWorld_1.csv';
 data = csvread(trainDataFile);
 data = data(1:numDataPoints, :);
 

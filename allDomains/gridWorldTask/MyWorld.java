@@ -79,9 +79,11 @@ public class MyWorld {
 	/**
 	 * Chooses a random goal location
 	 */
-	public void changeGoalLoc(){
-		this.goalLoc = new Location(Constants.rand.nextInt(Constants.NUM_ROWS), Constants.rand.nextInt(Constants.NUM_COLS));	
+	public void changeGoalLoc(int runNum){
+		//this.goalLoc = new Location(Constants.rand.nextInt(Constants.NUM_ROWS), Constants.rand.nextInt(Constants.NUM_COLS));
+		this.goalLoc = DomainCode.testingGoalLocs[runNum];
 		fileName = Constants.simulationDir+type+"world_"+Constants.DOMAIN_NAME+"_"+goalLoc.row+"_"+goalLoc.col+".csv";
+		LearningAlgorithm.writeToFile(Constants.goalLocs, ""+goalLoc+"\n");
 		System.out.println("Goal Location: "+this.goalLoc);
 	}
 	

@@ -46,12 +46,13 @@ public class TaskExecution {
 			if(condition == ExperimentCondition.PRQL) {
 				runTestingPhase(trainedLearners, trainedPolicies, -1); //runs PRQL with an uninformative prior (starts with value function initialized with all zeros)
 				LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, ",");
-				if(Main.SUB_EXECUTION == Main.REWARD_LIMITED_TIME){ //only run PRQL with different priors when SUB_EXECUTION == REWARD_LIMITED_TIME
+				//if(Main.SUB_EXECUTION == Main.REWARD_LIMITED_TIME){ //only run PRQL with different priors when SUB_EXECUTION == REWARD_LIMITED_TIME
 					for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
 						runTestingPhase(trainedLearners, trainedPolicies, i); //runs PRQL with a prior initialized with the value function learned from each training task
 						LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, ",");
+						LearningAlgorithm.writeToFile(Constants.rewardOverItersData+"_"+condition+""+(i)+".csv", "\n");
 					}
-				}
+				//}
 			} else if (condition == ExperimentCondition.PRQL_RBM) {
 			    runTestingPhase(trainedLearners, trainedPolicies, -1); //starts with value function initialized with the closest MDP/task from training (as determined using the RBM)
 				LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, ",");
@@ -273,6 +274,7 @@ public class TaskExecution {
 				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
 				learner.runAdaPT(false); //robot simulates on the task 
 				learner.runAdaPT(true, testWorld.initialState(testWorld.sessionNum)); //robot works with the person
+				LearningAlgorithm.writeToFile(Constants.rewardOverItersData+"_"+condition+".csv", ",,");
 			}
 		} else if(condition == ExperimentCondition.PRQL || condition == ExperimentCondition.PRQL_RBM){
 			for(int i=0; i<testingWorlds.size(); i++){
@@ -283,6 +285,10 @@ public class TaskExecution {
 				testWorld.setTitleLabel(1, colorsTesting, testWorld.sessionNum-1);
 				learner.runPRQL(false, allLearners); //robot simulates on the task
 				learner.runPRQL(true, testWorld.initialState(testWorld.sessionNum), allLearners); //robot works with the person
+				if(initialQValuesIndex >= 0)
+					LearningAlgorithm.writeToFile(Constants.rewardOverItersData+"_"+condition+""+(initialQValuesIndex)+".csv", ",,");
+				else
+					LearningAlgorithm.writeToFile(Constants.rewardOverItersData+"_"+condition+".csv", ",,");
 			}
 		} else if(condition == ExperimentCondition.Q_LEARNING){
 			for(int i=0; i<testingWorlds.size(); i++){

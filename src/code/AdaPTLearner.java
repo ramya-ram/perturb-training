@@ -99,8 +99,10 @@ public class AdaPTLearner extends LearningAlgorithm {
 			duration = tuple.getThird();
 
 			if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
-				if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0)
+				if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0){
+					writeToFile(Constants.rewardOverItersData+"_"+condition+".csv", reward+",");
 					Main.rewardOverTime[condition.ordinal()][myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+				}
 			} else {
 				if(withHuman && Main.saveToFile){
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)

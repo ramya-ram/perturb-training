@@ -1,13 +1,14 @@
 function [closestMDPNums] = runRBM_readFromFile(numTrainingTasks, numTestTasks, numDataPoints, numHiddenUnits, numRuns)
 
-trainDataPrefix = 'trainworld_fire_';
-testDataPrefix = 'testworld_fire_';
+trainDataPrefix = 'trainworld_gridWorld_';
+testDataPrefix = 'testworld_gridWorld_';
 allClosestMDPNums = zeros(numRuns,numTestTasks);
 
 for run=1:numRuns
     for testTask=1:numTestTasks
 
-        testDataFile = strcat(testDataPrefix, int2str(testTask), '.csv');
+        %testDataFile = strcat(testDataPrefix, int2str(testTask), '.csv');
+        testDataFile = strcat(testDataPrefix, '0_4', '.csv');
         testdata = csvread(testDataFile);
         testdata = testdata(1:numDataPoints, :);
 

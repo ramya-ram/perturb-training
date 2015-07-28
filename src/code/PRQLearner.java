@@ -9,7 +9,7 @@ public class PRQLearner extends LearningAlgorithm {
 	public int[] numOfEpisodesChosen; //stores for how many episodes each prior policy and the current value function has been used
 	public List<Policy> library; //stores the library of previously learned policies
 	public int previousTrainingTaskIndex = -1;
-	public static double[] bestPriorReward;
+	//public static double[] bestPriorReward;
 	
 	public PRQLearner(MyWorld myWorld, List<Policy> library, QValuesSet qValuesSet, int previousTrainingTaskIndex, ExperimentCondition condition){
 		this.myWorld = myWorld;
@@ -102,10 +102,13 @@ public class PRQLearner extends LearningAlgorithm {
 			//add this reward to the reward from previous simulation runs (at the end, we will divide by the number of runs to get an average learning curve)
 			if(Main.SUB_EXECUTION == Main.REWARD_OVER_ITERS){
 				if(myWorld.typeOfWorld == Constants.TESTING && k%Constants.INTERVAL == 0){
-					if(previousTrainingTaskIndex >= 0)
+					if(previousTrainingTaskIndex >= 0){
+						writeToFile(Constants.rewardOverItersData+"_"+condition+""+(previousTrainingTaskIndex)+".csv", reward+",");
 						Main.rewardOverTime[ExperimentCondition.values().length+previousTrainingTaskIndex][myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
-					else
+					} else {
+						writeToFile(Constants.rewardOverItersData+"_"+condition+".csv", reward+",");
 						Main.rewardOverTime[condition.ordinal()][myWorld.sessionNum-1][(k/Constants.INTERVAL)] += reward;
+					}
 				}
 			} else {
 				if(withHuman && Main.saveToFile){
@@ -118,11 +121,11 @@ public class PRQLearner extends LearningAlgorithm {
 								Main.rewardLimitedTime[ExperimentCondition.values().length+previousTrainingTaskIndex][myWorld.sessionNum-1] += reward;
 							else
 								Main.rewardLimitedTime[condition.ordinal()][myWorld.sessionNum-1] += reward;
-							if(reward > bestPriorReward[myWorld.sessionNum-1]){
+							/*if(reward > bestPriorReward[myWorld.sessionNum-1]){
 								bestPriorReward[myWorld.sessionNum-1] = reward;
 								Main.closestTrainingTask[condition.ordinal()][myWorld.sessionNum-1] = previousTrainingTaskIndex;
 								System.out.println("task "+(myWorld.sessionNum-1)+" closerMDP "+previousTrainingTaskIndex);
-							}
+							}*/
 						}
 					}
 				}

@@ -683,7 +683,7 @@ public class LearningAlgorithm {
 			if(Main.CURRENT_EXECUTION == Main.SIMULATION && condition == ExperimentCondition.PRQL_RBM){
 				if(Main.currRBMDataNum == Constants.NUM_RBM_DATA_POINTS){
 					if(myWorld.typeOfWorld == Constants.TESTING){
-						int closestMDPNum = (int)((double[]) Main.proxy.returningFeval("runRBM", 1, Main.RBMTrainTaskData, Main.RBMTestTaskData[myWorld.sessionNum-1], 5)[0])[0] - 1;
+						int closestMDPNum = (int)((double[]) Main.proxy.returningFeval("runRBM", 1, Main.RBMTrainTaskData, Main.RBMTestTaskData[myWorld.sessionNum-1], Constants.NUM_HIDDEN_UNITS)[0])[0] - 1;
 						System.out.println("task "+(myWorld.sessionNum-1)+" closestMDP "+closestMDPNum);
 						currQValues = trainedLearners.get(closestMDPNum).clone();
 						Main.closestTrainingTask[condition.ordinal()][myWorld.sessionNum-1] = closestMDPNum;

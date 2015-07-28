@@ -78,7 +78,7 @@ public class DomainCode {
 	/**
 	 * Changes the test worlds for each simulation run, if needed
 	 */
-	public static void changeTestWorlds(List<MyWorld> testingWorlds){
+	public static void changeTestWorlds(int numRun, List<MyWorld> testingWorlds){
 		return;
 	}
 	

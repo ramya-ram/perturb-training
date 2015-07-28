@@ -1,6 +1,9 @@
 package code;
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +17,8 @@ import code.MyWorld;
  * Includes initializing the training and testing worlds and initializing anything specific for human subject experiments
  */
 public class DomainCode {
+	public static Location[] testingGoalLocs;
+	
 	/**
 	 * Initialize training and testing worlds (and practice worlds for human subject experiments)
 	 */
@@ -45,15 +50,32 @@ public class DomainCode {
 		Main.rewardLimitedTime = new double[ExperimentCondition.values().length+Constants.NUM_TRAINING_SESSIONS][Constants.NUM_TESTING_SESSIONS];
 		Main.closestTrainingTask = new int[ExperimentCondition.values().length][Constants.NUM_TESTING_SESSIONS];
 		
+		try {
+			testingGoalLocs = new Location[Constants.NUM_AVERAGING];
+			BufferedReader reader = new BufferedReader(new FileReader(new File("inputFiles\\goalLocs.csv")));
+			String line;
+			int count = 0;
+		    while ((line = reader.readLine()) != null) {
+		        int row = Integer.parseInt(""+line.charAt(0));
+		        int col = Integer.parseInt(""+line.charAt(2));
+		        if(count < testingGoalLocs.length)
+		        	testingGoalLocs[count] = new Location(row,col);
+		        count++;
+		    }
+		    reader.close();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		
 		return allWorlds;
 	}
 	
 	/**
 	 * Changes the test worlds for each simulation run, if needed
 	 */
-	public static void changeTestWorlds(List<MyWorld> testingWorlds){
+	public static void changeTestWorlds(int runNum, List<MyWorld> testingWorlds){
 		for(MyWorld testWorld : testingWorlds){
-			testWorld.changeGoalLoc();
+			testWorld.changeGoalLoc(runNum);
 		}
 	}
 	

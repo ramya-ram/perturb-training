@@ -78,13 +78,16 @@ public class Main {
 			SUB_EXECUTION = INPUT;
 		}
 		
+		System.out.println(""+Constants.simulationDir);
+		File simulationDir = new File(Constants.simulationDir);
+		simulationDir.mkdirs();
+		
 		//initializes practice, training, and testing worlds (domain-specific so they are initialized in DomainCode.java)
 		List<List<MyWorld>> allWorlds = DomainCode.initializeWorlds();
 		List<MyWorld> practiceWorlds = allWorlds.get(0);
 		List<MyWorld> trainingWorldsProce = allWorlds.get(1);
 		List<MyWorld> trainingWorldsPerturb = allWorlds.get(2);
 		List<MyWorld> testingWorlds = allWorlds.get(3);
-		DomainCode.changeTestWorlds(testingWorlds);
 		
 		int numFeatures = 2*(new State().toArrayRBM().length) + 2;
 		RBMTrainTaskData = new int[Constants.NUM_TRAINING_SESSIONS][Constants.NUM_RBM_DATA_POINTS][numFeatures];
@@ -134,7 +137,9 @@ public class Main {
 					closestTrainingTaskWriter.write("\n");
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
-						runAllConditions(practiceWorlds, trainingWorldsPerturb, testingWorlds);
+						runAllConditions(i, practiceWorlds, trainingWorldsPerturb, testingWorlds);
+						for(ExperimentCondition condition : ExperimentCondition.values())
+							LearningAlgorithm.writeToFile(Constants.rewardOverItersData+"_"+condition+".csv", "\n");
 						for(int num=0; num<closestTrainingTask.length; num++){
 							for(int j=0; j<closestTrainingTask[num].length; j++){
 								closestTrainingTaskWriter.write(closestTrainingTask[num][j]+",");
@@ -185,7 +190,7 @@ public class Main {
 					
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
-						runAllConditions(practiceWorlds, trainingWorldsPerturb, testingWorlds);
+						runAllConditions(i, practiceWorlds, trainingWorldsPerturb, testingWorlds);
 						LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, "\n");
 					}
 					
@@ -277,11 +282,11 @@ public class Main {
 	/**
 	 * Run AdaPT, PRQL, and standard Q-learning for all training and test tasks
 	 */
-	public static void runAllConditions(List<MyWorld> practiceWorlds, List<MyWorld> trainingWorldsPerturb, List<MyWorld> testingWorlds){
-		DomainCode.changeTestWorlds(testingWorlds);
-		PRQLearner.bestPriorReward = new double[Constants.NUM_TESTING_SESSIONS];
+	public static void runAllConditions(int runNum, List<MyWorld> practiceWorlds, List<MyWorld> trainingWorldsPerturb, List<MyWorld> testingWorlds){
+		DomainCode.changeTestWorlds(runNum, testingWorlds);
+		/*PRQLearner.bestPriorReward = new double[Constants.NUM_TESTING_SESSIONS];
 		for(int i=0; i<PRQLearner.bestPriorReward.length; i++)
-			PRQLearner.bestPriorReward[i] = Integer.MIN_VALUE;
+			PRQLearner.bestPriorReward[i] = Integer.MIN_VALUE;*/
 		
 		//PERTURBATION - AdaPT
 		TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
