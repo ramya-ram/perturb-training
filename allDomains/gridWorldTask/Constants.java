@@ -60,6 +60,7 @@ public class Constants {
 	//directories and file names where simulation results are stored
 	public static String simulationDir = "C:\\Extra\\";
 	public static String DOMAIN_NAME = "gridWorld";
+	public static String rewardLimitedTimeData = simulationDir+"rewardLimitedTimeData_"+DOMAIN_NAME+"_"+NUM_AVERAGING+"aver.csv";
 	public static String rewardLimitedTime = simulationDir+"rewardLimitedTime_"+DOMAIN_NAME+"_"+NUM_AVERAGING+"aver.csv";
 	public static String rewardOverIters = simulationDir+"rewardOverIters_"+DOMAIN_NAME+"_"+NUM_AVERAGING+"aver.csv";
 	public static String closestTrainingTask = simulationDir+"closestTrainingTask_"+DOMAIN_NAME+"_"+NUM_AVERAGING+"aver.csv";

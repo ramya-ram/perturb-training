@@ -1,5 +1,6 @@
 package code;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,59 +20,31 @@ public class DomainCode {
 	public static List<List<MyWorld>> initializeWorlds(){
 		List<List<MyWorld>> allWorlds = new ArrayList<List<MyWorld>>();
 		
-		int[] trainWind = null;
-		int[] trainDryness = null;
-		int[] testWind = null;
-		int[] testDryness = null;
+		allWorlds.add(null); //no practice world for this task -- only running simulations
+		allWorlds.add(null); //no training world procedural for this task -- not running procedural training in simulations
 		
-		if(Main.CURRENT_EXECUTION == Main.SIMULATION){
-			trainWind = Constants.testWind_training_simulation;
-			trainDryness = Constants.testDryness_training_simulation;
-			testWind = Constants.testWind_testing_simulation;
-			testDryness = Constants.testDryness_testing_simulation;
-		} else {
-			trainWind = Constants.testWind_training;
-			trainDryness = Constants.testDryness_training;
-			testWind = Constants.testWind_testing;
-			testDryness = Constants.testDryness_testing;
+		//construct training worlds for procedural and perturbation
+		List<MyWorld> trainingWorldsPerturb = new ArrayList<MyWorld>();
+		for(int i=1; i<=Constants.NUM_TRAINING_SESSIONS; i++){
+			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i, Constants.trainingGoalLocs[i-1]);
+			trainingWorldsPerturb.add(perturbWorld);
 		}
+		allWorlds.add(trainingWorldsPerturb);
 		
-		Constants.NUM_TRAINING_SESSIONS = trainWind.length;
-		Constants.NUM_TESTING_SESSIONS = testWind.length;
-		
+		//construct testing worlds for both training
+		List<MyWorld> testingWorlds = new ArrayList<MyWorld>();
+		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
+			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, null);
+			testingWorlds.add(testWorld);
+		}
+		allWorlds.add(testingWorlds);
+			
 		//rewardOverTime and rewardLimited's first dimension is the number of conditions
 		//because we also include a comparison to PRQL with different priors, we add Constants.NUM_TRAINING_SESSIONS, corresponding to PRQL using each training task Q-values as its prior
 		Main.rewardOverTime = new double[ExperimentCondition.values().length+Constants.NUM_TRAINING_SESSIONS][Constants.NUM_TESTING_SESSIONS][Constants.NUM_EPISODES_TEST/Constants.INTERVAL];
 		Main.rewardLimitedTime = new double[ExperimentCondition.values().length+Constants.NUM_TRAINING_SESSIONS][Constants.NUM_TESTING_SESSIONS];
 		Main.closestTrainingTask = new int[ExperimentCondition.values().length][Constants.NUM_TESTING_SESSIONS];
 		
-		//construct practiceWorlds
-		List<MyWorld> practiceWorlds = new ArrayList<MyWorld>();
-		for(int i=1; i<=2; i++){
-			MyWorld practiceWorld = new MyWorld(Constants.PRACTICE, false, i, 0, 0);
-			practiceWorlds.add(practiceWorld);
-		}
-		allWorlds.add(practiceWorlds);
-		
-		//construct training worlds for procedural and perturbation training
-		List<MyWorld> trainingWorldsProce = new ArrayList<MyWorld>();
-		List<MyWorld> trainingWorldsPerturb = new ArrayList<MyWorld>();
-		for(int i=1; i<=Constants.NUM_TRAINING_SESSIONS; i++){
-			MyWorld proceWorld = new MyWorld(Constants.TRAINING, false, i, trainWind[0], trainDryness[0]);
-			trainingWorldsProce.add(proceWorld);
-			MyWorld perturbWorld = new MyWorld(Constants.TRAINING, true, i, trainWind[i-1], trainDryness[i-1]);
-			trainingWorldsPerturb.add(perturbWorld);
-		}
-		allWorlds.add(trainingWorldsProce);
-		allWorlds.add(trainingWorldsPerturb);
-		
-		//construct testing worlds for both types of training
-		List<MyWorld> testingWorlds = new ArrayList<MyWorld>();
-		for(int i=1; i<=Constants.NUM_TESTING_SESSIONS; i++){
-			MyWorld testWorld = new MyWorld(Constants.TESTING, true, i, testWind[i-1], testDryness[i-1]);
-			testingWorlds.add(testWorld);
-		}
-		allWorlds.add(testingWorlds);
 		return allWorlds;
 	}
 	
@@ -79,19 +52,15 @@ public class DomainCode {
 	 * Changes the test worlds for each simulation run, if needed
 	 */
 	public static void changeTestWorlds(List<MyWorld> testingWorlds){
-		return;
+		for(MyWorld testWorld : testingWorlds){
+			testWorld.changeGoalLoc();
+		}
 	}
 	
 	/**
 	 * Initialization for human subject experiments, if needed
 	 */
 	public static void initForExperiments(List<MyWorld> trainingWorldsProce, List<MyWorld> trainingWorldsPerturb, List<MyWorld> testingWorlds){
-		//sets simulation wind and dryness
-		for(MyWorld trainWorld : trainingWorldsProce)
-			trainWorld.setSimulationWindDryness(Constants.simulationWind_training[0], Constants.simulationDryness_training[0]);
-		for(MyWorld trainWorld : trainingWorldsPerturb)
-			trainWorld.setSimulationWindDryness(Constants.simulationWind_training[trainWorld.sessionNum-1], Constants.simulationDryness_training[trainWorld.sessionNum-1]);
-		for(MyWorld testWorld : testingWorlds)
-			testWorld.setSimulationWindDryness(Constants.simulationWind_testing[testWorld.sessionNum-1], Constants.simulationDryness_testing[testWorld.sessionNum-1]);
+		return;
 	}
 }
