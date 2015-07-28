@@ -106,9 +106,10 @@ public class AdaPTLearner extends LearningAlgorithm {
 					if(Main.CURRENT_EXECUTION != Main.SIMULATION)
 						saveDataToFile(reward, iterations, duration);
 					else{
-						if(myWorld.typeOfWorld == Constants.TESTING)
-							//rewardWriter.write(""+reward+", ");
+						if(myWorld.typeOfWorld == Constants.TESTING){
+							writeToFile(Constants.rewardLimitedTimeData, ""+reward+",");
 							Main.rewardLimitedTime[condition.ordinal()][myWorld.sessionNum-1] += reward;
+						}
 					}
 				}
 			}

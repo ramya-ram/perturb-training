@@ -167,9 +167,26 @@ public class Main {
 					}
 					rewardWriter.close();
 				} else if(SUB_EXECUTION == REWARD_LIMITED_TIME){ //compares the algorithms after simulating for a limited number of iterations
+					BufferedWriter dataWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardLimitedTimeData)));
+					for(int num=0; num<ExperimentCondition.values().length; num++){
+						dataWriter.write(""+ExperimentCondition.values()[num]+",");
+						for(int j=0; j<Constants.NUM_TESTING_SESSIONS; j++)
+							dataWriter.write(",");
+						if(ExperimentCondition.values()[num] == ExperimentCondition.PRQL){
+							for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++){
+								dataWriter.write("PRQL"+(i)+",");
+								for(int j=0; j<Constants.NUM_TESTING_SESSIONS; j++)
+									dataWriter.write(",");
+							}
+						}
+					}
+					dataWriter.write("\n");
+					dataWriter.close();
+					
 					for(int i=0; i<Constants.NUM_AVERAGING; i++){
 						System.out.println("*** "+i+" ***");
 						runAllConditions(practiceWorlds, trainingWorldsPerturb, testingWorlds);
+						LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, "\n");
 					}
 					
 					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardLimitedTime)));
@@ -178,7 +195,7 @@ public class Main {
 					//when running multiple simulation runs in one test case/row, the reward over time is added up for that row so that when averaged, 
 					//that row represents a robust learning over time curve for that test case
 					
-					for(int num=0; num<rewardOverTime.length; num++){
+					for(int num=0; num<rewardLimitedTime.length; num++){
 						if(num < ExperimentCondition.values().length)
 							rewardWriter.write(""+ExperimentCondition.values()[num]+"\n");
 						else

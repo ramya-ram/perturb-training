@@ -32,7 +32,7 @@ public class Constants {
 	
 	public static boolean usePredefinedTestCases = false;
 	public static boolean useOfflineValues = false;
-	public static int NUM_AVERAGING = 3; //run simulations this many times and average to get a more robust result
+	public static int NUM_AVERAGING = 5; //run simulations this many times and average to get a more robust result
 	public static int NUM_RBM_DATA_POINTS = 100; //number of data points that are sampled and given as input to the RBM (recording ALL might be too much data, so this can be some subset of the total number of <s,a,s'> the agent experiences)
 	
 	public static int STATES_PER_FIRE = 5;
@@ -75,6 +75,7 @@ public class Constants {
 	//directories and file names where simulation results are stored
 	public static String simulationDir = "C:\\Extra\\";
 	public static String DOMAIN_NAME = "fire";
+	public static String rewardLimitedTimeData = simulationDir+"rewardLimitedTimeData_"+DOMAIN_NAME+"_"+NUM_AVERAGING+"aver.csv";
 	public static String rewardLimitedTime = simulationDir+"rewardLimitedTime_"+DOMAIN_NAME+"_"+NUM_AVERAGING+"aver.csv";
 	public static String rewardOverIters = simulationDir+"rewardOverIters_"+DOMAIN_NAME+"_"+NUM_AVERAGING+"aver.csv";
 	public static String closestTrainingTask = simulationDir+"closestTrainingTask_"+DOMAIN_NAME+"_"+NUM_AVERAGING+"aver.csv";

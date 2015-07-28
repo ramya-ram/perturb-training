@@ -45,15 +45,19 @@ public class TaskExecution {
 
 			if(condition == ExperimentCondition.PRQL) {
 				runTestingPhase(trainedLearners, trainedPolicies, -1); //runs PRQL with an uninformative prior (starts with value function initialized with all zeros)
+				LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, ",");
 				if(Main.SUB_EXECUTION == Main.REWARD_LIMITED_TIME){ //only run PRQL with different priors when SUB_EXECUTION == REWARD_LIMITED_TIME
 					for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
 						runTestingPhase(trainedLearners, trainedPolicies, i); //runs PRQL with a prior initialized with the value function learned from each training task
+						LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, ",");
 					}
 				}
 			} else if (condition == ExperimentCondition.PRQL_RBM) {
 			    runTestingPhase(trainedLearners, trainedPolicies, -1); //starts with value function initialized with the closest MDP/task from training (as determined using the RBM)
+				LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, ",");
 			} else {
 				runTestingPhase(trainedLearners, trainedPolicies, -1); //for AdaPT, no prior is needed
+				LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, ",");
 			}
 		}
 		

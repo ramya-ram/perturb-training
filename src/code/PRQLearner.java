@@ -113,7 +113,7 @@ public class PRQLearner extends LearningAlgorithm {
 						saveDataToFile(reward, iterations, duration);
 					else{
 						if(myWorld.typeOfWorld == Constants.TESTING){
-							//rewardWriter.write(""+reward+", ");
+							writeToFile(Constants.rewardLimitedTimeData, ""+reward+",");
 							if(previousTrainingTaskIndex >= 0)
 								Main.rewardLimitedTime[ExperimentCondition.values().length+previousTrainingTaskIndex][myWorld.sessionNum-1] += reward;
 							else

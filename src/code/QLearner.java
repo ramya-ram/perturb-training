@@ -66,8 +66,10 @@ public class QLearner extends LearningAlgorithm {
 							saveDataToFile(tuple.getFirst(), tuple.getSecond(), tuple.getThird());
 						else {
 							//if running simulation runs, save the reward into the appropriate file depending on the condition being run
-							if(myWorld.typeOfWorld == Constants.TESTING)
+							if(myWorld.typeOfWorld == Constants.TESTING){
+								writeToFile(Constants.rewardLimitedTimeData, ""+tuple.getFirst()+",");
 								Main.rewardLimitedTime[condition.ordinal()][myWorld.sessionNum-1] += tuple.getFirst();
+							}
 						}
 					}
 				}

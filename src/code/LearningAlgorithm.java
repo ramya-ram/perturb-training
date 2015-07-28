@@ -665,6 +665,16 @@ public class LearningAlgorithm {
 		}
 	}
 	
+	public static void writeToFile(String fileName, String dataToWrite){
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(fileName), true));
+			writer.write(dataToWrite);
+			writer.close();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * Saves the episode, iteration by iteration, for human subject experiments and for sampling data points
 	 */
