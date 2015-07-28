@@ -120,15 +120,8 @@ public class Main {
 			saveToFile = true;
 			
 			if(CURRENT_EXECUTION == SIMULATION){ //if running anything in simulation (multiple options are part of this)
-				MatlabProxyFactoryOptions options = new MatlabProxyFactoryOptions.Builder().setUsePreviouslyControlledSession(true).build();
 				
-				//create a proxy to control MATLAB
-			    factory = new MatlabProxyFactory(options);
-			    proxy = factory.getProxy();
-			    
-			    //add matlab code path
-			  	String addPath = "addpath('"+Paths.get("").toAbsolutePath().toString()+"\\RBM_MatlabCode')";
-			  	Main.proxy.eval(addPath);
+				initMatlabProxy();
 				
 				if(SUB_EXECUTION == REWARD_OVER_ITERS){ //compares algorithms on how quickly they learn (can be used to plot a learning curve showing how the agent learns the task over time)
 					BufferedWriter closestTrainingTaskWriter = new BufferedWriter(new FileWriter(new File(Constants.closestTrainingTask)));
@@ -243,6 +236,22 @@ public class Main {
 				Main.gameView.initTitleGUI("end");
 				Main.gameView.setTitleAndRoundLabel("", 0, Color.BLACK);
 			}
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public static void initMatlabProxy(){
+		try{
+			MatlabProxyFactoryOptions options = new MatlabProxyFactoryOptions.Builder().setUsePreviouslyControlledSession(true).build();
+			
+			//create a proxy to control MATLAB
+		    factory = new MatlabProxyFactory(options);
+		    proxy = factory.getProxy();
+		    
+		    //add matlab code path
+		  	String addPath = "addpath('"+Paths.get("").toAbsolutePath().toString()+"\\RBM_MatlabCode')";
+		  	Main.proxy.eval(addPath);
 		} catch(Exception e){
 			e.printStackTrace();
 		}

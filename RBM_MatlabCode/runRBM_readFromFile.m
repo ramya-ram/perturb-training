@@ -1,38 +1,50 @@
-function [closestMDPNum] = runRBM_readFromFile(numTrainingTasks, numDataPoints, numHiddenUnits, testTaskNum)
+function [closestMDPNums] = runRBM_readFromFile(numTrainingTasks, numTestTasks, numDataPoints, numHiddenUnits, numRuns)
 
-trainDataPrefix = 'RBM_MatlabCode\\trainworld_fire_';
-testDataFile = strcat('RBM_MatlabCode\\testworld_fire_', int2str(testTaskNum), '.csv');
+trainDataPrefix = 'trainworld_fire_';
+testDataPrefix = 'testworld_fire_';
+allClosestMDPNums = zeros(numRuns,numTestTasks);
 
-testDataFile = strcat(testDataFile);
-testdata = csvread(testDataFile);
-testdata = testdata(1:numDataPoints, :);
+for run=1:numRuns
+    for testTask=1:numTestTasks
 
-meanError = zeros(1,numTrainingTasks);
- 
-for num=1:numTrainingTasks
-    trainDataFile = strcat(trainDataPrefix, int2str(num), '.csv');
-    data = csvread(trainDataFile);
-    data = data(1:numDataPoints, :);
+        testDataFile = strcat(testDataPrefix, int2str(testTask), '.csv');
+        testdata = csvread(testDataFile);
+        testdata = testdata(1:numDataPoints, :);
 
-    % Train Gaussian-Bernoulli RBM
-    rbm = randRBM(size(data,2), numHiddenUnits, 'GBRBM');
-    rbm = pretrainRBM(rbm, data);
-    
-    %reconstruct the images by going up down then up again using learned model
-    up = v2h(rbm, testdata);
-    down = h2v(rbm, up);
+        meanError = zeros(1,numTrainingTasks);
 
-    errors = zeros(length(testdata), 1);
+        for trainTask=1:numTrainingTasks
+            trainDataFile = strcat(trainDataPrefix, int2str(trainTask), '.csv');
+            data = csvread(trainDataFile);
+            data = data(1:numDataPoints, :);
 
-    for i=1:length(testdata)
-        errors(i) = sqrt(sum((testdata(i,:) - down(i,:)) .^ 2));
+            % Train Gaussian-Bernoulli RBM
+            rbm = randRBM(size(data,2), numHiddenUnits, 'GBRBM');
+            rbm = pretrainRBM(rbm, data);
+
+            %reconstruct the images by going up down then up again using learned model
+            up = v2h(rbm, testdata);
+            down = h2v(rbm, up);
+
+            errors = zeros(length(testdata), 1);
+
+            for i=1:length(testdata)
+                errors(i) = sqrt(sum((testdata(i,:) - down(i,:)) .^ 2));
+            end
+
+            meanError(1,trainTask) = (1/length(testdata))*sum(errors);
+        end
+
+        [minValue, closestMDPNum] = min(meanError);
+        allClosestMDPNums(run,testTask) = closestMDPNum-1;
+        %meanError
+        %closestMDPNum
+
     end
-
-    meanError(1,num) = (1/length(testdata))*sum(errors);
+    
 end
 
-[minValue, closestMDPNum] = min(meanError);
-meanError
-closestMDPNum
+allClosestMDPNums
+closestMDPNums = mode(allClosestMDPNums,1)
 
 end

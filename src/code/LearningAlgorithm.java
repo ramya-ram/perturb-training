@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.swing.Timer;
 
+import matlabcontrol.MatlabInvocationException;
+
 /**
  * Parent class for QLearner and PolicyReuseLearner
  */
@@ -669,6 +671,18 @@ public class LearningAlgorithm {
 	public void saveEpisodeToFile(State state, Action humanAction, Action robotAction, State nextState, double reward, int episodeNum, List<QValuesSet> trainedLearners){
 		try{
 			if(Main.CURRENT_EXECUTION == Main.SIMULATION && condition == ExperimentCondition.PRQL_RBM){
+				if(Main.currRBMDataNum == Constants.NUM_RBM_DATA_POINTS){
+					if(myWorld.typeOfWorld == Constants.TESTING){
+						int closestMDPNum = (int)((double[]) Main.proxy.returningFeval("runRBM", 1, Main.RBMTrainTaskData, Main.RBMTestTaskData[myWorld.sessionNum-1], 5)[0])[0] - 1;
+						System.out.println("task "+(myWorld.sessionNum-1)+" closestMDP "+closestMDPNum);
+						currQValues = trainedLearners.get(closestMDPNum).clone();
+						Main.closestTrainingTask[condition.ordinal()][myWorld.sessionNum-1] = closestMDPNum;
+						Main.currRBMDataNum++;
+					} else {
+						Main.currRBMDataNum = 0;
+					}
+				}
+				
 				if(Main.writeRBMDataToFile){
 					File file = new File(myWorld.fileName);
 					BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
@@ -694,18 +708,6 @@ public class LearningAlgorithm {
 					
 					Main.currRBMDataNum++;
 				}
-				
-				if(Main.currRBMDataNum == Constants.NUM_RBM_DATA_POINTS){
-					if(myWorld.typeOfWorld == Constants.TESTING){
-						int closestMDPNum = (int)((double[]) Main.proxy.returningFeval("runRBM", 1, Main.RBMTrainTaskData, Main.RBMTestTaskData[myWorld.sessionNum-1], 5)[0])[0] - 1;
-						System.out.println("task "+(myWorld.sessionNum-1)+" closestMDP "+closestMDPNum);
-						currQValues = trainedLearners.get(closestMDPNum).clone();
-						Main.closestTrainingTask[condition.ordinal()][myWorld.sessionNum-1] = closestMDPNum;
-						Main.currRBMDataNum++;
-					} else {
-						Main.currRBMDataNum = 0;
-					}
-				}
 			}
 			else if(withHuman && Main.saveToFile){
 				BufferedWriter episodeWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"episode.txt"), true));
@@ -713,6 +715,9 @@ public class LearningAlgorithm {
 						+nextState.toString()+", "+reward+"\n");
 				episodeWriter.close();
 	        }
+		} catch(MatlabInvocationException e){
+			Main.initMatlabProxy();
+			saveEpisodeToFile(state, humanAction, robotAction, nextState, reward, episodeNum, trainedLearners);
 		} catch(Exception e){
 			e.printStackTrace();
 		}
