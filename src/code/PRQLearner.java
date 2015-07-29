@@ -140,7 +140,7 @@ public class PRQLearner extends LearningAlgorithm {
 		}
 		long end = System.currentTimeMillis();
 		long duration = end-start;
-		System.out.println(condition+" duration "+numEpisodes+" "+myWorld.type+" "+myWorld.sessionNum+" "+duration);
+		//System.out.println(condition+" duration "+numEpisodes+" "+myWorld.type+" "+myWorld.sessionNum+" "+duration);
 		writeToFile(Constants.duration+"_"+condition+".csv", duration+"\n");
 		return null;
 	}
