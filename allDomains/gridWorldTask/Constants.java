@@ -22,15 +22,15 @@ public class Constants {
 	public static final double DECAY_VALUE = 0.95; //decay the probability of choosing past policies
 	
 	//For PRQL-RBM
-	public static int NUM_RBM_DATA_POINTS = 50; //number of data points that are sampled and given as input to the RBM (recording ALL might be too much data, so this can be some subset of the total number of <s,a,s'> the agent experiences)
+	public static int NUM_RBM_DATA_POINTS = 10000; //number of data points that are sampled and given as input to the RBM (recording ALL might be too much data, so this can be some subset of the total number of <s,a,s'> the agent experiences)
 	public static int NUM_HIDDEN_UNITS = 5;
 	
 	//Number of runs/episodes
-	public static final int NUM_EPISODES = 100; //number of episodes agent simulates in the training task before working with the person (works with the person twice for each training task)
-	public static final int NUM_EPISODES_TEST = 100; //number of episodes the agent simulates in the testing task before evaluating
-	public static final int INTERVAL = 10; //when showing reward over time (Main.INPUT == Main.REWARD_OVER_ITERS), reward is only recorded at every interval (e.g. every 100 iterations)
+	public static final int NUM_EPISODES = 500000; //number of episodes agent simulates in the training task before working with the person (works with the person twice for each training task)
+	public static final int NUM_EPISODES_TEST = 5000; //number of episodes the agent simulates in the testing task before evaluating
+	public static final int INTERVAL = 5000; //when showing reward over time (Main.INPUT == Main.REWARD_OVER_ITERS), reward is only recorded at every interval (e.g. every 100 iterations)
 	public static final int NUM_STEPS_PER_EPISODE = 30; //max number of steps the agent can have in each episode (after this, the agent stops the current execution and goes to the next episode)
-	public static int NUM_AVERAGING = 5; //run simulations this many times and average to get a more robust result
+	public static int NUM_AVERAGING = 50; //run simulations this many times and average to get a more robust result
 	
 	//For human subject experiments
 	public static int MAX_TIME = 15; //the number of seconds participants get to make a decision in human subject experiments
@@ -64,9 +64,10 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 		
 	//directories and file names where simulation results are stored
-	public static String simulationDir = "C:\\PerturbSimulationData\\07-28-2015-3\\";
+	public static String simulationDir = "C:\\PerturbSimulationData\\GridWorld_LimitedTime\\";
 	public static String DOMAIN_NAME = "gridWorld";
 	public static String goalLocs = simulationDir+"goalLocsOut.csv";
+	public static String duration = simulationDir+DOMAIN_NAME+"_duration";
 	public static String rewardOverItersData = simulationDir+DOMAIN_NAME+"_overTime";
 	public static String rewardLimitedTimeData = simulationDir+DOMAIN_NAME+"_limitedTimeAllData.csv";
 	public static String rewardLimitedTime = simulationDir+DOMAIN_NAME+"_limitedTimeAverage.csv";

@@ -64,6 +64,7 @@ public class PRQLearner extends LearningAlgorithm {
 		}
 		double currTemp = Constants.TEMP;
 		
+		long start = System.currentTimeMillis();
 		for(int k=0; k<numEpisodes; k++){
 			//choosing a policy for action selection, giving each a probability based on the temperature parameter and weights
 			double[] probForPolicies = getProbForPolicies(weights, currTemp);
@@ -137,6 +138,10 @@ public class PRQLearner extends LearningAlgorithm {
 			numOfEpisodesChosen[policyNum] = numOfEpisodesChosen[policyNum] + 1;
 			currTemp = currTemp + Constants.DELTA_TEMP;
 		}
+		long end = System.currentTimeMillis();
+		long duration = end-start;
+		System.out.println(condition+" duration "+numEpisodes+" "+myWorld.type+" "+myWorld.sessionNum+" "+duration);
+		writeToFile(Constants.duration+"_"+condition+".csv", duration+"\n");
 		return null;
 	}
 	

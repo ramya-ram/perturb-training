@@ -56,6 +56,7 @@ public class AdaPTLearner extends LearningAlgorithm {
 
 		//starting AdaPT algorithm
 		double currTemp = Constants.TEMP;
+		long start = System.currentTimeMillis();
 		for(int k=0; k<numEpisodes; k++){
 			//calculate probabilities of selecting each value function based on the temperature parameter and the weights
 			double[] probForValueFuncs = getProbForValueFuncs(qValuesList, currTemp);
@@ -122,6 +123,10 @@ public class AdaPTLearner extends LearningAlgorithm {
 			currQValues.numEpisodesChosen = currQValues.numEpisodesChosen + 1;
 			currTemp = currTemp + Constants.DELTA_TEMP;
 		}
+		long end = System.currentTimeMillis();
+		long duration = end-start;
+		System.out.println(condition+" duration "+numEpisodes+" "+myWorld.type+" "+myWorld.sessionNum+" "+duration);
+		writeToFile(Constants.duration+"_"+condition+".csv", duration+"\n");
 	}
 	
 	/**

@@ -33,6 +33,7 @@ public class MyWorld {
 	public int sessionNum; //specifies which training or testing round it is
 	public boolean perturb; //specifies if this world is for perturbation or procedural training
 	public int typeOfWorld; //specifies if this world is for training or testing
+	public String type = "";
 	
 	public MyWorld(int typeOfWorld, boolean perturb, int sessionNum, int testWind, int testDryness){
 		this.typeOfWorld = typeOfWorld;
@@ -41,7 +42,6 @@ public class MyWorld {
 		this.testWind = testWind;
 		this.testDryness = testDryness;
 		
-		String type = "";
 		if(typeOfWorld == Constants.TRAINING)
 			type = "train";
 		else if(typeOfWorld == Constants.TESTING)
