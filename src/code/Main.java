@@ -32,7 +32,7 @@ public class Main {
 	    	REWARD_LIMITED_TIME = 7; //compares AdaPT, PRQL with different priors, and Q-learning from scratch given limited simulation time
 	
 	//CHANGE WHEN RUNNING THIS PROGRAM: choose one of the above options and set it here
-	public static int INPUT = REWARD_LIMITED_TIME;
+	public static int INPUT = REWARD_OVER_ITERS;
 	
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
@@ -289,20 +289,20 @@ public class Main {
 			PRQLearner.bestPriorReward[i] = Integer.MIN_VALUE;*/
 		
 		//PERTURBATION - AdaPT
-		//TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
-		//AdaPT.executeTask();
+		TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+		AdaPT.executeTask();
 		
 		//PERTURBATION - PRQL
-		//TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
-		//PRQL.executeTask();
+		TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
+		PRQL.executeTask();
 		
 		//PERTURBATION - PRQL using RBM prior
 		TaskExecution PRQL_RBM = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL_RBM);
 		PRQL_RBM.executeTask();
 		
 		//Standard QLearning
-		//TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
-		//QLearning.executeTask();
+		TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
+		QLearning.executeTask();
 	}
 	
 	/**
