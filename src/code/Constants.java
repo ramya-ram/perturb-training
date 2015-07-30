@@ -22,12 +22,12 @@ public class Constants {
 	
 	//For PRQL-RBM
 	public static int NUM_RBM_DATA_POINTS = 5000; //number of data points that are sampled and given as input to the RBM (recording ALL might be too much data, so this can be some subset of the total number of <s,a,s'> the agent experiences)
-	public static int NUM_HIDDEN_UNITS = 1;
+	public static int NUM_HIDDEN_UNITS = 500;
 	
 	//Number of runs/episodes
 	public static final int NUM_EPISODES = 200000; //number of episodes agent simulates in the training task before working with the person (works with the person twice for each training task)
-	public static final int NUM_EPISODES_TEST = 200000; //number of episodes the agent simulates in the testing task before evaluating
-	public static final int INTERVAL = 100; //when showing reward over time (Main.INPUT == Main.REWARD_OVER_ITERS), reward is only recorded at every interval (e.g. every 100 iterations)
+	public static final int NUM_EPISODES_TEST = 2000; //number of episodes the agent simulates in the testing task before evaluating
+	public static final int INTERVAL = 2000; //when showing reward over time (Main.INPUT == Main.REWARD_OVER_ITERS), reward is only recorded at every interval (e.g. every 100 iterations)
 	public static final int NUM_STEPS_PER_EPISODE = 30; //max number of steps the agent can have in each episode (after this, the agent stops the current execution and goes to the next episode)
 	public static int NUM_AVERAGING = 50; //run simulations this many times and average to get a more robust result
 	
@@ -79,7 +79,7 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 	
 	//directories and file names where simulation results are stored
-	public static String simulationDir = "C:\\PerturbSimulationData\\FireTask_OverTime_1Hidden_Interval100\\";
+	public static String simulationDir = "C:\\PerturbSimulationData\\FireTask_LimitedTime_500Hidden\\";
 	public static String DOMAIN_NAME = "fire";
 	public static String duration = simulationDir+DOMAIN_NAME+"_duration";
 	public static String rewardOverItersData = simulationDir+DOMAIN_NAME+"_overTime";
