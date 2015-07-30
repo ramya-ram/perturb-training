@@ -156,6 +156,10 @@ public class PRQLearner extends LearningAlgorithm {
 		State state = myWorld.initialState().clone();
 		double currProbPast = probPast*100;
 		long startTime = System.currentTimeMillis();
+		
+        //Resets anything in the task before the next episode, if needed
+		myWorld.reset();
+		
 		while(!myWorld.isGoalState(state) && iterations < numSteps){
 			HumanRobotActionPair agentActions = null;
 			int randNum = Constants.rand.nextInt(100);
