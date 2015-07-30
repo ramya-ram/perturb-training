@@ -27,8 +27,8 @@ public class Constants {
 	
 	//Number of runs/episodes
 	public static final int NUM_EPISODES = 500000; //number of episodes agent simulates in the training task before working with the person (works with the person twice for each training task)
-	public static final int NUM_EPISODES_TEST = 5000; //number of episodes the agent simulates in the testing task before evaluating
-	public static final int INTERVAL = 5000; //when showing reward over time (Main.INPUT == Main.REWARD_OVER_ITERS), reward is only recorded at every interval (e.g. every 100 iterations)
+	public static final int NUM_EPISODES_TEST = 500000; //number of episodes the agent simulates in the testing task before evaluating
+	public static final int INTERVAL = 100; //when showing reward over time (Main.INPUT == Main.REWARD_OVER_ITERS), reward is only recorded at every interval (e.g. every 100 iterations)
 	public static final int NUM_STEPS_PER_EPISODE = 30; //max number of steps the agent can have in each episode (after this, the agent stops the current execution and goes to the next episode)
 	public static int NUM_AVERAGING = 50; //run simulations this many times and average to get a more robust result
 	
@@ -64,7 +64,7 @@ public class Constants {
 	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
 		
 	//directories and file names where simulation results are stored
-	public static String simulationDir = "C:\\PerturbSimulationData\\GridWorld_LimitedTime_1Hidden\\";
+	public static String simulationDir = "C:\\PerturbSimulationData\\GridWorld_OverTime_1Hidden_Interval100\\";
 	public static String DOMAIN_NAME = "gridWorld";
 	public static String goalLocs = simulationDir+"goalLocsOut.csv";
 	public static String duration = simulationDir+DOMAIN_NAME+"_duration";
