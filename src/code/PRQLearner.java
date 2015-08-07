@@ -9,7 +9,6 @@ public class PRQLearner extends LearningAlgorithm {
 	public int[] numOfEpisodesChosen; //stores for how many episodes each prior policy and the current value function has been used
 	public List<Policy> library; //stores the library of previously learned policies
 	public int previousTrainingTaskIndex = -1;
-	//public static double[] bestPriorReward;
 	
 	public PRQLearner(MyWorld myWorld, List<Policy> library, QValuesSet qValuesSet, int previousTrainingTaskIndex, ExperimentCondition condition){
 		this.myWorld = myWorld;
@@ -122,11 +121,6 @@ public class PRQLearner extends LearningAlgorithm {
 								Main.rewardLimitedTime[ExperimentCondition.values().length+previousTrainingTaskIndex][myWorld.sessionNum-1] += reward;
 							else
 								Main.rewardLimitedTime[condition.ordinal()][myWorld.sessionNum-1] += reward;
-							/*if(reward > bestPriorReward[myWorld.sessionNum-1]){
-								bestPriorReward[myWorld.sessionNum-1] = reward;
-								Main.closestTrainingTask[condition.ordinal()][myWorld.sessionNum-1] = previousTrainingTaskIndex;
-								System.out.println("task "+(myWorld.sessionNum-1)+" closerMDP "+previousTrainingTaskIndex);
-							}*/
 						}
 					}
 				}
@@ -140,7 +134,6 @@ public class PRQLearner extends LearningAlgorithm {
 		}
 		long end = System.currentTimeMillis();
 		long duration = end-start;
-		//System.out.println(condition+" duration "+numEpisodes+" "+myWorld.type+" "+myWorld.sessionNum+" "+duration);
 		writeToFile(Constants.duration+"_"+condition+".csv", duration+"\n");
 		return null;
 	}

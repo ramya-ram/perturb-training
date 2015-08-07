@@ -22,6 +22,7 @@ public class TaskExecution {
 	public List<MyWorld> testingWorlds;
 	public ExperimentCondition condition;
 	
+	//color of labels used in GUI for human subject experiments
 	public Color[] colorsTraining = {Color.BLUE, new Color(107, 142, 35), new Color(148,0,211)};
 	public Color[] colorsTesting = {new Color(178,34,34), new Color(148,0,211), Color.BLUE, new Color(148,0,211)};
 	
@@ -46,13 +47,11 @@ public class TaskExecution {
 			if(condition == ExperimentCondition.PRQL) {
 				runTestingPhase(trainedLearners, trainedPolicies, -1); //runs PRQL with an uninformative prior (starts with value function initialized with all zeros)
 				LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, ",");
-				//if(Main.SUB_EXECUTION == Main.REWARD_LIMITED_TIME){ //only run PRQL with different priors when SUB_EXECUTION == REWARD_LIMITED_TIME
-					for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
-						runTestingPhase(trainedLearners, trainedPolicies, i); //runs PRQL with a prior initialized with the value function learned from each training task
-						LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, ",");
-						LearningAlgorithm.writeToFile(Constants.rewardOverItersData+"_"+condition+""+(i)+".csv", "\n");
-					}
-				//}
+				for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++) {
+					runTestingPhase(trainedLearners, trainedPolicies, i); //runs PRQL with a prior initialized with the value function learned from each training task
+					LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, ",");
+					LearningAlgorithm.writeToFile(Constants.rewardOverItersData+"_"+condition+""+(i)+".csv", "\n");
+				}
 			} else if (condition == ExperimentCondition.PRQL_RBM) {
 			    runTestingPhase(trainedLearners, trainedPolicies, -1); //starts with value function initialized with the closest MDP/task from training (as determined using the RBM)
 				LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, ",");
@@ -312,6 +311,9 @@ public class TaskExecution {
 		}
 	}
 	
+	/**
+	 * Gets the Q-value function at the specified index from the list of all value functions
+	 */
 	public QValuesSet getQValues(List<QValuesSet> allLearners, int qValuesIndex){
 		if(qValuesIndex >= 0) //if using a previously learned value function as a prior, PRQL will begin with those values
 			return allLearners.get(qValuesIndex);

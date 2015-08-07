@@ -19,8 +19,8 @@ public class LearningAlgorithm {
 	protected MyWorld myWorld = null;
 	protected MDP mdp;
 	
-	public QValuesSet currQValues; //the current qvalues being used
-	public List<QValuesSet> qValuesList; //holds a list of qvalues, in procedural there's only one
+	public QValuesSet currQValues; //the current Q-values being used
+	public List<QValuesSet> qValuesList; //holds a list of Q-values, in procedural there's only one
 
 	protected boolean withHuman;
 	public static int currCommunicator = Constants.ROBOT;

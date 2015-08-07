@@ -45,6 +45,9 @@ public class QValuesSet {
 		return new QValuesSet(robotQValues, jointQValues);
 	}
 	
+	/**
+	 * Returns the number of non-zero values in the joint Q-value function
+	 */
 	public int numNonZeros(){
 		int numNonZeros = 0;
 		for(int i=0; i<this.jointQValues.length; i++){

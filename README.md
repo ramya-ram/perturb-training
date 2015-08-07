@@ -6,7 +6,7 @@ This README explains how to use this code to run human subject experiments and c
 
 * This repository holds the code for human-robot perturbation training.
 * It can be used to run human subject experiments with a simulated robot and with an embodied robot (the PR2).
-* It can also be used to run computational simulations without a human over many domains.
+* It can also be used to run computational simulations without a human over two domains.
 
 ### How do I get set up? ###
 
@@ -14,21 +14,20 @@ This README explains how to use this code to run human subject experiments and c
 	Make sure you download the Java code base, which should have source files as well as input files (predefined cases, offline learning values) and data (pictures used for the GUI).
 	
 	For running robot experiments, you will need an Ubuntu machine with ROS installed (I use VMWare Workstation to have an Ubuntu virtual box on my Windows machine)
+	On my virtual machine, I have the humanExperiments/ROS/local unzipped folder located at /home/local in Ubuntu
+	I have the humanExperiments/ROS/sandbox unzipped folder located at /home/fuerte_workspace/sandbox (this sandbox folder is what the ROS tutorials had me create when I went through them)
+	
 	You will also need the Arduino environment installed to control the lights using the code (represents different intensities of fires)
-	Finally, you will need Google Web Speech Recognition: go to http://www.google.com/intl/en/chrome/demos/speech.html and 
-	Download the ROS code and the Arduino hardware code from the code base.
-	To capture human speech input, download the google web speech recognition code.
+	You can connect your laptop to an Arduino using a serial cable and upload humanExperiments/Arduino/LightUpFires.ino to the Arduino so it has the code to accordingly light up the LEDs
+	
+	Finally you'll need Google Web Speech Recognition. Install Jetty. On my Windows machine, I have the humanExperiments/GoogleWebSpeech/test unzipped folder located at jetty/webapps/test/.
 
-	You will need to add to add some external jars to your project: RXTXCommJar for Arduino, all jars in jetty/lib and jetty/lib/websocket.
+	You will need to add to add some external jars to your project in Eclipse: all jars in lib/.
 	
 * How to run:
 
-	There are multiple options for running the code, all displayed at the top of Main.java:
-		-SIMULATION: Use if you want to run simulation runs on the computer (no human involved). 
-		It will give you three files for the reward, specified in Constants.java (rewardAdaPTName, rewardPRQLName, rewardQLearningName) gained from perturbation teams using AdaPT, perturbation teams using PRQL, and Q-learning from scratch respectively.
-		PRQL is run with an empty value function and then is also seeded with value functions from each of the training tasks (so we can evaluate how PRQL performs with good and bad priors).
-		We evaluate all of the algorithms given limited simulation time.
-
+	There are multiple options for running the code, all displayed at the top of Main.java. Set Main.INPUT to be one of these options.
+	
 		-SIMULATION_HUMAN_TRAIN_TEST: Use if you want to run human subject experiments in which humans work with a simulated robot/agent for BOTH the training and testing phase.
 		A GUI will pop up, and then in the console, you will be prompted for the participant's ID and then for the participant's condition (BH - perturbation AdaPT, BQ - perturbation Q-learning, PQ - procedural using Q-learning)
 		It will give you a folder with the participant's ID located in the directory indicated by participantDir, as specified in Constants.java.
@@ -60,20 +59,22 @@ This README explains how to use this code to run human subject experiments and c
 		Change ALPHA to be 1 since we are using a deterministic environment (otherwise we set it here to 0.05).
 		The resultant Q-Values after running Q-learning for NUM_EPISODES will be saved to files jointQValuesFile and robotQValuesFile, specified in Constants.java. The joint Q-values are represented by Q(s, a_h, a_r) and the robot Q-values are represented by Q(s, a_r).	
 		
-		GENERATE_RBM_DATA: Use if you want to get a sample of <state, action, state> pairs from each of the training MDPs and testing MDPs. 
-		It will give you a file for each training and testing world (e.g. trainWorld_1, trainWorld_2, testWorld_7, etc).
-		Each line specifies one sample from the MDP. It first has the ID of the state, and then the ID of the joint action, and finally the ID of the next state.
-		The number of lines are the number of samples/data points from the transition function of that MDP.	
-		You can take these tuples of data and input them to an RBM (Restricted Boltzmann Machine) to get a measure of similarity between MDPs (we use this as a comparison to our work).
-		More details about this similarity measure using an RBM is in this paper: 
-		Ammar, Haitham Bou, et al. "An automated measure of MDP similarity for transfer in reinforcement learning." AAAI Workshop. 2014.
-		
-		REWARD_OVER_ITERS: Use if you want to compare AdaPT and PRQL over time.
-		This option evaluates AdaPT and PRQL at specified intervals until some number of iterations. You can then see how quickly the two algorithms are able to adapt to a new task.
-		It will give you one file specified by numIterName in Constants.java. The first part of the file is the reward from AdaPT. After the blank line, you will see the reward from PRQL.
+		REWARD_OVER_ITERS: Use if you want to compare algorithms over time.
+		This option evaluates AdaPT, PRQL, PRQL-RBM, and Q-learning at specified intervals until some number of iterations. You can then see how quickly the algorithms are able to adapt to a new task.
+		It will give you one file specified by rewardOverIters in Constants.java. This will write, for each test case, a row of numbers that can be plotted to show reward over time. Between each condition (e.g. AdaPT, PRQL), there will be a new line.
 		Each line will have the reward at specified intervals (indicated by INTERVAL in Constants.java) until NUM_EPISODES_TEST.
 		So, if INTERVAL = 50 and NUM_EPISODES_TEST = 5000, each line in the file with have a 1000 numbers, the first the reward gained after 50 iterations, than 100 iterations, and so on until 5000.
-		The number of lines corresponds to the number of test tasks (if there are 10 test tasks, there will be 10 rows for AdaPT, a blank line, and then 10 rows for PRQL).
+		The number of lines corresponds to the number of test tasks (if there are 10 test tasks, there will be 10 rows for AdaPT, a blank line, and then 10 rows for PRQL, etc).
+		It will also give a separate file for each algorithm (specified by rewardOverItersData in Constants.java followed by the algorithm name) that records all of the simulation runs (not just the average). In these files, the rows represent the different simulation runs and there is a space in each row separating different test cases.
+		The separate files are mainly used if something happens in the middle of your program execution that could cause you to lose all your data. If the whole program finishes, you can simply use the average file, specified by rewardOverIters in Constants.java.
+		
+		-REWARD_LIMITED_TIME: Use if you want to compare algorithms given limited simulation time.
+		It will give you a file specified by rewardLimitedTime in Constants.java which gives the average reward over all simulation runs for different test cases.
+		Each algorithm will have one row. The number of columns will be the number of test cases, so the value in each column specifies the reward obtained from that test task after simulating for a limited number of iterations (specified by NUM_EPISODES_TEST in Constants.java).
+		It will also give you another file with all the data (not just the averages) specified by rewardLimitedTimeData in Constants.java.
+		This will print out a simulation run in each row. The columns have different test cases and conditions (e.g. AdaPT, PRQL) are separated by a space.
+		PRQL is run with an empty value function and then is also seeded with value functions from each of the training tasks (so we can evaluate how PRQL performs with good and bad priors).
+		We evaluate all of the algorithms given limited simulation time.
 		
 ### Who do I talk to? ###
 

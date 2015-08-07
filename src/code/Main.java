@@ -34,6 +34,7 @@ public class Main {
 	//CHANGE WHEN RUNNING THIS PROGRAM: choose one of the above options and set it here
 	public static int INPUT = REWARD_LIMITED_TIME;
 	
+	//boolean variables used in program
 	public static boolean currWithSimulatedHuman = false;
 	public static boolean saveToFile;
 	public static boolean writeRBMDataToFile = false;
@@ -56,6 +57,7 @@ public class Main {
 	public static double[][] rewardLimitedTime;
 	public static int[][] closestTrainingTask;
 	
+	//data from training and testing MDPs that is passed into the MATLAB code to get an MDP similarity measure
 	public static int[][][] RBMTrainTaskData;
 	public static int[][][] RBMTestTaskData;
 	public static int currRBMDataNum = 0;
@@ -289,20 +291,20 @@ public class Main {
 			PRQLearner.bestPriorReward[i] = Integer.MIN_VALUE;*/
 		
 		//PERTURBATION - AdaPT
-		//TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
-		//AdaPT.executeTask();
+		TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+		AdaPT.executeTask();
 		
 		//PERTURBATION - PRQL
-		//TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
-		//PRQL.executeTask();
+		TaskExecution PRQL = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL);
+		PRQL.executeTask();
 		
 		//PERTURBATION - PRQL using RBM prior
 		TaskExecution PRQL_RBM = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.PRQL_RBM);
 		PRQL_RBM.executeTask();
 		
 		//Standard QLearning
-		//TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
-		//QLearning.executeTask();
+		TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
+		QLearning.executeTask();
 	}
 	
 	/**
