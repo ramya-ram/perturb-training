@@ -43,7 +43,7 @@ This README explains how to use this code to run human subject experiments and c
 		Make sure the arduino is connected to the computer.
 		After running, a server will start, and you will have to connect the two clients (the human through Google Web Speech Recognition and the robot through ROS) before beginning.
 		To connect web speech, go to your jetty folder and run java -jar start.jar then go on Chrome to localhost:8080/test. This will connect the human client.
-		To connect ROS, first make sure all the needed ROS nodes are up and running, then run python stateMachine_lefty_ramya.py. This will connect the robot client.
+		To connect ROS, first make sure all the needed ROS nodes are up and running, then run python stateMachine_lefty_fireTask.py. This will connect the robot client.
 		Finally, in the console, you will be prompted for the participant's ID and then for the participant's condition (BH - perturbation AdaPT, BQ - perturbation Q-learning, PQ - procedural using Q-learning).
 		This condition will use the Q-values learned in training from SIMULATION_HUMAN_TRAIN so make sure your dropbox folder has the updated training Q-values.
 		The same data is given as in SIMULATION_HUMAN_TRAIN_TEST, but only for episodes that were executed (so only testing rather than training and testing).
