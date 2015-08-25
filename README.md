@@ -1,6 +1,6 @@
 # README #
 
-This README explains how to use this code to run human subject experiments and computational simulations.
+This README explains how to use this code to run computational simulations and human subject experiments.
 
 ### What is this repository for? ###
 
