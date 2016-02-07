@@ -6,11 +6,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.Timer;
 
-import matlabcontrol.MatlabInvocationException;
+//import matlabcontrol.MatlabInvocationException;
 
 /**
  * Parent class for QLearner and PolicyReuseLearner
@@ -160,24 +162,30 @@ public class LearningAlgorithm {
 	public HumanRobotActionPair getAgentActionsSimulation(State state){
 		HumanRobotActionPair proposedJointAction = null;
 		if(Constants.rand.nextDouble() < Constants.EPSILON){
-			Action[] possibleRobotActions = mdp.robotAgent.actions(state);
-			Action[] possibleHumanActions = mdp.humanAgent.actions(state); //from robot state because that's what robot sees
-	        Action robotAction = possibleRobotActions[Constants.rand.nextInt(possibleRobotActions.length)];
-	        Action humanAction = possibleHumanActions[Constants.rand.nextInt(possibleHumanActions.length)];
-	        proposedJointAction = new HumanRobotActionPair(humanAction, robotAction);
+	        proposedJointAction = getRandomJointAction(state);
 		} else { // otherwise, choose the best action/the one with the highest q value
-			Pair<HumanRobotActionPair, Double> proposed = getGreedyJointAction(state);
-			proposedJointAction = proposed.getFirst();
+			proposedJointAction = getSimulatedCommJointAction(state);
+			//Pair<HumanRobotActionPair, Double> proposed = getSimulatedCommJointAction(state);
+			//proposedJointAction = proposed.getFirst();
 		}
 		return proposedJointAction;
+	}
+	
+	public HumanRobotActionPair getRandomJointAction(State state){
+		Action[] possibleRobotActions = mdp.robotAgent.actions(state);
+		Action[] possibleHumanActions = mdp.humanAgent.actions(state); //from robot state because that's what robot sees
+        Action robotAction = possibleRobotActions[Constants.rand.nextInt(possibleRobotActions.length)];
+        Action humanAction = possibleHumanActions[Constants.rand.nextInt(possibleHumanActions.length)];
+        return new HumanRobotActionPair(humanAction, robotAction);
 	}
 	
 	/**
 	 * Gets the best greedy joint action (no probability of random actions)
 	 */
 	public HumanRobotActionPair getAgentActionsFullyGreedySimulation(State state){
-		Pair<HumanRobotActionPair, Double> proposed = getGreedyJointAction(state);
-		return proposed.getFirst();
+		//Pair<HumanRobotActionPair, Double> proposed = getSimulatedCommJointAction(state);
+		//return proposed.getFirst();
+		return getSimulatedCommJointAction(state);
 	}
 	
 	/**
@@ -539,7 +547,7 @@ public class LearningAlgorithm {
 	 */
 	public Action getGreedyRobotAction(State state, Action humanAction) {
 		double maxValue = Integer.MIN_VALUE;
-		List<Action> possibleRobotActions = new ArrayList<Action>();
+		List<Action> possibleActions = new ArrayList<Action>();
 		for(Action robotAction : mdp.robotAgent.actions(state)){
 			double value = Integer.MIN_VALUE;
 			//if no human action if given, we use the robot value function Q(s,a_r) and find the robot action with maximum value regardless of what human does
@@ -549,13 +557,13 @@ public class LearningAlgorithm {
 				value = getJointQValue(state, new HumanRobotActionPair(humanAction, robotAction));
 			if(value > maxValue){
 				maxValue = value;
-				possibleRobotActions.clear();
+				possibleActions.clear();
 			}
 			if(Math.abs(value - maxValue) < 0.001){
-            	possibleRobotActions.add(robotAction); //basically equal
+				possibleActions.add(robotAction); //basically equal
             }
 		}
-		return possibleRobotActions.get(Constants.rand.nextInt(possibleRobotActions.size()));
+		return possibleActions.get(Constants.rand.nextInt(possibleActions.size()));
 	}
 	
 	/**
@@ -578,6 +586,174 @@ public class LearningAlgorithm {
 			}
 		}
 		return new Pair<HumanRobotActionPair, Double>(possibleActions.get(Constants.rand.nextInt(possibleActions.size())), maxValue);
+	}
+	
+	/**
+	 * Computes the best joint action (the one with the highest Q-value for this particular state)
+	 */
+	public HumanRobotActionPair getSimulatedCommJointAction(State state) {	
+		if(currCommunicator == Constants.ROBOT){
+			currCommunicator = Constants.HUMAN; //the human and robot alternate in initiating communication
+			Action[] humanActions = mdp.humanAgent.actions(state); //all possible human actions for this state
+			double cumulativeValue = 0;
+		
+			//calculate the best joint action
+			Pair<HumanRobotActionPair, Double> pair = getGreedyJointAction(state);
+			HumanRobotActionPair bestJointAction = pair.getFirst();
+			double maxJointValue = pair.getSecond();
+			
+			//calculate the best robot action without knowing the human's action
+			Action bestRobotActionUpdate = getGreedyRobotAction(state, null);
+			for(Action humanAction : humanActions){
+				double value = getJointQValue(state, new HumanRobotActionPair(humanAction, bestRobotActionUpdate));
+				cumulativeValue += value;
+			}
+			//calculate the average value of the robot taking the optimal action and the human taking any possible action	
+			double averageValue = cumulativeValue/humanActions.length;
+			
+			//if the value of the best joint action is much better (determined by THRESHOLD_SUGG) than the average over all human actions where robot acts optimally, robot makes a suggestion
+			if((maxJointValue - averageValue) > Constants.THRESHOLD_SUGG){
+				return bestJointAction; //assume human accepts suggestion
+			} else {
+				Action humanAction = getHumanAction(state, Constants.PERCENT_RATIONAL_HUMAN, bestRobotActionUpdate);
+				return new HumanRobotActionPair(humanAction, bestRobotActionUpdate);
+			}
+		}
+		else if(currCommunicator == Constants.HUMAN){
+			currCommunicator = Constants.ROBOT; //the human and robot alternate in initiating communication
+			double num = Constants.rand.nextDouble();
+			if(num < 0.725){ //human suggests
+				HumanRobotActionPair humanSuggestion = getJointAction(state, Constants.PERCENT_RATIONAL_HUMAN);
+				//calculate the value of the human's suggested joint action
+				double humanSuggestedQValue = getJointQValue(state, humanSuggestion);
+				//calculate the value if the robot rejects the human's suggestion and chooses the optimal action (human still takes the same action)
+				Action optimalRobotAction = getGreedyRobotAction(state, humanSuggestion.getHumanAction());
+				double robotSuggestedQValue = getJointQValue(state, new HumanRobotActionPair(humanSuggestion.getHumanAction(), optimalRobotAction));
+				
+				//if the robot gains a lot from rejecting the human's suggestion and choosing the optimal action (determined by THRESHOLD_REJECT), then the robot rejects
+				if((robotSuggestedQValue - humanSuggestedQValue) > Constants.THRESHOLD_ACCEPT){
+					return new HumanRobotActionPair(humanSuggestion.getHumanAction(), optimalRobotAction);
+				} else { //robot accepts
+					return humanSuggestion;
+				}
+			} else { //human provides update
+				Action humanAction = getHumanAction(state, Constants.PERCENT_RATIONAL_HUMAN, null);
+				//calculate the best robot action knowing the human's action
+				Action robotAction = getGreedyRobotAction(state, humanAction);
+				return new HumanRobotActionPair(humanAction, robotAction);
+			}
+		}
+		return null;
+		
+//		Pair<HumanRobotActionPair, Double> bestJointAction = getGreedyJointAction(state);
+//		if(bestJointAction.getSecond() < Constants.THRESHOLD_SUGG) {
+//			return bestJointAction.getFirst(); //robot suggests and assume human accepts
+//		}
+//		else {
+//			Action robotAction = getGreedyRobotAction(state, null);
+//			Action humanAction = ExperimentData.getHumanAction(mdp, state);
+//			return new HumanRobotActionPair(humanAction, robotAction);
+//		}
+	}
+	
+	public Action getHumanAction(State state, int percentRational, Action robotAction){
+		if(percentRational == 100){
+			if(robotAction == null)
+				return getGreedyJointAction(state).getFirst().getHumanAction();
+			else
+				return getGreedyHumanAction(state, robotAction);
+		} else if(percentRational == 0){
+			return getRandomJointAction(state).getHumanAction();
+		} else if(percentRational == 50){
+			if(robotAction == null)
+				return getSemiRationalJointAction(state, 3).getHumanAction();
+			else {
+				return getSemiRationalHumanAction(state, robotAction, 3);
+			}
+		}
+		return null;
+	}
+	
+	public HumanRobotActionPair getJointAction(State state, int percentRational){
+		if(percentRational == 100){
+			return getGreedyJointAction(state).getFirst();
+		} else if(percentRational == 0){
+			return getRandomJointAction(state);
+		} else if(percentRational == 50){
+			return getSemiRationalJointAction(state, 3);
+		}
+		return null;
+	}
+	
+	public HumanRobotActionPair getSemiRationalJointAction(State state, int numTopActions){
+		Pair<HumanRobotActionPair, Double>[] allActions = getAllJointActions(state);
+		Arrays.sort(allActions, new Comparator<Pair<HumanRobotActionPair, Double>>() {
+		    @Override
+		    public int compare(Pair<HumanRobotActionPair, Double> o1, Pair<HumanRobotActionPair, Double> o2) {
+		        return Double.compare(o2.getSecond(), o1.getSecond());
+		    }
+		});
+		int randNum = Constants.rand.nextInt(Math.min(numTopActions, allActions.length));
+		return allActions[randNum].getFirst();
+	}
+	
+	public Pair<HumanRobotActionPair, Double>[] getAllJointActions(State state){
+		Action[] humanActions = mdp.humanAgent.actions(state);
+		Action[] robotActions = mdp.robotAgent.actions(state);
+		@SuppressWarnings("unchecked")
+		Pair<HumanRobotActionPair, Double>[] allActions = (Pair<HumanRobotActionPair,Double>[]) new Pair[humanActions.length*robotActions.length]; 
+		int count = 0;
+		for(Action humanAction : humanActions){
+			for(Action robotAction : robotActions){
+				HumanRobotActionPair actionPair = new HumanRobotActionPair(humanAction, robotAction);
+				double value = getJointQValue(state, actionPair);
+				allActions[count] = new Pair<HumanRobotActionPair, Double>(actionPair, value);
+				count++;
+			}
+		}
+		return allActions;
+	}
+	
+	public Action getSemiRationalHumanAction(State state, Action robotAction, int numTopActions){
+		Pair<Action, Double>[] allActions = getAllHumanActions(state, robotAction);
+		Arrays.sort(allActions, new Comparator<Pair<Action, Double>>() {
+		    @Override
+		    public int compare(Pair<Action, Double> o1, Pair<Action, Double> o2) {
+		        return Double.compare(o2.getSecond(), o1.getSecond());
+		    }
+		});
+		int randNum = Constants.rand.nextInt(Math.min(numTopActions, allActions.length));
+		return allActions[randNum].getFirst();
+	}
+	
+	public Pair<Action, Double>[] getAllHumanActions(State state, Action robotAction){
+		Action[] humanActions = mdp.humanAgent.actions(state);
+		@SuppressWarnings("unchecked")
+		Pair<Action, Double>[] allActions = (Pair<Action,Double>[]) new Pair[humanActions.length]; 
+		int count = 0;
+		for(Action humanAction : humanActions){
+			HumanRobotActionPair actionPair = new HumanRobotActionPair(humanAction, robotAction);
+			double value = getJointQValue(state, actionPair);
+			allActions[count] = new Pair<Action, Double>(humanAction, value);
+			count++;
+		}
+		return allActions;
+	}
+	
+	public Action getGreedyHumanAction(State state, Action robotAction) {
+		double maxValue = Integer.MIN_VALUE;
+		List<Action> possibleActions = new ArrayList<Action>();
+		for(Action humanAction : mdp.humanAgent.actions(state)){
+			double value = getJointQValue(state, new HumanRobotActionPair(humanAction, robotAction));
+			if(value > maxValue){
+				maxValue = value;
+				possibleActions.clear();
+			}
+			if(Math.abs(value - maxValue) < 0.001){
+				possibleActions.add(humanAction); //basically equal
+            }
+		}
+		return possibleActions.get(Constants.rand.nextInt(possibleActions.size()));
 	}
 
 	/**
@@ -720,15 +896,15 @@ public class LearningAlgorithm {
 				}
 			}
 			else if(withHuman && Main.saveToFile){
-				BufferedWriter episodeWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"episode.txt"), true));
-				episodeWriter.write(state.toString()+", "+humanAction+", "+robotAction+", "
-						+nextState.toString()+", "+reward+"\n");
-				episodeWriter.close();
+//				BufferedWriter episodeWriter = new BufferedWriter(new FileWriter(new File(Constants.participantDir+"episode.txt"), true));
+//				episodeWriter.write(state.toString()+", "+humanAction+", "+robotAction+", "
+//						+nextState.toString()+", "+reward+"\n");
+//				episodeWriter.close();
 	        }
-		} catch(MatlabInvocationException e){
+		} /*catch(MatlabInvocationException e){
 			Main.initMatlabProxy();
 			saveEpisodeToFile(state, humanAction, robotAction, nextState, reward, episodeNum, trainedLearners);
-		} catch(Exception e){
+		}*/ catch(Exception e){
 			e.printStackTrace();
 		}
 	}

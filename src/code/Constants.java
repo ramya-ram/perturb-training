@@ -22,7 +22,7 @@ public class Constants {
 	
 	//For PRQL-RBM
 	public static int NUM_RBM_DATA_POINTS = 5000; //number of data points that are sampled and given as input to the RBM (recording ALL might be too much data, so this can be some subset of the total number of <s,a,s'> the agent experiences)
-	public static int NUM_HIDDEN_UNITS = 500;
+	public static int NUM_HIDDEN_UNITS = 1;
 	
 	//Number of runs/episodes
 	public static final int NUM_EPISODES = 200000; //number of episodes agent simulates in the training task before working with the person (works with the person twice for each training task)
@@ -35,6 +35,7 @@ public class Constants {
 	public static int MAX_TIME = 15; //the number of seconds participants get to make a decision in human subject experiments
 	public static double THRESHOLD_SUGG = 0; //threshold for robot to determine whether to suggest or update
 	public static double THRESHOLD_ACCEPT = 2; //threshold for robot to determine whether to accept or reject
+	public static int PERCENT_RATIONAL_HUMAN = 50;
 	
 	//Domain independent variables
 	public static final Random rand = new Random();
@@ -66,21 +67,25 @@ public class Constants {
 	public static int[] testDryness_training_simulation = {0, 0, 5};
 	public static int[] testWind_testing_simulation =    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 	public static int[] testDryness_testing_simulation = {0, 9, 8, 7, 6, 5, 4, 3, 2, 1};	
+	
+	//Set of communication threshold values to test
+	public static int[] sugg_threshold_values = {0,2,5,10};
+	public static int[] acc_threshold_values = {0,2,5,10};
 
-	//directories and file names where input files are stored
-	public static String dataDir = "inputFiles\\";
+	//Directories and file names where input files are stored
+	public static String dataDir = "inputFiles/";
 	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2.csv";
 	public static String predefinedPerturb1FileName = dataDir+"predefinedPerturb1.csv";
 	public static String predefinedProceFileName = dataDir+"predefinedProce.csv";
 	public static String jointQValuesFile = dataDir+"jointQValuesOffline.csv";
 	public static String robotQValuesFile = dataDir+"robotQValuesOffline.csv";
 	
-	//directory where participant data is stored
-	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
+	//Directory where participant data is stored
+	public static String participantDir = "Extra/";
 	
-	//directories and file names where simulation results are stored
-	public static String simulationDir = "C:\\PerturbSimulationData\\FireTask_LimitedTime_500Hidden\\";
+	//Directories and file names where simulation results are stored
 	public static String DOMAIN_NAME = "fire";
+	public static String simulationDir = DOMAIN_NAME+"_Rational"+PERCENT_RATIONAL_HUMAN+"/";
 	public static String duration = simulationDir+DOMAIN_NAME+"_duration";
 	public static String rewardOverItersData = simulationDir+DOMAIN_NAME+"_overTime";
 	public static String rewardLimitedTimeData = simulationDir+DOMAIN_NAME+"_limitedTimeAllData.csv";
@@ -88,6 +93,6 @@ public class Constants {
 	public static String rewardOverIters = simulationDir+DOMAIN_NAME+"_overTime.csv";
 	public static String closestTrainingTask = simulationDir+DOMAIN_NAME+"_closestTrainingTask.csv";
 	
-	//directory where Q-values from a participant's training is stored to be used in the participant's testing phase
-	public static String trainedQValuesDir = "trainingQValues\\";
+	//Directory where Q-values from a participant's training is stored to be used in the participant's testing phase
+	public static String trainedQValuesDir = "trainingQValues/";
 }

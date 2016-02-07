@@ -20,9 +20,16 @@ public class State {
 	 * Assigns this state to a unique ID so that the value function can refer to states using their unique numbers
 	 */
 	public int getId(){
+//		int id = 0;
+//		for(int i=0; i<stateOfFires.length; i++)
+//			id += Math.pow(Constants.STATES_PER_FIRE, i)*stateOfFires[i];
+//		return id;
+		
 		int id = 0;
-		for(int i=0; i<stateOfFires.length; i++)
-			id += Math.pow(Constants.STATES_PER_FIRE, i)*stateOfFires[i];
+		for(int i=0; i<stateOfFires.length; i++){
+			int power = stateOfFires.length-1 - i;
+			id += Math.pow(Constants.STATES_PER_FIRE, power)*stateOfFires[i];
+		}
 		return id;
 	}
 	

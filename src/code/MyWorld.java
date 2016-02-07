@@ -96,9 +96,10 @@ public class MyWorld {
 					for(int l=0; l<statesPerFire; l++){
 						for(int m=0; m<statesPerFire; m++){
 							//for all possible values for each fire, create a new state and add it to the list of states
-							int[] statesOfFire = {i,j,k,l,m};
+							int[] statesOfFire = {i,j,k,l,m}; //{m,l,k,j,i};
 							State state = new State(statesOfFire);
 							states.add(state);
+							//System.out.println(state+" "+state.getId());							
 						}
 					}
 				}
@@ -709,5 +710,14 @@ public class MyWorld {
 			} 
 		}
 		return null;
+	}
+	
+	public static int getStateId(String stateStr){
+		//System.out.println(stateStr);
+		int[] statesOfFire = new int[Constants.NUM_FIRES];
+		for(int i=0; i<stateStr.length(); i++){
+			statesOfFire[i] = Integer.parseInt(stateStr.substring(i, i+1));
+		}
+		return new State(statesOfFire).getId();
 	}
 }

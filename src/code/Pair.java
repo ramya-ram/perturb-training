@@ -28,4 +28,8 @@ public class Pair<First, Second> {
 	public void setSecond(Second second) {
 		this.second = second;
 	}
+	
+	public String toString(){
+		return first+" "+second;
+	}
 }

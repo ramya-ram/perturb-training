@@ -82,7 +82,8 @@ public class Main {
 		
 		System.out.println(""+Constants.simulationDir);
 		File simulationDir = new File(Constants.simulationDir);
-		simulationDir.mkdirs();
+		if (!simulationDir.exists())
+			simulationDir.mkdirs();
 		
 		//initializes practice, training, and testing worlds (domain-specific so they are initialized in DomainCode.java)
 		List<List<MyWorld>> allWorlds = DomainCode.initializeWorlds();
@@ -90,6 +91,27 @@ public class Main {
 		List<MyWorld> trainingWorldsProce = allWorlds.get(1);
 		List<MyWorld> trainingWorldsPerturb = allWorlds.get(2);
 		List<MyWorld> testingWorlds = allWorlds.get(3);
+		
+		//for(State state : MyWorld.states)
+			//System.out.println(state.getId()+": "+state);
+		
+		//read in data from human experiments (to sample actions for simulated human)
+		File directory = new File("/Users/ramyaram/Dropbox (MIT)/Research/Papers/Draft_JAIR_2015/ExperimentData_Dec2014"); 
+		ExperimentData.getExperimentData(directory);
+		
+//		int[][] actionCounts = new int[Action.values().length][Action.values().length];
+//		for(int i=0; i<100; i++){
+//			HumanRobotActionPair actions = ExperimentData.getJointAction(MyWorld.mdp, new State(new int[]{2,3,3,1,2}));
+//			actionCounts[actions.getHumanAction().ordinal()][actions.getRobotAction().ordinal()]++;
+//		}
+//		for(int i=0; i<actionCounts.length; i++){
+//			for(int j=0; j<actionCounts[i].length; j++){
+//				System.out.print(actionCounts[i][j]+" ");
+//			}
+//			System.out.println();
+//		}
+//				
+//		System.exit(0);
 		
 		int numFeatures = 2*(new State().toArrayRBM().length) + 2;
 		RBMTrainTaskData = new int[Constants.NUM_TRAINING_SESSIONS][Constants.NUM_RBM_DATA_POINTS][numFeatures];
@@ -126,7 +148,7 @@ public class Main {
 			
 			if(CURRENT_EXECUTION == SIMULATION){ //if running anything in simulation (multiple options are part of this)
 				
-				initMatlabProxy();
+//				initMatlabProxy();
 				
 				if(SUB_EXECUTION == REWARD_OVER_ITERS){ //compares algorithms on how quickly they learn (can be used to plot a learning curve showing how the agent learns the task over time)
 					BufferedWriter closestTrainingTaskWriter = new BufferedWriter(new FileWriter(new File(Constants.closestTrainingTask)));
@@ -174,53 +196,60 @@ public class Main {
 					}
 					rewardWriter.close();
 				} else if(SUB_EXECUTION == REWARD_LIMITED_TIME){ //compares the algorithms after simulating for a limited number of iterations
-					BufferedWriter dataWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardLimitedTimeData)));
-					for(int num=0; num<ExperimentCondition.values().length; num++){
-						dataWriter.write(""+ExperimentCondition.values()[num]+",");
-						for(int j=0; j<Constants.NUM_TESTING_SESSIONS; j++)
-							dataWriter.write(",");
-						if(ExperimentCondition.values()[num] == ExperimentCondition.PRQL){
-							for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++){
-								dataWriter.write("PRQL"+(i)+",");
-								for(int j=0; j<Constants.NUM_TESTING_SESSIONS; j++)
-									dataWriter.write(",");
+//					BufferedWriter dataWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardLimitedTimeData)));
+//					for(int num=0; num<ExperimentCondition.values().length; num++){
+//						dataWriter.write(""+ExperimentCondition.values()[num]+",");
+//						for(int j=0; j<Constants.NUM_TESTING_SESSIONS; j++)
+//							dataWriter.write(",");
+//						if(ExperimentCondition.values()[num] == ExperimentCondition.PRQL){
+//							for(int i=0; i<Constants.NUM_TRAINING_SESSIONS; i++){
+//								dataWriter.write("PRQL"+(i)+",");
+//								for(int j=0; j<Constants.NUM_TESTING_SESSIONS; j++)
+//									dataWriter.write(",");
+//							}
+//						}
+//					}
+//					dataWriter.write("\n");
+//					dataWriter.close();
+					
+					for(int sugg : Constants.sugg_threshold_values){
+						for(int acc : Constants.acc_threshold_values){
+							Constants.THRESHOLD_SUGG = sugg;
+							Constants.THRESHOLD_ACCEPT = acc;
+							LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, "SUGG: "+Constants.THRESHOLD_SUGG+" ACC: "+Constants.THRESHOLD_ACCEPT+"\n\n");
+							for(int i=0; i<Constants.NUM_AVERAGING; i++){
+								System.out.println("*** "+i+" *** SUGG: "+Constants.THRESHOLD_SUGG+" ACC: "+Constants.THRESHOLD_ACCEPT);
+								runAdaPT(i, practiceWorlds, trainingWorldsPerturb, testingWorlds);
+								LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, "\n");
 							}
 						}
 					}
-					dataWriter.write("\n");
-					dataWriter.close();
-					
-					for(int i=0; i<Constants.NUM_AVERAGING; i++){
-						System.out.println("*** "+i+" ***");
-						runAllConditions(i, practiceWorlds, trainingWorldsPerturb, testingWorlds);
-						LearningAlgorithm.writeToFile(Constants.rewardLimitedTimeData, "\n");
-					}
-					
-					BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardLimitedTime)));
+							
+					//BufferedWriter rewardWriter = new BufferedWriter(new FileWriter(new File(Constants.rewardLimitedTime)));
 					//the first dimension of rewardOverTime is the condition (e.g. AdaPT, PRQL)
 					//within the condition is a 2D array, the columns represent reward over time, rows represent different test tasks
 					//when running multiple simulation runs in one test case/row, the reward over time is added up for that row so that when averaged, 
 					//that row represents a robust learning over time curve for that test case
 					
-					for(int num=0; num<rewardLimitedTime.length; num++){
-						if(num < ExperimentCondition.values().length)
-							rewardWriter.write(""+ExperimentCondition.values()[num]+"\n");
-						else
-							rewardWriter.write("PRQL"+(num-ExperimentCondition.values().length)+"\n");
-						for(int i=0; i<rewardLimitedTime[num].length; i++){
-							rewardWriter.write((rewardLimitedTime[num][i]/Constants.NUM_AVERAGING)+", ");
-						}
-						rewardWriter.write("\n\n");
-					}
-					rewardWriter.close();		
+//					for(int num=0; num<rewardLimitedTime.length; num++){
+//						if(num < ExperimentCondition.values().length)
+//							rewardWriter.write(""+ExperimentCondition.values()[num]+"\n");
+//						else
+//							rewardWriter.write("PRQL"+(num-ExperimentCondition.values().length)+"\n");
+//						for(int i=0; i<rewardLimitedTime[num].length; i++){
+//							rewardWriter.write((rewardLimitedTime[num][i]/Constants.NUM_AVERAGING)+", ");
+//						}
+//						rewardWriter.write("\n\n");
+//					}
+//					rewardWriter.close();		
 				}
 				
 				//remove matlab code path
-				String removePath = "rmpath('"+Paths.get("").toAbsolutePath().toString()+"\\RBM_MatlabCode')";
-			  	proxy.eval(removePath);
+//				String removePath = "rmpath('"+Paths.get("").toAbsolutePath().toString()+"/RBM_MatlabCode')";
+//			  	proxy.eval(removePath);
 			  	
 			    //disconnect the proxy from MATLAB
-			    proxy.disconnect();
+//			    proxy.disconnect();
 	    
 			} else { //for human subject experiments
 				//initialize any domain-specific variables for experiments, if needed
@@ -274,7 +303,7 @@ public class Main {
 		    proxy = factory.getProxy();
 		    
 		    //add matlab code path
-		  	String addPath = "addpath('"+Paths.get("").toAbsolutePath().toString()+"\\RBM_MatlabCode')";
+		  	String addPath = "addpath('"+Paths.get("").toAbsolutePath().toString()+"/RBM_MatlabCode')";
 		  	Main.proxy.eval(addPath);
 		} catch(Exception e){
 			e.printStackTrace();
@@ -305,6 +334,14 @@ public class Main {
 		//Standard QLearning
 		TaskExecution QLearning = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.Q_LEARNING);
 		QLearning.executeTask();
+	}
+	
+	public static void runAdaPT(int runNum, List<MyWorld> practiceWorlds, List<MyWorld> trainingWorldsPerturb, List<MyWorld> testingWorlds){
+		DomainCode.changeTestWorlds(runNum, testingWorlds);
+
+		//PERTURBATION - AdaPT
+		TaskExecution AdaPT = new TaskExecution(null, practiceWorlds, trainingWorldsPerturb, testingWorlds, ExperimentCondition.ADAPT);
+		AdaPT.executeTask();
 	}
 	
 	/**
