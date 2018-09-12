@@ -52,7 +52,7 @@ public class DomainCode {
 		
 		try {
 			testingGoalLocs = new Location[Constants.NUM_AVERAGING];
-			BufferedReader reader = new BufferedReader(new FileReader(new File("inputFiles\\goalLocs.csv")));
+			BufferedReader reader = new BufferedReader(new FileReader(new File("inputFiles/goalLocs.csv")));
 			String line;
 			int count = 0;
 		    while ((line = reader.readLine()) != null) {

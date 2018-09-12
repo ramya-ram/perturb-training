@@ -37,7 +37,7 @@ public class GameView extends JFrame {
 	private JTextPane announcements;
 	private JTextField textField;
 	private static final int NUM_FIRES = 5;
-	private String fileBase = "data\\";
+	private String fileBase = "data/";
 	private String fireIntensityFile = fileBase+"fireIntensity";
 	private String fireNameFile = fileBase+"fireName";
 	public ImageIcon[] intensityImages;

@@ -216,7 +216,7 @@ public class Main {
 				}
 				
 				//remove matlab code path
-				String removePath = "rmpath('"+Paths.get("").toAbsolutePath().toString()+"\\RBM_MatlabCode')";
+				String removePath = "rmpath('"+Paths.get("").toAbsolutePath().toString()+"/RBM_MatlabCode')";
 			  	proxy.eval(removePath);
 			  	
 			    //disconnect the proxy from MATLAB
@@ -239,7 +239,7 @@ public class Main {
 				String nameParticipant = Constants.scan.next();
 				File dir = new File(Constants.participantDir+nameParticipant);
 				dir.mkdir();
-				Constants.participantDir = Constants.participantDir+nameParticipant+"\\";
+				Constants.participantDir = Constants.participantDir+nameParticipant+"/";
 				//participant either assigned to procedural Q-learning (PQ), perturbation Q-learning (BQ), perturbation AdaPT(BH)
 				System.out.print("TrainingType (PQ or BQ or BH): "); 
 				String trainingType = Constants.scan.next();
@@ -274,7 +274,7 @@ public class Main {
 		    proxy = factory.getProxy();
 		    
 		    //add matlab code path
-		  	String addPath = "addpath('"+Paths.get("").toAbsolutePath().toString()+"\\RBM_MatlabCode')";
+		  	String addPath = "addpath('"+Paths.get("").toAbsolutePath().toString()+"/RBM_MatlabCode')";
 		  	Main.proxy.eval(addPath);
 		} catch(Exception e){
 			e.printStackTrace();

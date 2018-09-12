@@ -53,7 +53,7 @@ public class Constants {
 	public static final int NUM_TESTING_SESSIONS = 1;
 
 	//directories and file names where input files are stored
-	public static String dataDir = "inputFiles\\";
+	public static String dataDir = "inputFiles/";
 	public static String predefinedPerturb2FileName = dataDir+"predefinedPerturb2.csv";
 	public static String predefinedPerturb1FileName = dataDir+"predefinedPerturb1.csv";
 	public static String predefinedProceFileName = dataDir+"predefinedProce.csv";
@@ -61,10 +61,10 @@ public class Constants {
 	public static String robotQValuesFile = dataDir+"robotQValuesOffline.csv";
 	
 	//directory where participant data is stored
-	public static String participantDir = "C:\\ExperimentData_Dec2014\\";
+	public static String participantDir = ""; //Not Used
 		
 	//directories and file names where simulation results are stored
-	public static String simulationDir = "C:\\PerturbSimulationData\\GridWorld_OverTime_1Hidden_Interval100\\";
+	public static String simulationDir = "results/";
 	public static String DOMAIN_NAME = "gridWorld";
 	public static String goalLocs = simulationDir+"goalLocsOut.csv";
 	public static String duration = simulationDir+DOMAIN_NAME+"_duration";
@@ -75,5 +75,5 @@ public class Constants {
 	public static String closestTrainingTask = simulationDir+DOMAIN_NAME+"_closestTrainingTask.csv";
 
 	//directory where Q-values from a participant's training is stored to be used in the participant's testing phase
-	public static String trainedQValuesDir = "trainingQValues\\";
+	public static String trainedQValuesDir = "trainingQValues/";
 }
