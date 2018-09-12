@@ -22,7 +22,7 @@ public class Constants {
 	
 	//For PRQL-RBM
 	public static int NUM_RBM_DATA_POINTS = 5000; //number of data points that are sampled and given as input to the RBM (recording ALL might be too much data, so this can be some subset of the total number of <s,a,s'> the agent experiences)
-	public static int NUM_HIDDEN_UNITS = 500;
+	public static int NUM_HIDDEN_UNITS = 1;
 	
 	//Number of runs/episodes
 	public static final int NUM_EPISODES = 200000; //number of episodes agent simulates in the training task before working with the person (works with the person twice for each training task)
@@ -76,10 +76,10 @@ public class Constants {
 	public static String robotQValuesFile = dataDir+"robotQValuesOffline.csv";
 	
 	//directory where participant data is stored
-	public static String participantDir = ""; //Not used
+	public static String participantDir = ""; //Not Used
 	
 	//directories and file names where simulation results are stored
-	public static String simulationDir = "results/";
+	public static String simulationDir = "results_fire/";
 	public static String DOMAIN_NAME = "fire";
 	public static String duration = simulationDir+DOMAIN_NAME+"_duration";
 	public static String rewardOverItersData = simulationDir+DOMAIN_NAME+"_overTime";

@@ -79,7 +79,7 @@ public class Constants {
 	public static String participantDir = ""; //Not Used
 	
 	//directories and file names where simulation results are stored
-	public static String simulationDir = "results/";
+	public static String simulationDir = "results_fire/";
 	public static String DOMAIN_NAME = "fire";
 	public static String duration = simulationDir+DOMAIN_NAME+"_duration";
 	public static String rewardOverItersData = simulationDir+DOMAIN_NAME+"_overTime";

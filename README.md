@@ -11,7 +11,12 @@ This README explains how to use this code to run computational simulations and h
 ### How do I get set up? ###
 
 * Summary of set up:
-	Make sure you download the Java code base, which should have source files as well as input files (predefined cases, offline learning values) and data (pictures used for the GUI).
+	Make sure you clone the Java code base, which should have source files as well as input files (predefined cases, offline learning values) and data (pictures used for the GUI).
+
+	```
+	git clone https://github.com/ramya-ram/perturb-training.git
+	cd perturb-training
+	```
 	
 	For running robot experiments, you will need an Ubuntu machine with ROS installed (I use VMWare Workstation to have an Ubuntu virtual box on my Windows machine)
 	On my virtual machine, I have the humanExperiments/ROS/local unzipped folder located at /home/local in Ubuntu
