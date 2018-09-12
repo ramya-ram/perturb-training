@@ -61,7 +61,7 @@ public class Constants {
 	public static String robotQValuesFile = dataDir+"robotQValuesOffline.csv";
 	
 	//directory where participant data is stored
-	public static String participantDir = ""; //Not Used
+	public static String participantDir = "results_gridworld/";
 		
 	//directories and file names where simulation results are stored
 	public static String simulationDir = "results_gridworld/";
